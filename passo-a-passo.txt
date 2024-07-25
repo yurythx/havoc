@@ -72,7 +72,7 @@ Django
 
     Criando o projeto com Django
 
-        -- django-admin startproject blog_base .
+        -- django-admin startproject core .
 
     Rodando o servidor
 
