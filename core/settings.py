@@ -49,14 +49,14 @@ INSTALLED_APPS = [
     
     'apps.config',
     'apps.base',
-    #'apps.perfil', 
+    'apps.perfil', 
     'apps.pages', 
     
     
     
 ]
 
-#AUTH_USER_MODEL = "contas.MyUser"
+AUTH_USER_MODEL = "contas.MyUser"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
