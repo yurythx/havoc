@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     "corsheaders",
+    "crispy_forms",
     
     'apps.config',
     'apps.base',
@@ -54,9 +55,10 @@ INSTALLED_APPS = [
     
     
     
+    
 ]
 
-AUTH_USER_MODEL = "contas.MyUser"
+#AUTH_USER_MODEL = "users.User"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -146,11 +148,13 @@ SESSION_TIMEOUT_REDIRECT = 'http://localhost:8000/'
 
 SESSION_TIMEOUT_REDIRECT = 'http://localhost:8000/contas/desconectado-inatividade/'
 
+CRISPY_TEMPLATE_PACK = "bootstrap4"
+
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-#AUTH_USER_MODEL = "contas.MyUser"
+AUTH_USER_MODEL = "contas.MyUser"
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
