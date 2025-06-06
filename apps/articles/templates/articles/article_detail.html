@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ article.seo_title|default:article.title }} - {{ block.super }}{% endblock %}
+
+{% block meta_description %}{{ article.seo_description|default:article.excerpt|default:"" }}{% endblock %}
+{% block meta_keywords %}{{ article.meta_keywords|default:"" }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Article Header -->
+            <article class="mb-5">
+                <header class="mb-4">
+                    <!-- Category -->
+                    {% if article.category %}
+                        <div class="mb-3">
+                            <a href="{% url 'articles:category' article.category.slug %}" 
+                               class="badge bg-primary text-decoration-none">
+                                {{ article.category.name }}
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    <h1 class="display-5 fw-bold">{{ article.title }}</h1>
+                    
+                    {% if article.excerpt %}
+                        <p class="lead text-muted">{{ article.excerpt }}</p>
+                    {% endif %}
+                    
+                    <div class="d-flex align-items-center text-muted mb-3">
+                        <!-- Author -->
+                        {% if article.author %}
+                            <div class="d-flex align-items-center me-4">
+                                {% if article.author.profile_picture %}
+                                    <img src="{{ article.author.profile_picture.url }}" 
+                                         class="rounded-circle me-2" width="32" height="32" alt="{{ article.author.get_full_name }}">
+                                {% else %}
+                                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                         style="width: 32px; height: 32px;">
+                                        <i class="fas fa-user text-muted"></i>
+                                    </div>
+                                {% endif %}
+                                <small>{{ article.author.get_full_name|default:article.author.username }}</small>
+                            </div>
+                        {% endif %}
+                        
+                        <small>
+                            <i class="fas fa-calendar me-1"></i>
+                            {{ article.published_at|date:"d/m/Y" }}
+                        </small>
+                        
+                        {% if article.updated_at != article.created_at %}
+                            <small class="ms-3">
+                                <i class="fas fa-edit me-1"></i>
+                                Atualizado em {{ article.updated_at|date:"d/m/Y" }}
+                            </small>
+                        {% endif %}
+                        
+                        {% if article.views_count %}
+                            <small class="ms-3">
+                                <i class="fas fa-eye me-1"></i>
+                                {{ article.views_count }} visualizações
+                            </small>
+                        {% endif %}
+                        
+                        {% if article.reading_time %}
+                            <small class="ms-3">
+                                <i class="fas fa-clock me-1"></i>
+                                {{ article.reading_time }} min de leitura
+                            </small>
+                        {% endif %}
+                    </div>
+                </header>
+
+                <!-- Featured Image -->
+                {% if article.featured_image %}
+                    <div class="mb-4">
+                        <img src="{{ article.featured_image.url }}" class="img-fluid rounded" alt="{{ article.title }}">
+                        {% if article.image_caption %}
+                            <figcaption class="text-muted text-center mt-2">
+                                <small>{{ article.image_caption }}</small>
+                            </figcaption>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <!-- Article Content -->
+                <div class="article-content">
+                    {{ article.content|safe }}
+                </div>
+
+                <!-- Article Footer -->
+                <footer class="mt-5 pt-4 border-top">
+                    <div class="row">
+                        <div class="col-md-6">
+                            {% if article.tags.all %}
+                                <div class="mb-3">
+                                    <strong>Tags:</strong>
+                                    {% for tag in article.tags.all %}
+                                        <a href="{% url 'articles:tag' tag.slug %}" 
+                                           class="badge bg-secondary text-decoration-none me-1">{{ tag.name }}</a>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 text-md-end">
+                            <!-- Share Buttons -->
+                            <div class="btn-group" role="group" aria-label="Compartilhar">
+                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" 
+                                   target="_blank" class="btn btn-outline-primary btn-sm">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ article.title }}" 
+                                   target="_blank" class="btn btn-outline-info btn-sm">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" 
+                                   target="_blank" class="btn btn-outline-primary btn-sm">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                                <a href="whatsapp://send?text={{ article.title }} {{ request.build_absolute_uri }}" 
+                                   class="btn btn-outline-success btn-sm">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </article>
+
+            <!-- Author Bio -->
+            {% if article.author %}
+                <div class="card mb-5">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                {% if article.author.profile_picture %}
+                                    <img src="{{ article.author.profile_picture.url }}" 
+                                         class="rounded-circle" width="80" height="80" alt="{{ article.author.get_full_name }}">
+                                {% else %}
+                                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" 
+                                         style="width: 80px; height: 80px;">
+                                        <i class="fas fa-user fa-2x text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col">
+                                <h5 class="mb-1">{{ article.author.get_full_name|default:article.author.username }}</h5>
+                                {% if article.author.bio %}
+                                    <p class="text-muted mb-0">{{ article.author.bio }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Related Articles -->
+            {% if related_articles %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-newspaper me-2"></i>Artigos Relacionados
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% for related in related_articles %}
+                            <div class="d-flex mb-3">
+                                {% if related.featured_image %}
+                                    <img src="{{ related.featured_image.url }}" class="me-3 rounded" 
+                                         style="width: 60px; height: 60px; object-fit: cover;" alt="{{ related.title }}">
+                                {% else %}
+                                    <div class="me-3 bg-light rounded d-flex align-items-center justify-content-center" 
+                                         style="width: 60px; height: 60px;">
+                                        <i class="fas fa-newspaper text-muted"></i>
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">
+                                        <a href="{% url 'articles:article_detail' related.slug %}" class="text-decoration-none">
+                                            {{ related.title|truncatechars:40 }}
+                                        </a>
+                                    </h6>
+                                    <small class="text-muted">
+                                        {{ related.published_at|date:"d/m/Y" }}
+                                    </small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Table of Contents -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Neste Artigo
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="table-of-contents">
+                        <p class="text-muted mb-0">Carregando índice...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back to Top -->
+            <div class="text-center">
+                <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" 
+                        class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-arrow-up me-1"></i>Voltar ao topo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Generate table of contents
+    const headings = document.querySelectorAll('.article-content h1, .article-content h2, .article-content h3, .article-content h4');
+    const tocContainer = document.getElementById('table-of-contents');
+    
+    if (headings.length > 0) {
+        let tocHTML = '<ul class="list-unstyled">';
+        
+        headings.forEach(function(heading, index) {
+            const id = 'heading-' + index;
+            heading.id = id;
+            
+            const level = parseInt(heading.tagName.charAt(1));
+            const indent = (level - 1) * 15;
+            
+            tocHTML += `
+                <li style="margin-left: ${indent}px;" class="mb-1">
+                    <a href="#${id}" class="text-decoration-none text-muted">
+                        ${heading.textContent}
+                    </a>
+                </li>
+            `;
+        });
+        
+        tocHTML += '</ul>';
+        tocContainer.innerHTML = tocHTML;
+        
+        // Smooth scroll for TOC links
+        tocContainer.querySelectorAll('a').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    } else {
+        tocContainer.innerHTML = '<p class="text-muted mb-0">Nenhum cabeçalho encontrado.</p>';
+    }
+});
+</script>
+{% endblock %}

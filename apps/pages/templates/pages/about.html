@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="text-center mb-5">
+                <h1 class="display-4">Sobre o Havoc</h1>
+                <p class="lead text-muted">Sistema moderno de gerenciamento de conteúdo</p>
+            </div>
+            
+            <div class="content">
+                <h2>Nossa Missão</h2>
+                <p>O Havoc é um sistema de gerenciamento de conteúdo desenvolvido com as melhores práticas de desenvolvimento de software, seguindo os princípios SOLID e arquitetura limpa.</p>
+                
+                <h3>Características Principais</h3>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Arquitetura Limpa:</strong> Separação clara de responsabilidades
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Princípios SOLID:</strong> Código maintível e extensível
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Django Framework:</strong> Robustez e segurança
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Interface Moderna:</strong> Bootstrap 5 e design responsivo
+                    </li>
+                </ul>
+                
+                <h3>Tecnologias Utilizadas</h3>
+                <div class="row g-3 my-4">
+                    <div class="col-md-6">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h6><i class="fab fa-python text-primary me-2"></i>Backend</h6>
+                                <ul class="list-unstyled small">
+                                    <li>Python 3.12+</li>
+                                    <li>Django 5.2</li>
+                                    <li>SQLite/PostgreSQL</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h6><i class="fab fa-html5 text-danger me-2"></i>Frontend</h6>
+                                <ul class="list-unstyled small">
+                                    <li>HTML5 & CSS3</li>
+                                    <li>Bootstrap 5</li>
+                                    <li>Font Awesome</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>Estrutura do Projeto</h3>
+                <p>O projeto está organizado em apps especializados:</p>
+                <ul>
+                    <li><strong>Accounts:</strong> Autenticação e gerenciamento de usuários</li>
+                    <li><strong>Pages:</strong> Sistema de páginas e navegação</li>
+                    <li><strong>Config:</strong> Configurações e administração</li>
+                    <li><strong>Articles:</strong> Gerenciamento de artigos (em desenvolvimento)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

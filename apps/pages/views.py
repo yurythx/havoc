@@ -1,4 +1,2 @@
-from django.shortcuts import render
-
-def index(request):
-    return render(request, 'index.html')
+# Importa views da pasta views
+from .views import *

@@ -1,0 +1,342 @@
+{% extends 'config/base_config.html' %}
+{% load crispy_forms_tags %}
+
+{% block config_title %}Configurações de Banco de Dados{% endblock %}
+
+{% block breadcrumbs %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'config:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'config:system_config' %}">Sistema</a></li>
+            <li class="breadcrumb-item active">Banco de Dados</li>
+        </ol>
+    </nav>
+</div>
+{% endblock %}
+
+{% block config_content %}
+<!-- Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h2 mb-1">
+                    <i class="fas fa-database me-2 text-primary"></i>Configurações de Banco de Dados
+                </h1>
+                <p class="text-muted mb-0">Configure a conexão com o banco de dados do sistema</p>
+            </div>
+            <div>
+                <a href="{% url 'config:system_config' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Formulário Principal -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light border-0">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 40px; height: 40px;">
+                            <i class="fas fa-database"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5 class="mb-0">Configurações do Banco de Dados</h5>
+                        <small class="text-muted">Configure a conexão com diferentes tipos de banco</small>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                {% crispy form %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar com Informações -->
+    <div class="col-lg-4">
+        <!-- Informações Atuais -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-info text-white border-0">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Configuração Atual
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Engine:</label>
+                    <p class="form-control-plaintext">{{ current_db.engine|default:"Não configurado" }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Banco:</label>
+                    <p class="form-control-plaintext">{{ current_db.name|default:"Não configurado" }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Host:</label>
+                    <p class="form-control-plaintext">{{ current_db.host|default:"localhost" }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Porta:</label>
+                    <p class="form-control-plaintext">{{ current_db.port|default:"Padrão" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guia de Configuração -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-light border-0">
+                <h6 class="mb-0">
+                    <i class="fas fa-book me-2"></i>Guia de Configuração
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="dbGuideAccordion">
+                    <div class="accordion-item border-0">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#postgresql">
+                                <i class="fas fa-elephant me-2"></i>PostgreSQL
+                            </button>
+                        </h2>
+                        <div id="postgresql" class="accordion-collapse collapse" data-bs-parent="#dbGuideAccordion">
+                            <div class="accordion-body">
+                                <div class="small">
+                                    <strong>Engine:</strong> django.db.backends.postgresql<br>
+                                    <strong>Porta padrão:</strong> 5432<br>
+                                    <strong>Exemplo de conexão:</strong><br>
+                                    <code class="small">
+                                        Host: localhost<br>
+                                        Porta: 5432<br>
+                                        Banco: meu_projeto<br>
+                                        Usuário: postgres
+                                    </code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item border-0">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mysql">
+                                <i class="fas fa-dolphin me-2"></i>MySQL
+                            </button>
+                        </h2>
+                        <div id="mysql" class="accordion-collapse collapse" data-bs-parent="#dbGuideAccordion">
+                            <div class="accordion-body">
+                                <div class="small">
+                                    <strong>Engine:</strong> django.db.backends.mysql<br>
+                                    <strong>Porta padrão:</strong> 3306<br>
+                                    <strong>Exemplo de conexão:</strong><br>
+                                    <code class="small">
+                                        Host: localhost<br>
+                                        Porta: 3306<br>
+                                        Banco: meu_projeto<br>
+                                        Usuário: root
+                                    </code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item border-0">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sqlite">
+                                <i class="fas fa-file-alt me-2"></i>SQLite
+                            </button>
+                        </h2>
+                        <div id="sqlite" class="accordion-collapse collapse" data-bs-parent="#dbGuideAccordion">
+                            <div class="accordion-body">
+                                <div class="small">
+                                    <strong>Engine:</strong> django.db.backends.sqlite3<br>
+                                    <strong>Nome:</strong> Caminho para o arquivo .db<br>
+                                    <strong>Exemplo:</strong><br>
+                                    <code class="small">
+                                        Nome: db.sqlite3<br>
+                                        (Usuário, senha, host e porta não são necessários)
+                                    </code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ações Rápidas -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light border-0">
+                <h6 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>Ações Rápidas
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-info" onclick="testConnection()">
+                        <i class="fas fa-plug me-1"></i>Testar Conexão
+                    </button>
+                    <a href="{% url 'config:system_config' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-tachometer-alt me-1"></i>Visão Geral
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary" onclick="document.querySelector('form').reset()">
+                        <i class="fas fa-undo me-1"></i>Restaurar Formulário
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Teste de Conexão -->
+<div class="modal fade" id="testModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plug me-2"></i>Teste de Conexão
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="testResult">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Testando...</span>
+                        </div>
+                        <p class="mt-2">Testando conexão com o banco de dados...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.accordion-button {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: var(--bs-primary);
+    color: white;
+}
+
+.accordion-body {
+    padding: 0.75rem 1rem;
+}
+
+.form-control:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.card {
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus no primeiro campo
+    const firstInput = document.querySelector('select[name="engine"]');
+    if (firstInput) {
+        firstInput.focus();
+    }
+    
+    // Atualiza campos baseado no engine selecionado
+    const engineSelect = document.querySelector('select[name="engine"]');
+    const portField = document.querySelector('input[name="port"]');
+    const userField = document.querySelector('input[name="user"]');
+    const passwordField = document.querySelector('input[name="password"]');
+    const hostField = document.querySelector('input[name="host"]');
+    
+    if (engineSelect) {
+        engineSelect.addEventListener('change', function() {
+            const engine = this.value;
+            
+            // Define porta padrão baseada no engine
+            if (engine.includes('postgresql')) {
+                portField.value = '5432';
+                portField.placeholder = '5432';
+            } else if (engine.includes('mysql')) {
+                portField.value = '3306';
+                portField.placeholder = '3306';
+            } else if (engine.includes('sqlite3')) {
+                portField.value = '';
+                portField.placeholder = 'Não necessário para SQLite';
+                userField.value = '';
+                passwordField.value = '';
+                hostField.value = '';
+            } else if (engine.includes('oracle')) {
+                portField.value = '1521';
+                portField.placeholder = '1521';
+            }
+            
+            // Habilita/desabilita campos para SQLite
+            const isSQLite = engine.includes('sqlite3');
+            userField.disabled = isSQLite;
+            passwordField.disabled = isSQLite;
+            hostField.disabled = isSQLite;
+            portField.disabled = isSQLite;
+        });
+    }
+});
+
+function testConnection() {
+    // Coleta dados do formulário
+    const form = document.querySelector('form');
+    const formData = new FormData(form);
+    
+    // Abre modal
+    const modal = new bootstrap.Modal(document.getElementById('testModal'));
+    modal.show();
+    
+    // Simula teste de conexão (em produção, faria uma chamada AJAX)
+    setTimeout(function() {
+        const engine = formData.get('engine');
+        const name = formData.get('name');
+        
+        let resultHtml = '';
+        
+        if (!name) {
+            resultHtml = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-times-circle me-2"></i>
+                    <strong>Erro:</strong> Nome do banco é obrigatório.
+                </div>
+            `;
+        } else {
+            resultHtml = `
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Sucesso:</strong> Configurações parecem válidas.
+                </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Nota:</strong> Para testar a conexão real, salve as configurações e reinicie o servidor.
+                </div>
+                <div class="small text-muted">
+                    <strong>Engine:</strong> ${engine}<br>
+                    <strong>Banco:</strong> ${name}<br>
+                    <strong>Host:</strong> ${formData.get('host') || 'localhost'}<br>
+                    <strong>Porta:</strong> ${formData.get('port') || 'Padrão'}
+                </div>
+            `;
+        }
+        
+        document.getElementById('testResult').innerHTML = resultHtml;
+    }, 2000);
+}
+</script>
+{% endblock %}

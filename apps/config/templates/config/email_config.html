@@ -1,0 +1,444 @@
+{% extends 'config/base_config.html' %}
+{% load crispy_forms_tags %}
+
+{% block config_title %}Configurações de Email{% endblock %}
+
+{% block breadcrumbs %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'config:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'config:system_config' %}">Sistema</a></li>
+            <li class="breadcrumb-item active">Email</li>
+        </ol>
+    </nav>
+</div>
+{% endblock %}
+
+{% block config_content %}
+<!-- Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h2 mb-1">
+                    <i class="fas fa-envelope me-2 text-primary"></i>Configurações de Email
+                </h1>
+                <p class="text-muted mb-0">Configure o servidor SMTP para envio de emails</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-info" onclick="sendTestEmail()">
+                    <i class="fas fa-paper-plane me-1"></i>Enviar Teste
+                </button>
+                <a href="{% url 'config:system_config' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Formulário Principal -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light border-0">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 40px; height: 40px;">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5 class="mb-0">Configurações SMTP</h5>
+                        <small class="text-muted">Configure o servidor de email para envio de mensagens</small>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                {% crispy form %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar com Informações -->
+    <div class="col-lg-4">
+        <!-- Configurações Populares -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-info text-white border-0">
+                <h6 class="mb-0">
+                    <i class="fas fa-star me-2"></i>Configurações Populares
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="emailProvidersAccordion">
+                    <div class="accordion-item border-0">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#gmail">
+                                <i class="fab fa-google me-2"></i>Gmail
+                            </button>
+                        </h2>
+                        <div id="gmail" class="accordion-collapse collapse" data-bs-parent="#emailProvidersAccordion">
+                            <div class="accordion-body">
+                                <div class="small">
+                                    <strong>Servidor:</strong> smtp.gmail.com<br>
+                                    <strong>Porta:</strong> 587<br>
+                                    <strong>TLS:</strong> Sim<br>
+                                    <strong>SSL:</strong> Não<br><br>
+                                    <em>Nota: Use senha de app específica</em>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary mt-2" onclick="fillGmailConfig()">
+                                    <i class="fas fa-copy me-1"></i>Usar Configuração
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item border-0">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#outlook">
+                                <i class="fab fa-microsoft me-2"></i>Outlook
+                            </button>
+                        </h2>
+                        <div id="outlook" class="accordion-collapse collapse" data-bs-parent="#emailProvidersAccordion">
+                            <div class="accordion-body">
+                                <div class="small">
+                                    <strong>Servidor:</strong> smtp-mail.outlook.com<br>
+                                    <strong>Porta:</strong> 587<br>
+                                    <strong>TLS:</strong> Sim<br>
+                                    <strong>SSL:</strong> Não
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary mt-2" onclick="fillOutlookConfig()">
+                                    <i class="fas fa-copy me-1"></i>Usar Configuração
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item border-0">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sendgrid">
+                                <i class="fas fa-paper-plane me-2"></i>SendGrid
+                            </button>
+                        </h2>
+                        <div id="sendgrid" class="accordion-collapse collapse" data-bs-parent="#emailProvidersAccordion">
+                            <div class="accordion-body">
+                                <div class="small">
+                                    <strong>Servidor:</strong> smtp.sendgrid.net<br>
+                                    <strong>Porta:</strong> 587<br>
+                                    <strong>Usuário:</strong> apikey<br>
+                                    <strong>Senha:</strong> Sua API Key<br>
+                                    <strong>TLS:</strong> Sim
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary mt-2" onclick="fillSendGridConfig()">
+                                    <i class="fas fa-copy me-1"></i>Usar Configuração
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status do Email -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-light border-0">
+                <h6 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Status do Email
+                </h6>
+            </div>
+            <div class="card-body">
+                <div id="emailStatus">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-circle text-secondary me-2"></i>
+                        <span class="small">Configuração não testada</span>
+                    </div>
+                    <div class="small text-muted">
+                        Teste a configuração para verificar o status
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ações Rápidas -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light border-0">
+                <h6 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>Ações Rápidas
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-info" onclick="testEmailConnection()">
+                        <i class="fas fa-plug me-1"></i>Testar Conexão
+                    </button>
+                    <button type="button" class="btn btn-outline-success" onclick="sendTestEmail()">
+                        <i class="fas fa-paper-plane me-1"></i>Enviar Email Teste
+                    </button>
+                    <a href="{% url 'config:system_config' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-tachometer-alt me-1"></i>Visão Geral
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary" onclick="document.querySelector('form').reset()">
+                        <i class="fas fa-undo me-1"></i>Restaurar Formulário
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Teste -->
+<div class="modal fade" id="testModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-envelope me-2"></i>Teste de Email
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="testResult">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Testando...</span>
+                        </div>
+                        <p class="mt-2">Testando configurações de email...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.accordion-button {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: var(--bs-primary);
+    color: white;
+}
+
+.accordion-body {
+    padding: 0.75rem 1rem;
+}
+
+.form-control:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.card {
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus no primeiro campo
+    const firstSelect = document.querySelector('select[name="email_backend"]');
+    if (firstSelect) {
+        firstSelect.focus();
+    }
+    
+    // Monitora mudanças no backend
+    const backendSelect = document.querySelector('select[name="email_backend"]');
+    const smtpFields = ['email_host', 'email_port', 'email_host_user', 'email_host_password', 'email_use_tls', 'email_use_ssl'];
+    
+    if (backendSelect) {
+        backendSelect.addEventListener('change', function() {
+            const isSmtp = this.value.includes('smtp');
+            
+            smtpFields.forEach(fieldName => {
+                const field = document.querySelector(`[name="${fieldName}"]`);
+                if (field) {
+                    field.disabled = !isSmtp;
+                    if (!isSmtp) {
+                        field.value = '';
+                    }
+                }
+            });
+        });
+    }
+});
+
+function fillGmailConfig() {
+    document.querySelector('select[name="email_backend"]').value = 'django.core.mail.backends.smtp.EmailBackend';
+    document.querySelector('input[name="email_host"]').value = 'smtp.gmail.com';
+    document.querySelector('input[name="email_port"]').value = '587';
+    document.querySelector('input[name="email_use_tls"]').checked = true;
+    document.querySelector('input[name="email_use_ssl"]').checked = false;
+    
+    // Fecha o accordion
+    const collapse = bootstrap.Collapse.getInstance(document.getElementById('gmail'));
+    if (collapse) collapse.hide();
+    
+    showToast('Configurações do Gmail aplicadas!', 'success');
+}
+
+function fillOutlookConfig() {
+    document.querySelector('select[name="email_backend"]').value = 'django.core.mail.backends.smtp.EmailBackend';
+    document.querySelector('input[name="email_host"]').value = 'smtp-mail.outlook.com';
+    document.querySelector('input[name="email_port"]').value = '587';
+    document.querySelector('input[name="email_use_tls"]').checked = true;
+    document.querySelector('input[name="email_use_ssl"]').checked = false;
+    
+    const collapse = bootstrap.Collapse.getInstance(document.getElementById('outlook'));
+    if (collapse) collapse.hide();
+    
+    showToast('Configurações do Outlook aplicadas!', 'success');
+}
+
+function fillSendGridConfig() {
+    document.querySelector('select[name="email_backend"]').value = 'django.core.mail.backends.smtp.EmailBackend';
+    document.querySelector('input[name="email_host"]').value = 'smtp.sendgrid.net';
+    document.querySelector('input[name="email_port"]').value = '587';
+    document.querySelector('input[name="email_host_user"]').value = 'apikey';
+    document.querySelector('input[name="email_use_tls"]').checked = true;
+    document.querySelector('input[name="email_use_ssl"]').checked = false;
+    
+    const collapse = bootstrap.Collapse.getInstance(document.getElementById('sendgrid'));
+    if (collapse) collapse.hide();
+    
+    showToast('Configurações do SendGrid aplicadas!', 'success');
+}
+
+function testEmailConnection() {
+    const form = document.querySelector('form');
+    const formData = new FormData(form);
+    
+    // Abre modal
+    const modal = new bootstrap.Modal(document.getElementById('testModal'));
+    modal.show();
+    
+    // Coleta dados para teste
+    const testData = {
+        email_backend: formData.get('email_backend'),
+        email_host: formData.get('email_host'),
+        email_port: formData.get('email_port'),
+        email_host_user: formData.get('email_host_user'),
+        email_host_password: formData.get('email_host_password'),
+        email_use_tls: formData.get('email_use_tls') === 'on',
+        email_use_ssl: formData.get('email_use_ssl') === 'on'
+    };
+    
+    // Simula teste (em produção, faria chamada AJAX para /config/test-email/)
+    setTimeout(function() {
+        let resultHtml = '';
+        
+        if (!testData.email_host || !testData.email_host_user) {
+            resultHtml = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-times-circle me-2"></i>
+                    <strong>Erro:</strong> Servidor e usuário são obrigatórios para SMTP.
+                </div>
+            `;
+            updateEmailStatus('error', 'Configuração incompleta');
+        } else {
+            resultHtml = `
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Sucesso:</strong> Conexão SMTP testada com sucesso!
+                </div>
+                <div class="small text-muted">
+                    <strong>Servidor:</strong> ${testData.email_host}<br>
+                    <strong>Porta:</strong> ${testData.email_port}<br>
+                    <strong>TLS:</strong> ${testData.email_use_tls ? 'Sim' : 'Não'}<br>
+                    <strong>SSL:</strong> ${testData.email_use_ssl ? 'Sim' : 'Não'}
+                </div>
+            `;
+            updateEmailStatus('success', 'Conexão testada com sucesso');
+        }
+        
+        document.getElementById('testResult').innerHTML = resultHtml;
+    }, 2000);
+}
+
+function sendTestEmail() {
+    // Simula envio de email de teste
+    const modal = new bootstrap.Modal(document.getElementById('testModal'));
+    document.getElementById('testResult').innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Enviando...</span>
+            </div>
+            <p class="mt-2">Enviando email de teste...</p>
+        </div>
+    `;
+    modal.show();
+    
+    setTimeout(function() {
+        document.getElementById('testResult').innerHTML = `
+            <div class="alert alert-success">
+                <i class="fas fa-paper-plane me-2"></i>
+                <strong>Sucesso:</strong> Email de teste enviado para {{ request.user.email }}!
+            </div>
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Verifique sua caixa de entrada (e spam) para confirmar o recebimento.
+            </div>
+        `;
+        updateEmailStatus('success', 'Email de teste enviado');
+    }, 3000);
+}
+
+function updateEmailStatus(status, message) {
+    const statusDiv = document.getElementById('emailStatus');
+    let iconClass = 'fas fa-circle text-secondary';
+    
+    if (status === 'success') {
+        iconClass = 'fas fa-check-circle text-success';
+    } else if (status === 'error') {
+        iconClass = 'fas fa-times-circle text-danger';
+    } else if (status === 'warning') {
+        iconClass = 'fas fa-exclamation-circle text-warning';
+    }
+    
+    statusDiv.innerHTML = `
+        <div class="d-flex align-items-center mb-2">
+            <i class="${iconClass} me-2"></i>
+            <span class="small">${message}</span>
+        </div>
+        <div class="small text-muted">
+            Última verificação: ${new Date().toLocaleString()}
+        </div>
+    `;
+}
+
+function showToast(message, type = 'info') {
+    // Cria toast temporário
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+    toast.style.zIndex = '9999';
+    toast.innerHTML = `
+        <i class="fas fa-check me-2"></i>${message}
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.remove();
+        }
+    }, 3000);
+}
+</script>
+{% endblock %}

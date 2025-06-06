@@ -1,0 +1,359 @@
+{% extends 'config/base_config.html' %}
+{% load crispy_forms_tags %}
+
+{% block config_title %}Variáveis de Ambiente{% endblock %}
+
+{% block breadcrumbs %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'config:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'config:system_config' %}">Sistema</a></li>
+            <li class="breadcrumb-item active">Variáveis de Ambiente</li>
+        </ol>
+    </nav>
+</div>
+{% endblock %}
+
+{% block config_content %}
+<!-- Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h2 mb-1">
+                    <i class="fas fa-code me-2 text-primary"></i>Variáveis de Ambiente
+                </h1>
+                <p class="text-muted mb-0">Configure variáveis de ambiente e configurações do Django</p>
+            </div>
+            <div>
+                <a href="{% url 'config:system_config' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Formulário Principal -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light border-0">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 40px; height: 40px;">
+                            <i class="fas fa-code"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5 class="mb-0">Configurações de Ambiente</h5>
+                        <small class="text-muted">Gerencie variáveis de ambiente do sistema</small>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                {% crispy form %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar com Informações -->
+    <div class="col-lg-4">
+        <!-- Configurações Atuais -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-info text-white border-0">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Configurações Atuais
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">DEBUG:</label>
+                    <p class="form-control-plaintext">
+                        {% if settings.DEBUG %}
+                            <span class="badge bg-warning">Ativo</span>
+                        {% else %}
+                            <span class="badge bg-success">Inativo</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">SECRET_KEY:</label>
+                    <p class="form-control-plaintext">
+                        {% if settings.SECRET_KEY %}
+                            <span class="badge bg-success">Configurada</span>
+                        {% else %}
+                            <span class="badge bg-danger">Não configurada</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">ALLOWED_HOSTS:</label>
+                    <p class="form-control-plaintext">
+                        {% if settings.ALLOWED_HOSTS %}
+                            <span class="badge bg-success">{{ settings.ALLOWED_HOSTS|length }} host(s)</span>
+                        {% else %}
+                            <span class="badge bg-warning">Nenhum</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dicas de Segurança -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-warning text-dark border-0">
+                <h6 class="mb-0">
+                    <i class="fas fa-shield-alt me-2"></i>Dicas de Segurança
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-start mb-3">
+                    <i class="fas fa-exclamation-triangle text-warning me-2 mt-1"></i>
+                    <div>
+                        <strong>DEBUG em Produção</strong>
+                        <div class="small text-muted">Sempre desative DEBUG em produção</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-start mb-3">
+                    <i class="fas fa-key text-danger me-2 mt-1"></i>
+                    <div>
+                        <strong>SECRET_KEY</strong>
+                        <div class="small text-muted">Use uma chave longa e aleatória</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-start mb-3">
+                    <i class="fas fa-lock text-success me-2 mt-1"></i>
+                    <div>
+                        <strong>HTTPS</strong>
+                        <div class="small text-muted">Ative SSL/HTTPS em produção</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-start">
+                    <i class="fas fa-globe text-info me-2 mt-1"></i>
+                    <div>
+                        <strong>ALLOWED_HOSTS</strong>
+                        <div class="small text-muted">Configure apenas domínios confiáveis</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exemplos de Variáveis -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-light border-0">
+                <h6 class="mb-0">
+                    <i class="fas fa-code me-2"></i>Exemplos de Variáveis
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="examplesAccordion">
+                    <div class="accordion-item border-0">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#example1">
+                                <i class="fas fa-cog me-2"></i>Configurações Básicas
+                            </button>
+                        </h2>
+                        <div id="example1" class="accordion-collapse collapse" data-bs-parent="#examplesAccordion">
+                            <div class="accordion-body">
+                                <pre class="small bg-light p-2 rounded">API_KEY=sua_api_key_aqui
+REDIS_URL=redis://localhost:6379/0
+SENTRY_DSN=https://...
+MAX_UPLOAD_SIZE=52428800</pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item border-0">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#example2">
+                                <i class="fas fa-database me-2"></i>Banco de Dados
+                            </button>
+                        </h2>
+                        <div id="example2" class="accordion-collapse collapse" data-bs-parent="#examplesAccordion">
+                            <div class="accordion-body">
+                                <pre class="small bg-light p-2 rounded">DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=meu_projeto
+DB_USER=postgres
+DB_PASSWORD=senha_segura</pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item border-0">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#example3">
+                                <i class="fas fa-envelope me-2"></i>Email
+                            </button>
+                        </h2>
+                        <div id="example3" class="accordion-collapse collapse" data-bs-parent="#examplesAccordion">
+                            <div class="accordion-body">
+                                <pre class="small bg-light p-2 rounded">EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=seu-email@gmail.com
+EMAIL_PASSWORD=sua_senha_app
+EMAIL_USE_TLS=true</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ações Rápidas -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light border-0">
+                <h6 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>Ações Rápidas
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-warning" onclick="generateSecretKey()">
+                        <i class="fas fa-key me-1"></i>Gerar SECRET_KEY
+                    </button>
+                    <a href="{% url 'config:system_config' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-tachometer-alt me-1"></i>Visão Geral
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary" onclick="document.querySelector('form').reset()">
+                        <i class="fas fa-undo me-1"></i>Restaurar Formulário
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.accordion-button {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: var(--bs-primary);
+    color: white;
+}
+
+.accordion-body {
+    padding: 0.75rem 1rem;
+}
+
+pre {
+    font-size: 0.75rem;
+    margin-bottom: 0;
+    cursor: pointer;
+}
+
+pre:hover {
+    background-color: #e9ecef !important;
+}
+
+.form-control:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.card {
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus no primeiro campo
+    const firstInput = document.querySelector('input[type="password"]');
+    if (firstInput) {
+        firstInput.focus();
+    }
+    
+    // Copiar exemplos
+    document.querySelectorAll('pre').forEach(element => {
+        element.title = 'Clique para copiar';
+        
+        element.addEventListener('click', function() {
+            const text = this.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                // Feedback visual
+                const original = this.style.backgroundColor;
+                this.style.backgroundColor = '#d4edda';
+                setTimeout(() => {
+                    this.style.backgroundColor = original;
+                }, 500);
+                
+                showToast('Exemplo copiado!', 'success');
+            });
+        });
+    });
+    
+    // Validação de variáveis customizadas
+    const customVarsField = document.querySelector('textarea[name="custom_variables"]');
+    if (customVarsField) {
+        customVarsField.addEventListener('input', function() {
+            const lines = this.value.split('\n');
+            let hasError = false;
+            
+            lines.forEach((line, index) => {
+                line = line.trim();
+                if (line && !line.startsWith('#') && !line.includes('=')) {
+                    hasError = true;
+                }
+            });
+            
+            if (hasError) {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+            }
+        });
+    }
+});
+
+function generateSecretKey() {
+    // Simula geração de SECRET_KEY
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*(-_=+)';
+    let key = '';
+    for (let i = 0; i < 50; i++) {
+        key += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    
+    const secretKeyField = document.querySelector('input[name="secret_key"]');
+    if (secretKeyField) {
+        secretKeyField.value = key;
+        secretKeyField.type = 'text';
+        
+        showToast('Nova SECRET_KEY gerada!', 'success');
+        
+        // Volta para password após 3 segundos
+        setTimeout(() => {
+            secretKeyField.type = 'password';
+        }, 3000);
+    }
+}
+
+function showToast(message, type = 'info') {
+    // Cria toast temporário
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+    toast.style.zIndex = '9999';
+    toast.innerHTML = `
+        <i class="fas fa-check me-2"></i>${message}
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.remove();
+        }
+    }, 3000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="text-center mb-5">
+                <h1 class="display-4">Termos de Uso</h1>
+                <p class="lead text-muted">Condições para uso da plataforma</p>
+            </div>
+            
+            <div class="content">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Importante:</strong> Ao usar nossa plataforma, você concorda com estes termos.
+                    <br><small>Última atualização: {% now "d/m/Y" %}</small>
+                </div>
+                
+                <h2>1. Aceitação dos Termos</h2>
+                <p>Ao acessar e usar o Havoc, você aceita e concorda em cumprir estes Termos de Uso. Se você não concordar com qualquer parte destes termos, não deve usar nossa plataforma.</p>
+                
+                <h2>2. Descrição do Serviço</h2>
+                <p>O Havoc é um sistema de gerenciamento de conteúdo que oferece:</p>
+                <ul>
+                    <li>Criação e gerenciamento de páginas</li>
+                    <li>Sistema de artigos e blog</li>
+                    <li>Gerenciamento de usuários</li>
+                    <li>Ferramentas administrativas</li>
+                </ul>
+                
+                <h2>3. Registro e Conta de Usuário</h2>
+                <h3>3.1 Elegibilidade</h3>
+                <p>Para usar nossos serviços, você deve:</p>
+                <ul>
+                    <li>Ter pelo menos 18 anos de idade</li>
+                    <li>Fornecer informações precisas e atualizadas</li>
+                    <li>Manter a confidencialidade da sua senha</li>
+                    <li>Ser responsável por todas as atividades em sua conta</li>
+                </ul>
+                
+                <h3>3.2 Responsabilidades do Usuário</h3>
+                <p>Você é responsável por:</p>
+                <ul>
+                    <li>Manter suas informações de conta atualizadas</li>
+                    <li>Proteger suas credenciais de acesso</li>
+                    <li>Notificar sobre uso não autorizado da conta</li>
+                    <li>Cumprir todas as leis aplicáveis</li>
+                </ul>
+                
+                <h2>4. Uso Aceitável</h2>
+                <h3>4.1 Condutas Permitidas</h3>
+                <p>Você pode usar nossa plataforma para:</p>
+                <ul>
+                    <li>Criar e gerenciar conteúdo legítimo</li>
+                    <li>Colaborar com outros usuários</li>
+                    <li>Personalizar sua experiência</li>
+                    <li>Acessar recursos disponíveis</li>
+                </ul>
+                
+                <h3>4.2 Condutas Proibidas</h3>
+                <p>É expressamente proibido:</p>
+                <ul>
+                    <li>Publicar conteúdo ilegal, ofensivo ou prejudicial</li>
+                    <li>Violar direitos de propriedade intelectual</li>
+                    <li>Tentar acessar sistemas não autorizados</li>
+                    <li>Distribuir malware ou código malicioso</li>
+                    <li>Fazer spam ou enviar comunicações não solicitadas</li>
+                    <li>Interferir no funcionamento da plataforma</li>
+                </ul>
+                
+                <h2>5. Propriedade Intelectual</h2>
+                <h3>5.1 Nossos Direitos</h3>
+                <p>O Havoc e todo seu conteúdo são protegidos por direitos autorais e outras leis de propriedade intelectual.</p>
+                
+                <h3>5.2 Seu Conteúdo</h3>
+                <p>Você mantém os direitos sobre o conteúdo que cria, mas nos concede licença para:</p>
+                <ul>
+                    <li>Hospedar e exibir seu conteúdo</li>
+                    <li>Fazer backups e cópias de segurança</li>
+                    <li>Melhorar nossos serviços</li>
+                </ul>
+                
+                <h2>6. Privacidade e Dados</h2>
+                <p>O tratamento dos seus dados pessoais é regido por nossa 
+                <a href="{% url 'pages:privacy' %}" class="text-primary">Política de Privacidade</a>, 
+                que faz parte integrante destes termos.</p>
+                
+                <h2>7. Limitação de Responsabilidade</h2>
+                <p>Nossa responsabilidade é limitada ao máximo permitido por lei. Não nos responsabilizamos por:</p>
+                <ul>
+                    <li>Perda de dados ou conteúdo</li>
+                    <li>Interrupções no serviço</li>
+                    <li>Danos indiretos ou consequenciais</li>
+                    <li>Ações de terceiros</li>
+                </ul>
+                
+                <h2>8. Modificações dos Termos</h2>
+                <p>Reservamos o direito de modificar estes termos a qualquer momento. Mudanças significativas serão comunicadas através de:</p>
+                <ul>
+                    <li>Notificação por email</li>
+                    <li>Aviso na plataforma</li>
+                    <li>Atualização da data de modificação</li>
+                </ul>
+                
+                <h2>9. Rescisão</h2>
+                <p>Podemos suspender ou encerrar sua conta se você:</p>
+                <ul>
+                    <li>Violar estes termos</li>
+                    <li>Usar a plataforma de forma inadequada</li>
+                    <li>Não pagar taxas devidas (se aplicável)</li>
+                </ul>
+                
+                <h2>10. Lei Aplicável</h2>
+                <p>Estes termos são regidos pelas leis brasileiras. Qualquer disputa será resolvida nos tribunais competentes do Brasil.</p>
+                
+                <h2>11. Contato</h2>
+                <p>Para questões sobre estes termos:</p>
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <p class="mb-2"><strong>Email:</strong> legal@havoc.com</p>
+                        <p class="mb-2"><strong>Telefone:</strong> (11) 99999-9999</p>
+                        <p class="mb-0"><strong>Endereço:</strong> São Paulo, SP - Brasil</p>
+                    </div>
+                </div>
+                
+                <div class="mt-4 p-3 bg-success text-white rounded">
+                    <h6><i class="fas fa-handshake me-2"></i>Compromisso</h6>
+                    <p class="mb-0 small">
+                        Estamos comprometidos em fornecer um serviço de qualidade e manter 
+                        relacionamentos transparentes com nossos usuários.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

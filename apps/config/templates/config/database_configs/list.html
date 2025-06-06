@@ -1,0 +1,328 @@
+{% extends 'config/base_config.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Configurações de Banco de Dados - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h3 mb-1">
+                <i class="fas fa-database text-primary me-2"></i>
+                Configurações de Banco de Dados
+            </h2>
+            <p class="text-muted mb-0">Gerencie múltiplas configurações de banco</p>
+        </div>
+        <div>
+            <a href="{% url 'config:database_config_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Nova Configuração
+            </a>
+        </div>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h5 class="card-title mb-0">{{ total_configs }}</h5>
+                            <p class="card-text mb-0">Total</p>
+                        </div>
+                        <i class="fas fa-database fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h5 class="card-title mb-0">{{ active_configs }}</h5>
+                            <p class="card-text mb-0">Ativas</p>
+                        </div>
+                        <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h5 class="card-title mb-0">
+                                {% if default_config %}1{% else %}0{% endif %}
+                            </h5>
+                            <p class="card-text mb-0">Padrão</p>
+                        </div>
+                        <i class="fas fa-star fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h5 class="card-title mb-0">
+                                {% if total_configs > 1 %}{{ total_configs|add:"-1" }}{% else %}0{% endif %}
+                            </h5>
+                            <p class="card-text mb-0">Backup</p>
+                        </div>
+                        <i class="fas fa-copy fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Configurações -->
+    <div class="card">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">
+                <i class="fas fa-list me-2"></i>Configurações Disponíveis
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            {% if configs %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Status</th>
+                                <th>Nome</th>
+                                <th>Engine</th>
+                                <th>Banco</th>
+                                <th>Host</th>
+                                <th>Último Teste</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for config in configs %}
+                            <tr {% if config.is_default %}class="table-warning"{% endif %}>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if config.is_active %}
+                                            <span class="badge bg-success me-2">Ativo</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary me-2">Inativo</span>
+                                        {% endif %}
+                                        
+                                        {% if config.is_default %}
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="fas fa-star me-1"></i>Padrão
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>{{ config.name }}</strong>
+                                        {% if config.description %}
+                                            <br><small class="text-muted">{{ config.description|truncatechars:50 }}</small>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ config.get_engine_display }}</span>
+                                </td>
+                                <td>
+                                    <code>{{ config.name_db }}</code>
+                                    {% if config.user %}
+                                        <br><small class="text-muted">{{ config.user }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if config.host %}
+                                        <code>{{ config.host }}{% if config.port %}:{{ config.port }}{% endif %}</code>
+                                    {% else %}
+                                        <span class="text-muted">Local</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if config.last_tested_at %}
+                                        <small>{{ config.last_tested_at|date:"d/m/Y H:i" }}</small>
+                                        <br>
+                                        {% if config.last_test_result.success %}
+                                            <span class="badge bg-success">✓ OK</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">✗ Erro</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">Nunca testado</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'config:database_config_test' config.pk %}" 
+                                           class="btn btn-outline-primary btn-sm" title="Testar">
+                                            <i class="fas fa-vial"></i>
+                                        </a>
+                                        <a href="{% url 'config:database_config_update' config.pk %}" 
+                                           class="btn btn-outline-secondary btn-sm" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% if not config.is_default %}
+                                            <button type="button" class="btn btn-outline-warning btn-sm" 
+                                                    onclick="setAsDefault({{ config.pk }}, '{{ config.name }}')" 
+                                                    title="Definir como Padrão">
+                                                <i class="fas fa-star"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                    onclick="deleteConfig({{ config.pk }}, '{{ config.name }}')" 
+                                                    title="Deletar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-database fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Nenhuma configuração encontrada</h5>
+                    <p class="text-muted">Crie sua primeira configuração de banco para começar.</p>
+                    <a href="{% url 'config:database_config_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Criar Primeira Configuração
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Informações Adicionais -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Como Funciona
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li><strong>Configuração Padrão:</strong> Banco principal do sistema</li>
+                        <li><strong>Configurações Backup:</strong> Para diferentes ambientes</li>
+                        <li><strong>Teste Individual:</strong> Cada banco pode ser testado separadamente</li>
+                        <li><strong>Múltiplos Engines:</strong> PostgreSQL, MySQL, SQLite, Oracle</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Dicas
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li>Configure bancos para diferentes ambientes</li>
+                        <li>Teste regularmente suas conexões</li>
+                        <li>Use configurações específicas para desenvolvimento/produção</li>
+                        <li>Monitore o status das conexões</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalTitle">Confirmar Ação</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="confirmModalBody">
+                <!-- Conteúdo dinâmico -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="confirmModalAction">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function setAsDefault(configId, configName) {
+    document.getElementById('confirmModalTitle').textContent = 'Definir como Padrão';
+    document.getElementById('confirmModalBody').innerHTML = 
+        `Tem certeza que deseja definir "<strong>${configName}</strong>" como configuração padrão de banco?`;
+    
+    const actionBtn = document.getElementById('confirmModalAction');
+    actionBtn.textContent = 'Definir como Padrão';
+    actionBtn.className = 'btn btn-warning';
+    
+    actionBtn.onclick = function() {
+        fetch(`{% url 'config:database_config_set_default' 0 %}`.replace('0', configId), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erro: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao definir configuração padrão');
+        });
+        
+        bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+    };
+    
+    new bootstrap.Modal(document.getElementById('confirmModal')).show();
+}
+
+function deleteConfig(configId, configName) {
+    document.getElementById('confirmModalTitle').textContent = 'Deletar Configuração';
+    document.getElementById('confirmModalBody').innerHTML = 
+        `Tem certeza que deseja deletar a configuração "<strong>${configName}</strong>"?<br><br>
+        <div class="alert alert-warning">Esta ação não pode ser desfeita!</div>`;
+    
+    const actionBtn = document.getElementById('confirmModalAction');
+    actionBtn.textContent = 'Deletar';
+    actionBtn.className = 'btn btn-danger';
+    
+    actionBtn.onclick = function() {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `{% url 'config:database_config_delete' 0 %}`.replace('0', configId);
+        
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = 'csrfmiddlewaretoken';
+        csrfToken.value = '{{ csrf_token }}';
+        form.appendChild(csrfToken);
+        
+        document.body.appendChild(form);
+        form.submit();
+        
+        bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+    };
+    
+    new bootstrap.Modal(document.getElementById('confirmModal')).show();
+}
+</script>
+{% endblock %}

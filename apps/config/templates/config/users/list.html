@@ -1,0 +1,623 @@
+{% extends 'config/base_config.html' %}
+{% load crispy_forms_tags %}
+
+{% block config_title %}Gerenciar Usuários{% endblock %}
+
+{% block breadcrumbs %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'config:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Usuários</li>
+        </ol>
+    </nav>
+</div>
+{% endblock %}
+
+{% block config_content %}
+<!-- Header com estatísticas -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h1 class="h2 mb-1">
+                    <i class="fas fa-users me-2 text-primary"></i>Gerenciar Usuários
+                </h1>
+                <p class="text-muted mb-0">Gerencie usuários, permissões e acessos do sistema</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'config:user_create' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>Novo Usuário
+                </a>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-download me-1"></i>Exportar
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-file-csv me-2"></i>CSV</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-file-excel me-2"></i>Excel</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-file-pdf me-2"></i>PDF</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards de estatísticas -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card border-0 bg-primary text-white h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-users fa-2x opacity-75"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="h4 mb-0">{{ total_users|default:0 }}</div>
+                                <div class="small">Total de Usuários</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 bg-success text-white h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="h4 mb-0">{{ active_users|default:0 }}</div>
+                                <div class="small">Usuários Ativos</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 bg-warning text-white h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-user-tie fa-2x opacity-75"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="h4 mb-0">{{ staff_users|default:0 }}</div>
+                                <div class="small">Staff</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 bg-danger text-white h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-crown fa-2x opacity-75"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="h4 mb-0">{{ super_users|default:0 }}</div>
+                                <div class="small">Superusuários</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros e busca avançada -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>Filtros e Busca
+                    </h6>
+                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filtersCollapse">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="collapse show" id="filtersCollapse">
+                <div class="card-body">
+                    <form method="get" class="row g-3" id="filterForm">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                {{ form.query }}
+                                <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">Busque por nome, email ou username</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="row g-2">
+                                <div class="col-4">
+                                    <div class="form-check form-switch">
+                                        {{ form.is_active }}
+                                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                            <i class="fas fa-check-circle text-success me-1"></i>Ativos
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-check form-switch">
+                                        {{ form.is_staff }}
+                                        <label class="form-check-label" for="{{ form.is_staff.id_for_label }}">
+                                            <i class="fas fa-user-tie text-warning me-1"></i>Staff
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-check form-switch">
+                                        {{ form.is_superuser }}
+                                        <label class="form-check-label" for="{{ form.is_superuser.id_for_label }}">
+                                            <i class="fas fa-crown text-danger me-1"></i>Super
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="btn-group" role="group">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search me-1"></i>Filtrar
+                                    </button>
+                                    <a href="{% url 'config:user_list' %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-undo me-1"></i>Limpar
+                                    </a>
+                                </div>
+
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <input type="radio" class="btn-check" name="view_mode" id="view_cards" value="cards" {% if view_mode == 'cards' %}checked{% endif %}>
+                                    <label class="btn btn-outline-secondary" for="view_cards">
+                                        <i class="fas fa-th-large"></i>
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="view_mode" id="view_table" value="table" {% if view_mode != 'cards' %}checked{% endif %}>
+                                    <label class="btn btn-outline-secondary" for="view_table">
+                                        <i class="fas fa-list"></i>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de Usuários -->
+<div class="row">
+    <div class="col-12">
+        {% if users %}
+            <!-- Visualização em Cards -->
+            <div id="cardsView" class="d-none">
+                <div class="row g-3">
+                    {% for user in users %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm user-card" data-user-slug="{{ user.slug }}">
+                            <div class="card-body">
+                                <div class="d-flex align-items-start mb-3">
+                                    <div class="flex-shrink-0">
+                                        {% if user.profile_picture %}
+                                            <img src="{{ user.profile_picture.url }}" class="rounded-circle" width="50" height="50" alt="{{ user.get_full_name }}">
+                                        {% else %}
+                                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 50px; height: 50px;">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="card-title mb-1">{{ user.get_full_name|default:user.username }}</h6>
+                                        <p class="card-text text-muted small mb-2">{{ user.email }}</p>
+                                        <div class="d-flex flex-wrap gap-1">
+                                            {% if user.is_active %}
+                                                <span class="badge bg-success-subtle text-success">
+                                                    <i class="fas fa-check-circle me-1"></i>Ativo
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-danger-subtle text-danger">
+                                                    <i class="fas fa-times-circle me-1"></i>Inativo
+                                                </span>
+                                            {% endif %}
+
+                                            {% if user.is_superuser %}
+                                                <span class="badge bg-danger-subtle text-danger">
+                                                    <i class="fas fa-crown me-1"></i>Super
+                                                </span>
+                                            {% elif user.is_staff %}
+                                                <span class="badge bg-warning-subtle text-warning">
+                                                    <i class="fas fa-user-tie me-1"></i>Staff
+                                                </span>
+                                            {% endif %}
+
+                                            {% if user.is_verified %}
+                                                <span class="badge bg-info-subtle text-info">
+                                                    <i class="fas fa-shield-check me-1"></i>Verificado
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>{{ user.date_joined|date:"d/m/Y" }}
+                                    </small>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <a class="dropdown-item" href="{% url 'config:user_detail' user.slug %}">
+                                                    <i class="fas fa-eye me-2"></i>Visualizar
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{% url 'config:user_update' user.slug %}">
+                                                    <i class="fas fa-edit me-2"></i>Editar
+                                                </a>
+                                            </li>
+                                            {% if user != request.user %}
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a class="dropdown-item text-danger" href="{% url 'config:user_delete' user.slug %}">
+                                                    <i class="fas fa-trash me-2"></i>Deletar
+                                                </a>
+                                            </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Visualização em Tabela -->
+            <div id="tableView">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="border-0 ps-4">Usuário</th>
+                                        <th class="border-0">Status</th>
+                                        <th class="border-0">Tipo</th>
+                                        <th class="border-0">Último Acesso</th>
+                                        <th class="border-0 text-center">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in users %}
+                                    <tr class="user-row" data-user-slug="{{ user.slug }}">
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-shrink-0">
+                                                    {% if user.profile_picture %}
+                                                        <img src="{{ user.profile_picture.url }}" class="rounded-circle" width="40" height="40" alt="{{ user.get_full_name }}">
+                                                    {% else %}
+                                                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 40px; height: 40px;">
+                                                            <span class="small fw-bold">{{ user.first_name.0|default:user.username.0|upper }}</span>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="flex-grow-1 ms-3">
+                                                    <div class="fw-semibold">{{ user.get_full_name|default:user.username }}</div>
+                                                    <div class="text-muted small">{{ user.email }}</div>
+                                                    <div class="text-muted small">@{{ user.username }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex flex-column gap-1">
+                                                {% if user.is_active %}
+                                                    <span class="badge bg-success-subtle text-success">
+                                                        <i class="fas fa-check-circle me-1"></i>Ativo
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-danger-subtle text-danger">
+                                                        <i class="fas fa-times-circle me-1"></i>Inativo
+                                                    </span>
+                                                {% endif %}
+
+                                                {% if user.is_verified %}
+                                                    <span class="badge bg-info-subtle text-info">
+                                                        <i class="fas fa-shield-check me-1"></i>Verificado
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if user.is_superuser %}
+                                                <span class="badge bg-danger-subtle text-danger">
+                                                    <i class="fas fa-crown me-1"></i>Superusuário
+                                                </span>
+                                            {% elif user.is_staff %}
+                                                <span class="badge bg-warning-subtle text-warning">
+                                                    <i class="fas fa-user-tie me-1"></i>Staff
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary-subtle text-secondary">
+                                                    <i class="fas fa-user me-1"></i>Usuário
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="text-muted small">
+                                                {% if user.last_login %}
+                                                    <i class="fas fa-clock me-1"></i>{{ user.last_login|timesince }} atrás
+                                                    <div class="text-muted smaller">{{ user.last_login|date:"d/m/Y H:i" }}</div>
+                                                {% else %}
+                                                    <i class="fas fa-minus me-1"></i>Nunca
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{% url 'config:user_detail' user.slug %}"
+                                                   class="btn btn-outline-primary"
+                                                   data-bs-toggle="tooltip"
+                                                   title="Visualizar detalhes">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{% url 'config:user_update' user.slug %}"
+                                                   class="btn btn-outline-secondary"
+                                                   data-bs-toggle="tooltip"
+                                                   title="Editar usuário">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                {% if user != request.user %}
+                                                <a href="{% url 'config:user_delete' user.slug %}"
+                                                   class="btn btn-outline-danger"
+                                                   data-bs-toggle="tooltip"
+                                                   title="Deletar usuário">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paginação melhorada -->
+            {% if page_obj.has_other_pages %}
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <div class="text-muted">
+                    Mostrando {{ page_obj.start_index }} a {{ page_obj.end_index }} de {{ page_obj.paginator.count }} usuários
+                </div>
+                <nav aria-label="Navegação de páginas">
+                    <ul class="pagination mb-0">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        {% else %}
+            <!-- Estado vazio elegante -->
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-users fa-4x text-muted opacity-50"></i>
+                </div>
+                <h4 class="text-muted mb-3">Nenhum usuário encontrado</h4>
+                {% if request.GET.query %}
+                    <p class="text-muted mb-4">
+                        Não encontramos usuários para "{{ request.GET.query }}".
+                        Tente ajustar os filtros ou criar um novo usuário.
+                    </p>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <a href="{% url 'config:user_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-undo me-1"></i>Limpar Filtros
+                        </a>
+                        <a href="{% url 'config:user_create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>Criar Usuário
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-4">
+                        Ainda não há usuários cadastrados no sistema.
+                        Comece criando o primeiro usuário.
+                    </p>
+                    <a href="{% url 'config:user_create' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus me-2"></i>Criar Primeiro Usuário
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.user-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.user-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.user-row {
+    transition: background-color 0.2s ease;
+}
+
+.user-row:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.badge {
+    font-size: 0.75em;
+}
+
+.smaller {
+    font-size: 0.7rem;
+}
+
+.stats-card {
+    transition: transform 0.2s ease;
+}
+
+.stats-card:hover {
+    transform: scale(1.02);
+}
+
+.form-check-input:checked {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.dropdown-toggle::after {
+    display: none;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Alternar entre visualizações
+    const viewCards = document.getElementById('view_cards');
+    const viewTable = document.getElementById('view_table');
+    const cardsView = document.getElementById('cardsView');
+    const tableView = document.getElementById('tableView');
+
+    function toggleView() {
+        if (viewCards.checked) {
+            cardsView.classList.remove('d-none');
+            tableView.classList.add('d-none');
+            localStorage.setItem('userListView', 'cards');
+        } else {
+            cardsView.classList.add('d-none');
+            tableView.classList.remove('d-none');
+            localStorage.setItem('userListView', 'table');
+        }
+    }
+
+    // Restaurar visualização salva
+    const savedView = localStorage.getItem('userListView');
+    if (savedView === 'cards') {
+        viewCards.checked = true;
+    } else {
+        viewTable.checked = true;
+    }
+    toggleView();
+
+    viewCards.addEventListener('change', toggleView);
+    viewTable.addEventListener('change', toggleView);
+
+    // Limpar busca
+    document.getElementById('clearSearch').addEventListener('click', function() {
+        document.querySelector('input[name="query"]').value = '';
+        document.getElementById('filterForm').submit();
+    });
+
+    // Auto-submit em mudanças de filtro
+    const filterInputs = document.querySelectorAll('input[type="checkbox"]');
+    filterInputs.forEach(input => {
+        if (input.name !== 'view_mode') {
+            input.addEventListener('change', function() {
+                document.getElementById('filterForm').submit();
+            });
+        }
+    });
+
+    // Busca em tempo real (debounced)
+    let searchTimeout;
+    const searchInput = document.querySelector('input[name="query"]');
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            if (this.value.length >= 3 || this.value.length === 0) {
+                document.getElementById('filterForm').submit();
+            }
+        }, 500);
+    });
+
+    // Tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Click nos cards para ir para detalhes
+    document.querySelectorAll('.user-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown')) {
+                const userSlug = this.dataset.userSlug;
+                window.location.href = `/config/usuarios/${userSlug}/`;
+            }
+        });
+    });
+
+    // Animação de entrada dos cards
+    const cards = document.querySelectorAll('.user-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

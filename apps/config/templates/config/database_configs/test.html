@@ -1,0 +1,260 @@
+{% extends 'config/base_config.html' %}
+{% load crispy_forms_tags %}
+{% load config_extras %}
+
+{% block title %}Testar {{ config.name }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h3 mb-1">
+                <i class="fas fa-vial text-primary me-2"></i>
+                Testar Configuração: {{ config.name }}
+            </h2>
+            <p class="text-muted mb-0">Teste a conectividade com o banco de dados</p>
+        </div>
+        <div>
+            <a href="{% url 'config:database_configs' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Informações da Configuração -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Detalhes da Configuração
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Nome:</strong> {{ config.name }}</p>
+                            <p><strong>Engine:</strong> {{ config.get_engine_display }}</p>
+                            <p><strong>Banco:</strong> <code>{{ config.name_db }}</code></p>
+                            {% if config.user %}
+                            <p><strong>Usuário:</strong> {{ config.user }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {% if config.host %}
+                            <p><strong>Host:</strong> {{ config.host }}</p>
+                            {% endif %}
+                            {% if config.port %}
+                            <p><strong>Porta:</strong> {{ config.port }}</p>
+                            {% endif %}
+                            <p><strong>Status:</strong> 
+                                {% if config.is_active %}
+                                    <span class="badge bg-success">Ativo</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inativo</span>
+                                {% endif %}
+                                {% if config.is_default %}
+                                    <span class="badge bg-warning text-dark">Padrão</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    {% if config.description %}
+                    <hr>
+                    <p><strong>Descrição:</strong> {{ config.description }}</p>
+                    {% endif %}
+                    
+                    {% if config.options %}
+                    <hr>
+                    <p><strong>Opções:</strong></p>
+                    <pre class="bg-light p-2 rounded"><code>{{ config.options|pprint }}</code></pre>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Formulário de Teste -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-play me-2"></i>Executar Teste
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% crispy form %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Histórico de Testes -->
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-history me-2"></i>Último Teste
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if config.last_tested_at %}
+                        <div class="d-flex align-items-center mb-3">
+                            {% if config.last_test_result.success %}
+                                <i class="fas fa-check-circle text-success fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="mb-0 text-success">Sucesso</h6>
+                                    <small class="text-muted">{{ config.last_tested_at|date:"d/m/Y H:i" }}</small>
+                                </div>
+                            {% else %}
+                                <i class="fas fa-times-circle text-danger fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="mb-0 text-danger">Falha</h6>
+                                    <small class="text-muted">{{ config.last_tested_at|date:"d/m/Y H:i" }}</small>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if config.last_test_result.message %}
+                        <div class="alert {% if config.last_test_result.success %}alert-success{% else %}alert-danger{% endif %}">
+                            {{ config.last_test_result.message }}
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center text-muted">
+                            <i class="fas fa-clock fa-2x mb-2"></i>
+                            <p>Nenhum teste realizado ainda</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Informações do Engine -->
+            <div class="card mt-3">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">
+                        <i class="fas fa-database me-2"></i>Sobre {{ config.get_engine_display }}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if config.engine == 'django.db.backends.postgresql' %}
+                        <p><strong>PostgreSQL</strong> é um sistema de banco de dados relacional avançado e open-source.</p>
+                        <ul class="small">
+                            <li>Suporte completo a ACID</li>
+                            <li>Extensões e tipos de dados customizados</li>
+                            <li>Excelente para aplicações complexas</li>
+                        </ul>
+                    {% elif config.engine == 'django.db.backends.mysql' %}
+                        <p><strong>MySQL</strong> é um dos bancos de dados mais populares do mundo.</p>
+                        <ul class="small">
+                            <li>Alta performance e confiabilidade</li>
+                            <li>Amplamente suportado</li>
+                            <li>Ideal para aplicações web</li>
+                        </ul>
+                    {% elif config.engine == 'django.db.backends.sqlite3' %}
+                        <p><strong>SQLite</strong> é um banco de dados leve e embarcado.</p>
+                        <ul class="small">
+                            <li>Não requer servidor separado</li>
+                            <li>Ideal para desenvolvimento</li>
+                            <li>Arquivo único e portável</li>
+                        </ul>
+                    {% elif config.engine == 'django.db.backends.oracle' %}
+                        <p><strong>Oracle</strong> é um sistema de banco de dados empresarial robusto.</p>
+                        <ul class="small">
+                            <li>Alta escalabilidade</li>
+                            <li>Recursos avançados de segurança</li>
+                            <li>Ideal para grandes empresas</li>
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Ações Rápidas -->
+            <div class="card mt-3">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-tools me-2"></i>Ações
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'config:database_config_update' config.pk %}" 
+                           class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-edit me-2"></i>Editar Configuração
+                        </a>
+                        
+                        {% if not config.is_default %}
+                        <button type="button" class="btn btn-outline-warning btn-sm" 
+                                onclick="setAsDefault()">
+                            <i class="fas fa-star me-2"></i>Definir como Padrão
+                        </button>
+                        {% endif %}
+                        
+                        <a href="{% url 'config:database_configs' %}" 
+                           class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-list me-2"></i>Ver Todas
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function setAsDefault() {
+    if (confirm('Definir "{{ config.name }}" como configuração padrão de banco?')) {
+        fetch('{% url "config:database_config_set_default" config.pk %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erro: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao definir configuração padrão');
+        });
+    }
+}
+
+// Feedback visual no botão de teste
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitBtn = e.submitter;
+            if (submitBtn) {
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Testando Conexão...';
+                submitBtn.disabled = true;
+                
+                // Restaurar após 10 segundos (fallback)
+                setTimeout(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }, 10000);
+            }
+        });
+    }
+});
+</script>
+
+<style>
+pre {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.alert {
+    word-break: break-word;
+}
+</style>
+{% endblock %}
