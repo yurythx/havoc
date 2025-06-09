@@ -6,9 +6,9 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
-            <div class="card shadow-sm mt-5">
-                <div class="card-header bg-success text-white text-center">
-                    <h4 class="mb-0">
+            <div class="card-django shadow-sm mt-5">
+                <div class="card-header bg-success text-light text-center">
+                    <h4 class="mb-0 text-sans">
                         <i class="fas fa-shield-alt me-2"></i>Nova Senha
                     </h4>
                 </div>
@@ -23,18 +23,18 @@
                         {% for message in messages %}
                             <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                                 {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                <button type="button" class="btn-close text-sans" data-bs-dismiss="alert"></button>
                             </div>
                         {% endfor %}
                     {% endif %}
 
-                    <form method="post" class="needs-validation" novalidate>
+                    <form method="post" class="needs-validation form-django" novalidate aria-label="Formulário de redefinição de senha" role="form">
                         {% csrf_token %}
                         
                         <input type="hidden" name="email" value="{{ email }}">
                         
                         <div class="mb-3">
-                            <label for="code" class="form-label">Código de Verificação</label>
+                            <label for="code" class="form-label text-sans">Código de Verificação</label>
                             <input type="text" class="form-control" id="code" name="code" 
                                    placeholder="123456" maxlength="6" pattern="[0-9]{6}" 
                                    inputmode="numeric" required>
@@ -44,7 +44,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="new_password" class="form-label">Nova Senha</label>
+                            <label for="new_password" class="form-label text-sans">Nova Senha</label>
                             <input type="password" class="form-control" id="new_password" name="new_password"
                                    placeholder="Digite sua nova senha" autocomplete="new-password" required>
                             <div class="invalid-feedback">
@@ -53,7 +53,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="confirm_password" class="form-label">Confirmar Nova Senha</label>
+                            <label for="confirm_password" class="form-label text-sans">Confirmar Nova Senha</label>
                             <input type="password" class="form-control" id="confirm_password" name="confirm_password"
                                    placeholder="Confirme sua nova senha" autocomplete="new-password" required>
                             <div class="invalid-feedback">
@@ -62,7 +62,7 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success btn-lg">
+                            <button type="submit" class="btn btn-success btn-lg text-sans">
                                 <i class="fas fa-check me-2"></i>Redefinir Senha
                             </button>
                         </div>

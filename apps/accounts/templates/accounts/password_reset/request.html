@@ -6,15 +6,15 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
-            <div class="card shadow-sm mt-5">
-                <div class="card-header bg-warning text-dark text-center">
-                    <h4 class="mb-0">
+            <div class="card-django shadow-sm mt-5">
+                <div class="card-header card-django-header-comfortable bg-warning text-body text-center card-django">
+                    <h4 class="mb-0 text-sans text-body">
                         <i class="fas fa-key me-2"></i>Redefinir Senha
                     </h4>
                 </div>
-                <div class="card-body p-4">
+                <div class="card-body card-django-body-spacious p-4 card-django">
                     <div class="text-center mb-4">
-                        <p class="text-muted">
+                        <p class="text-secondary text-body">
                             Digite seu e-mail para receber um código de redefinição de senha.
                         </p>
                     </div>
@@ -23,17 +23,17 @@
                         {% for message in messages %}
                             <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                                 {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                <button type="button" class="btn-close text-sans" data-bs-dismiss="alert"></button>
                             </div>
                         {% endfor %}
                     {% endif %}
 
-                    <form method="post" class="needs-validation" novalidate>
+                    <form method="post" class="needs-validation form-django" novalidate aria-label="Formulário de dados" role="form">
                         {% csrf_token %}
                         
-                        <div class="mb-3">
-                            <label for="email" class="form-label">E-mail</label>
-                            <input type="email" class="form-control" id="email" name="email"
+                        <div class="form-group-comfortable">
+                            <label for="email" class="form-label text-sans">E-mail</label>
+                            <input type="email" class="form-control form-control-enhanced" id="email" name="email"
                                    placeholder="Digite seu e-mail" autocomplete="email" required>
                             <div class="invalid-feedback">
                                 Por favor, digite um e-mail válido.
@@ -41,7 +41,7 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-warning btn-lg">
+                            <button type="submit" class="btn btn-warning btn-lg text-sans">
                                 <i class="fas fa-paper-plane me-2"></i>Enviar Código
                             </button>
                         </div>
@@ -50,7 +50,7 @@
                     <hr class="my-4">
 
                     <div class="text-center">
-                        <p class="mb-0">
+                        <p class="mb-0 text-body">
                             Lembrou da senha? 
                             <a href="{% url 'accounts:login' %}" class="text-decoration-none">
                                 Fazer login

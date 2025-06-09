@@ -2,6 +2,15 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from django.urls import reverse
 from django.http import HttpResponseRedirect
+
+# Importação condicional do django-ratelimit
+try:
+    from django_ratelimit.exceptions import Ratelimited
+    RATELIMIT_AVAILABLE = True
+except ImportError:
+    RATELIMIT_AVAILABLE = False
+    class Ratelimited(Exception):
+        pass
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.views import redirect_to_login
 from django.conf import settings
@@ -244,14 +253,40 @@ def handle_404_error(request, exception=None):
     )
 
 
+class RateLimitMiddleware:
+    """
+    Middleware para tratar exceções de rate limiting de forma elegante
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        try:
+            response = self.get_response(request)
+            return response
+        except Ratelimited:
+            # Adiciona mensagem de erro amigável
+            messages.error(
+                request,
+                '⏰ Muitas tentativas em pouco tempo. Aguarde alguns minutos antes de tentar novamente.'
+            )
+
+            # Redireciona para a mesma página ou página anterior
+            referer = request.META.get('HTTP_REFERER')
+            if referer:
+                return HttpResponseRedirect(referer)
+            else:
+                return redirect('pages:home')
+
 class SmartRedirectMiddleware:
     """
     Middleware para redirecionamentos inteligentes baseados no contexto do usuário
     """
-    
+
     def __init__(self, get_response):
         self.get_response = get_response
-    
+
     def __call__(self, request):
         response = self.get_response(request)
         return response

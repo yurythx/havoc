@@ -1,61 +1,197 @@
-/* ===== HAVOC CUSTOM STYLES ===== */
+/* ===== DJANGO-INSPIRED DESIGN SYSTEM ===== */
 
-/* Variables */
+/* CSS Variables for Django Theme */
 :root {
-    --primary-color: #0d6efd;
+    /* Django Brand Colors */
+    --django-green: #0C4B33;
+    --django-green-light: #44B78B;
+    --django-green-dark: #092E20;
+
+    /* Primary Colors (Django Style) */
+    --primary-color: var(--django-green);
+    --primary-light: var(--django-green-light);
+    --primary-dark: var(--django-green-dark);
+
+    /* Semantic Colors */
     --secondary-color: #6c757d;
     --success-color: #198754;
     --danger-color: #dc3545;
     --warning-color: #ffc107;
     --info-color: #0dcaf0;
-    --light-color: #f8f9fa;
-    --dark-color: #212529;
-    
-    --font-family-sans-serif: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+    /* Light Theme Colors */
+    --bg-color: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --text-color: #212529;
+    --text-muted: #6c757d;
+    --border-color: #dee2e6;
+    --link-color: var(--django-green);
+    --link-hover-color: var(--django-green-dark);
+
+    /* Typography (Django Style) */
+    --font-family-sans-serif: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-family-serif: 'Palatino', 'Palatino Linotype', 'Book Antiqua', serif;
+    --font-family-mono: 'Fira Mono', 'Monaco', 'Consolas', monospace;
+
+    /* Spacing & Layout */
     --border-radius: 0.375rem;
     --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
     --box-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
-    
     --transition: all 0.15s ease-in-out;
+
+    /* Header Heights */
+    --navbar-height: 60px;
+    --footer-height: auto;
 }
 
-/* Base */
+/* Dark Theme Variables */
+[data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --text-color: #ffffff;
+    --text-muted: #adb5bd;
+    --border-color: #495057;
+    --link-color: var(--django-green-light);
+    --link-hover-color: #ffffff;
+
+    /* Dark theme specific colors */
+    --navbar-bg: #212529;
+    --footer-bg: #000000;
+    --card-bg: #2d2d2d;
+}
+
+/* Base Styles (Django-inspired) */
 body {
     font-family: var(--font-family-sans-serif);
     line-height: 1.6;
-    color: var(--dark-color);
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    transition: var(--transition);
 }
 
-/* Typography */
+/* Typography (Django Style Guide) */
 h1, h2, h3, h4, h5, h6 {
-    font-weight: 600;
+    font-family: var(--font-family-sans-serif);
+    font-weight: 400; /* Django uses normal weight for headers */
     line-height: 1.2;
+    color: var(--text-color);
 }
 
-.lead {
+/* Django Typography Hierarchy */
+h1 {
+    font-size: 2rem; /* 32px - Django H1 */
     font-weight: 400;
 }
 
-/* Links */
+h2 {
+    font-size: 1.5rem; /* 24px - Django H2 */
+    font-weight: 400;
+}
+
+h3 {
+    font-size: 1.25rem; /* 20px - Django H3 */
+    font-weight: 700; /* Bold for H3 */
+}
+
+h4 {
+    font-size: 1rem; /* 16px - Django H4 */
+    font-weight: 700;
+}
+
+h5, h6 {
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+/* Paragraph styles */
+p {
+    font-family: var(--font-family-serif); /* Django uses serif for body text */
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+/* Sans-serif text class for special cases */
+.text-sans {
+    font-family: var(--font-family-sans-serif);
+}
+
+/* Code and monospace */
+code, pre, .monospace {
+    font-family: var(--font-family-mono);
+}
+
+.lead {
+    font-weight: 300; /* Light weight for lead text */
+    font-size: 1.25rem;
+    font-family: var(--font-family-sans-serif);
+}
+
+/* Links (Django Style) */
 a {
+    color: var(--link-color);
+    text-decoration: none;
     transition: var(--transition);
 }
 
 a:hover {
-    text-decoration: none !important;
+    color: var(--link-hover-color);
+    text-decoration: underline;
 }
 
-/* Buttons */
+/* Django-style buttons */
 .btn {
-    font-weight: 500;
+    font-family: var(--font-family-sans-serif);
+    font-weight: 400;
     border-radius: var(--border-radius);
     transition: var(--transition);
-    border-width: 1px;
+    border: 1px solid transparent;
 }
 
 .btn:hover {
     transform: translateY(-1px);
     box-shadow: var(--box-shadow);
+}
+
+.btn-primary {
+    background-color: var(--django-green);
+    border-color: var(--django-green);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--django-green-dark);
+    border-color: var(--django-green-dark);
+    color: white;
+}
+
+.btn-outline-primary {
+    color: var(--django-green);
+    border-color: var(--django-green);
+    background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--django-green);
+    border-color: var(--django-green);
+    color: white;
+}
+
+/* Call to action button (Django style) */
+.btn-cta {
+    background-color: var(--django-green);
+    border-color: var(--django-green);
+    color: white;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+}
+
+.btn-cta:hover {
+    background-color: var(--django-green-dark);
+    border-color: var(--django-green-dark);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: var(--box-shadow-lg);
 }
 
 .btn-floating {

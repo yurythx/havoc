@@ -5,7 +5,7 @@
     <div class="row">
         <div class="col-lg-8">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1>Artigos</h1>
+                <h1 class="text-sans text-body">Artigos</h1>
                 <div>
                     <a href="{% url 'articles:search' %}" class="btn btn-outline-primary">
                         <i class="fas fa-search me-2"></i>Buscar
@@ -17,14 +17,14 @@
                 <div class="row g-4">
                     {% for article in articles %}
                     <div class="col-md-6">
-                        <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-django h-100 border-0 shadow-sm">
                             {% if article.featured_image %}
-                                <img src="{{ article.featured_image.url }}" class="card-img-top" alt="{{ article.featured_image_alt|default:article.title }}" style="height: 200px; object-fit: cover;">
+                                <img src="{{ article.featured_image.url }}" class="card-django-img-top img-height-md img-cover" alt="{{ article.featured_image_alt|default:article.title }}">
                             {% endif %}
-                            <div class="card-body d-flex flex-column">
+                            <div class="card-body d-flex flex-column card-django">
                                 <div class="mb-2">
                                     {% if article.category %}
-                                        <span class="badge" style="background-color: {{ article.category.color }}">
+                                        <span class="badge bg-django-green">
                                             {% if article.category.icon %}<i class="{{ article.category.icon }} me-1"></i>{% endif %}
                                             {{ article.category.name }}
                                         </span>
@@ -36,20 +36,20 @@
                                     {% endif %}
                                 </div>
                                 
-                                <h5 class="card-title">
+                                <h5 class="card-title text-sans text-body">
                                     <a href="{{ article.get_absolute_url }}" class="text-decoration-none">
                                         {{ article.title }}
                                     </a>
                                 </h5>
                                 
-                                <p class="card-text text-muted">{{ article.excerpt|truncatechars:120 }}</p>
+                                <p class="card-django-text text-secondary text-body">{{ article.excerpt|truncatechars:120 }}</p>
                                 
                                 <div class="mt-auto">
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted">
+                                        <small class="text-secondary">
                                             <i class="fas fa-user me-1"></i>{{ article.author.get_full_name|default:article.author.username }}
                                         </small>
-                                        <small class="text-muted">
+                                        <small class="text-secondary">
                                             <i class="fas fa-calendar me-1"></i>{{ article.published_at|date:"d/m/Y" }}
                                         </small>
                                     </div>
@@ -57,10 +57,10 @@
                                     <div class="d-flex justify-content-between align-items-center mt-2">
                                         <div>
                                             {% for tag in article.tags.all|slice:":3" %}
-                                                <span class="badge bg-light text-dark me-1">{{ tag.name }}</span>
+                                                <span class="badge bg-secondary text-white me-1">{{ tag.name }}</span>
                                             {% endfor %}
                                         </div>
-                                        <div class="text-muted small">
+                                        <div class="text-secondary small">
                                             <i class="fas fa-eye me-1"></i>{{ article.view_count }}
                                             <i class="fas fa-clock ms-2 me-1"></i>{{ article.reading_time }} min
                                         </div>
@@ -104,9 +104,9 @@
                 {% endif %}
             {% else %}
                 <div class="text-center py-5">
-                    <i class="fas fa-newspaper fa-5x text-muted mb-3"></i>
-                    <h3 class="text-muted">Nenhum artigo encontrado</h3>
-                    <p class="text-muted">Ainda não há artigos publicados.</p>
+                    <i class="fas fa-newspaper fa-5x text-secondary mb-3"></i>
+                    <h3 class="text-secondary text-sans text-body">Nenhum artigo encontrado</h3>
+                    <p class="text-secondary text-body">Ainda não há artigos publicados.</p>
                 </div>
             {% endif %}
         </div>
@@ -115,23 +115,23 @@
         <div class="col-lg-4">
             <!-- Artigos em Destaque -->
             {% if featured_articles %}
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h6 class="mb-0"><i class="fas fa-star me-2"></i>Artigos em Destaque</h6>
+            <div class="card-django border-0 shadow-sm mb-4">
+                <div class="card-header bg-django-green text-light card-django">
+                    <h6 class="mb-0 text-sans text-body"><i class="fas fa-star me-2"></i>Artigos em Destaque</h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body card-django">
                     {% for featured in featured_articles %}
                     <div class="d-flex mb-3 {% if not forloop.last %}border-bottom pb-3{% endif %}">
                         {% if featured.featured_image %}
                             <img src="{{ featured.featured_image.url }}" class="me-3 rounded" style="width: 60px; height: 60px; object-fit: cover;" alt="{{ featured.title }}">
                         {% endif %}
                         <div class="flex-grow-1">
-                            <h6 class="mb-1">
+                            <h6 class="mb-1 text-sans text-body">
                                 <a href="{{ featured.get_absolute_url }}" class="text-decoration-none">
                                     {{ featured.title|truncatechars:50 }}
                                 </a>
                             </h6>
-                            <small class="text-muted">
+                            <small class="text-secondary">
                                 <i class="fas fa-calendar me-1"></i>{{ featured.published_at|date:"d/m/Y" }}
                             </small>
                         </div>
@@ -142,15 +142,15 @@
             {% endif %}
             
             <!-- Busca -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-light">
-                    <h6 class="mb-0"><i class="fas fa-search me-2"></i>Buscar Artigos</h6>
+            <div class="card-django border-0 shadow-sm mb-4">
+                <div class="card-header bg-secondary card-django">
+                    <h6 class="mb-0 text-sans text-body"><i class="fas fa-search me-2"></i>Buscar Artigos</h6>
                 </div>
-                <div class="card-body">
-                    <form method="get" action="{% url 'articles:search' %}">
+                <div class="card-body mb-3 card-django">
+                    <form method="get" action="{% url 'articles:search' %}" class="form-django" aria-label="Formulário de busca" role="form">
                         <div class="input-group">
                             <input type="text" name="q" class="form-control" placeholder="Digite sua busca...">
-                            <button class="btn btn-primary" type="submit">
+                            <button class="btn btn-primary text-sans" type="submit">
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>

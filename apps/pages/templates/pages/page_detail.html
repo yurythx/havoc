@@ -33,13 +33,13 @@
             <!-- Page Header -->
             <article class="mb-5">
                 <header class="mb-4">
-                    <h1 class="display-5 fw-bold">{{ page.title }}</h1>
+                    <h1 class="display-5 fw-bold text-sans text-body">{{ page.title }}</h1>
                     
                     {% if page.excerpt %}
-                        <p class="lead text-muted">{{ page.excerpt }}</p>
+                        <p class="lead text-secondary text-body">{{ page.excerpt }}</p>
                     {% endif %}
                     
-                    <div class="d-flex align-items-center text-muted mb-3">
+                    <div class="d-flex align-items-center text-secondary mb-3">
                         <small>
                             <i class="fas fa-calendar me-1"></i>
                             Publicado em {{ page.created_at|date:"d/m/Y" }}
@@ -63,7 +63,7 @@
 
                 <!-- Featured Image -->
                 {% if page.featured_image %}
-                    <div class="mb-4">
+                    <div class="form-section">
                         <img src="{{ page.featured_image.url }}" class="img-fluid rounded" alt="{{ page.title }}">
                     </div>
                 {% endif %}
@@ -78,10 +78,10 @@
                     <div class="row">
                         <div class="col-md-6">
                             {% if page.tags.all %}
-                                <div class="mb-3">
+                                <div class="form-group-comfortable">
                                     <strong>Tags:</strong>
                                     {% for tag in page.tags.all %}
-                                        <span class="badge bg-secondary me-1">{{ tag.name }}</span>
+                                        <span class="badge badge-enhanced bg-secondary me-1">{{ tag.name }}</span>
                                     {% endfor %}
                                 </div>
                             {% endif %}
@@ -91,19 +91,19 @@
                             <!-- Share Buttons -->
                             <div class="btn-group" role="group" aria-label="Compartilhar">
                                 <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" 
-                                   target="_blank" class="btn btn-outline-primary btn-sm">
+                                   target="_blank" class="btn btn-outline-primary btn-sm btn-enhanced">
                                     <i class="fab fa-facebook-f"></i>
                                 </a>
                                 <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ page.title }}" 
-                                   target="_blank" class="btn btn-outline-info btn-sm">
+                                   target="_blank" class="btn btn-outline-info btn-sm btn-enhanced">
                                     <i class="fab fa-twitter"></i>
                                 </a>
                                 <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" 
-                                   target="_blank" class="btn btn-outline-primary btn-sm">
+                                   target="_blank" class="btn btn-outline-primary btn-sm btn-enhanced">
                                     <i class="fab fa-linkedin-in"></i>
                                 </a>
                                 <a href="whatsapp://send?text={{ page.title }} {{ request.build_absolute_uri }}" 
-                                   class="btn btn-outline-success btn-sm">
+                                   class="btn btn-outline-success btn-sm btn-enhanced">
                                     <i class="fab fa-whatsapp"></i>
                                 </a>
                             </div>
@@ -115,23 +115,23 @@
             <!-- Child Pages -->
             {% if children %}
                 <section class="mb-5">
-                    <h3 class="h4 mb-3">
+                    <h3 class="h4 mb-3 text-sans text-body">
                         <i class="fas fa-sitemap me-2"></i>Subpáginas
                     </h3>
                     <div class="row">
                         {% for child in children %}
                             <div class="col-md-6 mb-3">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5 class="card-title">
+                                <div class="card-django">
+                                    <div class="card-body card-django-body-spacious card-django">
+                                        <h5 class="card-title text-sans text-body">
                                             <a href="{% url 'pages:page_detail' child.slug %}" class="text-decoration-none">
                                                 {{ child.title }}
                                             </a>
                                         </h5>
                                         {% if child.excerpt %}
-                                            <p class="card-text text-muted">{{ child.excerpt|truncatewords:15 }}</p>
+                                            <p class="card-django-text text-secondary text-body">{{ child.excerpt|truncatewords:15 }}</p>
                                         {% endif %}
-                                        <a href="{% url 'pages:page_detail' child.slug %}" class="btn btn-outline-primary btn-sm">
+                                        <a href="{% url 'pages:page_detail' child.slug %}" class="btn btn-outline-primary btn-sm btn-enhanced">
                                             <i class="fas fa-arrow-right me-1"></i>Ler mais
                                         </a>
                                     </div>
@@ -147,32 +147,32 @@
         <div class="col-lg-4">
             <!-- Related Pages -->
             {% if related_pages %}
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">
+                <div class="card-django mb-4">
+                    <div class="card-header card-django-header-comfortable card-django">
+                        <h5 class="mb-0 text-sans text-body">
                             <i class="fas fa-link me-2"></i>Páginas Relacionadas
                         </h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body card-django-body-spacious card-django">
                         {% for related in related_pages %}
                             <div class="d-flex mb-3">
                                 {% if related.featured_image %}
                                     <img src="{{ related.featured_image.url }}" class="me-3 rounded" 
                                          style="width: 60px; height: 60px; object-fit: cover;" alt="{{ related.title }}">
                                 {% else %}
-                                    <div class="me-3 bg-light rounded d-flex align-items-center justify-content-center" 
+                                    <div class="me-3 bg-secondary rounded d-flex align-items-center justify-content-center" 
                                          style="width: 60px; height: 60px;">
-                                        <i class="fas fa-file-alt text-muted"></i>
+                                        <i class="fas fa-file-alt text-secondary"></i>
                                     </div>
                                 {% endif %}
                                 
                                 <div class="flex-grow-1">
-                                    <h6 class="mb-1">
+                                    <h6 class="mb-1 text-sans text-body">
                                         <a href="{% url 'pages:page_detail' related.slug %}" class="text-decoration-none">
                                             {{ related.title|truncatechars:40 }}
                                         </a>
                                     </h6>
-                                    <small class="text-muted">
+                                    <small class="text-secondary">
                                         {{ related.created_at|date:"d/m/Y" }}
                                     </small>
                                 </div>
@@ -183,16 +183,16 @@
             {% endif %}
 
             <!-- Table of Contents (if page has headings) -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">
+            <div class="card-django mb-4">
+                <div class="card-header card-django-header-comfortable card-django">
+                    <h5 class="mb-0 text-sans text-body">
                         <i class="fas fa-list me-2"></i>Nesta Página
                     </h5>
                 </div>
-                <div class="card-body">
-                    <div id="table-of-contents">
+                <div class="card-body card-django-body-spacious card-django">
+                    <div id="table table-django-of-contents">
                         <!-- Will be populated by JavaScript -->
-                        <p class="text-muted mb-0">Carregando índice...</p>
+                        <p class="text-secondary mb-0 text-body">Carregando índice...</p>
                     </div>
                 </div>
             </div>
@@ -200,7 +200,7 @@
             <!-- Back to Top -->
             <div class="text-center">
                 <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" 
-                        class="btn btn-outline-secondary btn-sm">
+                        class="btn btn-outline-secondary btn-sm text-sans">
                     <i class="fas fa-arrow-up me-1"></i>Voltar ao topo
                 </button>
             </div>
@@ -210,9 +210,9 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Generate table of contents
+    // Generate table table-django of contents
     const headings = document.querySelectorAll('.page-content h1, .page-content h2, .page-content h3, .page-content h4');
-    const tocContainer = document.getElementById('table-of-contents');
+    const tocContainer = document.getElementById('table table-django-of-contents');
     
     if (headings.length > 0) {
         let tocHTML = '<ul class="list-unstyled">';
@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             tocHTML += `
                 <li style="margin-left: ${indent}px;" class="mb-1">
-                    <a href="#${id}" class="text-decoration-none text-muted">
+                    <a href="#${id}" class="text-decoration-none text-secondary">
                         ${heading.textContent}
                     </a>
                 </li>
@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     } else {
-        tocContainer.innerHTML = '<p class="text-muted mb-0">Nenhum cabeçalho encontrado.</p>';
+        tocContainer.innerHTML = '<p class="text-secondary mb-0 text-body">Nenhum cabeçalho encontrado.</p>';
     }
 });
 </script>

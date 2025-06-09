@@ -4,38 +4,60 @@
 {% block title %}Login - {{ block.super }}{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container my-5">
+    <!-- Header da Página -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-1 text-sans text-body">
+                        <i class="fas fa-sign-in-alt me-2 text-django-green"></i>Entrar no Sistema
+                    </h1>
+                    <p class="text-secondary mb-0 text-body">Faça login com seu e-mail ou nome de usuário</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
-            <div class="card shadow-lg mt-5 border-0">
-                <div class="card-body p-5">
-                    <!-- Usar o formulário crispy -->
-                    {% crispy form %}
+            <!-- Card de Login -->
+            <div class="card-django border-0 shadow-sm mb-4">
+                <div class="card-body profile-card-body card-django">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-circle fa-3x text-django-green mb-3"></i>
+                        <h3 class="text-sans text-body">Login</h3>
+                    </div>
+
+                    <!-- Formulário de Login -->
+                    <div class="form-django">
+                        {% crispy form %}
+                    </div>
                 </div>
             </div>
 
-            <!-- Informações adicionais -->
-            <div class="text-center mt-4">
-                <div class="card border-0 bg-light">
-                    <div class="card-body py-3">
-                        <h6 class="text-muted mb-2">
-                            <i class="fas fa-info-circle me-1"></i>Como fazer login?
-                        </h6>
-                        <div class="row text-center">
-                            <div class="col-md-6">
-                                <div class="mb-2">
-                                    <i class="fas fa-envelope text-primary me-1"></i>
-                                    <small><strong>Com E-mail:</strong></small>
-                                </div>
-                                <small class="text-muted">usuario@exemplo.com</small>
+            <!-- Informações de Ajuda -->
+            <div class="card-django border-0 shadow-sm">
+                <div class="card-header profile-card-header">
+                    <h6 class="mb-0 text-sans text-body">
+                        <i class="fas fa-info-circle me-2"></i>Como fazer login?
+                    </h6>
+                </div>
+                <div class="card-body profile-card-body card-django">
+                    <div class="row text-center">
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <i class="fas fa-envelope text-django-green me-1"></i>
+                                <small class="text-sans"><strong>Com E-mail:</strong></small>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-2">
-                                    <i class="fas fa-user text-success me-1"></i>
-                                    <small><strong>Com Usuário:</strong></small>
-                                </div>
-                                <small class="text-muted">meuusuario</small>
+                            <small class="text-muted text-sans">usuario@exemplo.com</small>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <i class="fas fa-user text-django-green me-1"></i>
+                                <small class="text-sans"><strong>Com Usuário:</strong></small>
                             </div>
+                            <small class="text-muted text-sans">meuusuario</small>
                         </div>
                     </div>
                 </div>
@@ -43,71 +65,6 @@
         </div>
     </div>
 </div>
-
-<style>
-.card {
-    border-radius: 15px;
-    transition: transform 0.2s ease;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-}
-
-.btn-primary {
-    border-radius: 25px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
-}
-
-.form-control {
-    border-radius: 10px;
-    transition: all 0.3s ease;
-}
-
-.form-control:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-    transform: scale(1.02);
-}
-
-.bg-light {
-    background-color: #f8f9fa !important;
-}
-
-.text-muted {
-    color: #6c757d !important;
-}
-
-.shadow-lg {
-    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
-}
-
-/* Animações para os ícones */
-.fas {
-    transition: transform 0.2s ease;
-}
-
-.card:hover .fas {
-    transform: scale(1.1);
-}
-
-/* Responsividade */
-@media (max-width: 576px) {
-    .container {
-        padding: 0 15px;
-    }
-
-    .card-body {
-        padding: 2rem !important;
-    }
-}
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -121,35 +78,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const passwordField = document.querySelector('input[name="password"]');
     const form = document.querySelector('form');
 
-    // Validação em tempo real do campo de login
-    if (loginField) {
-        loginField.addEventListener('input', function() {
-            const value = this.value.trim();
-            this.classList.remove('is-valid', 'is-invalid');
-
-            if (value.length >= 3) {
-                // Verificar se é email ou username
-                if (value.includes('@')) {
-                    // Validar como email
-                    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                    if (emailRegex.test(value)) {
-                        this.classList.add('is-valid');
-                    } else {
-                        this.classList.add('is-invalid');
-                    }
-                } else {
-                    // Validar como username
-                    const usernameRegex = /^[a-zA-Z0-9._-]+$/;
-                    if (usernameRegex.test(value)) {
-                        this.classList.add('is-valid');
-                    } else {
-                        this.classList.add('is-invalid');
-                    }
-                }
-            }
-        });
-    }
-
     // Feedback visual no envio do formulário
     if (form) {
         form.addEventListener('submit', function(e) {
@@ -157,34 +85,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (submitBtn) {
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Entrando...';
                 submitBtn.disabled = true;
-
-                // Adicionar classe de loading
-                submitBtn.classList.add('btn-loading');
             }
         });
-    }
-
-    // Enter no campo de senha submete o formulário
-    if (passwordField) {
-        passwordField.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                form.submit();
-            }
-        });
-    }
-
-    // Animação de entrada
-    const card = document.querySelector('.card');
-    if (card) {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-
-        setTimeout(() => {
-            card.style.transition = 'all 0.5s ease';
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, 100);
     }
 });
 </script>

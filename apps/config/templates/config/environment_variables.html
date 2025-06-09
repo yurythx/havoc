@@ -21,13 +21,13 @@
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h1 class="h2 mb-1">
-                    <i class="fas fa-code me-2 text-primary"></i>Variáveis de Ambiente
+                <h1 class="h2 mb-1 text-sans text-body">
+                    <i class="fas fa-code me-2 text-django-green"></i>Variáveis de Ambiente
                 </h1>
-                <p class="text-muted mb-0">Configure variáveis de ambiente e configurações do Django</p>
+                <p class="text-secondary mb-0 text-body">Configure variáveis de ambiente e configurações do Django</p>
             </div>
             <div>
-                <a href="{% url 'config:system_config' %}" class="btn btn-outline-secondary">
+                <a href="{% url 'config:system_config' %}" class="btn btn-outline-secondary btn-enhanced">
                     <i class="fas fa-arrow-left me-1"></i>Voltar
                 </a>
             </div>
@@ -38,21 +38,21 @@
 <div class="row">
     <!-- Formulário Principal -->
     <div class="col-lg-8">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-light border-0">
+        <div class="card-django border-0 shadow-sm">
+            <div class="card-header card-django-header-comfortable bg-secondary border-0 card-django">
                 <div class="d-flex align-items-center">
                     <div class="flex-shrink-0">
-                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 40px; height: 40px;">
+                        <div class="bg-django-green rounded-circle d-flex align-items-center justify-content-center text-light" style="width: 40px; height: 40px;">
                             <i class="fas fa-code"></i>
                         </div>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <h5 class="mb-0">Configurações de Ambiente</h5>
-                        <small class="text-muted">Gerencie variáveis de ambiente do sistema</small>
+                        <h5 class="mb-0 text-sans text-body">Configurações de Ambiente</h5>
+                        <small class="text-secondary">Gerencie variáveis de ambiente do sistema</small>
                     </div>
                 </div>
             </div>
-            <div class="card-body p-4">
+            <div class="card-body card-django-body-spacious p-4 card-django">
                 {% crispy form %}
             </div>
         </div>
@@ -61,40 +61,40 @@
     <!-- Sidebar com Informações -->
     <div class="col-lg-4">
         <!-- Configurações Atuais -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-info text-white border-0">
-                <h6 class="mb-0">
+        <div class="card-django border-0 shadow-sm mb-4">
+            <div class="card-header card-django-header-comfortable bg-info text-light border-0 card-django">
+                <h6 class="mb-0 text-sans text-body">
                     <i class="fas fa-info-circle me-2"></i>Configurações Atuais
                 </h6>
             </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label fw-bold">DEBUG:</label>
-                    <p class="form-control-plaintext">
+            <div class="card-body card-django-body-spacious card-django">
+                <div class="form-group-comfortable">
+                    <label class="form-label form-label-enhanced fw-bold">DEBUG:</label>
+                    <p class="form-control-plaintext text-body">
                         {% if settings.DEBUG %}
-                            <span class="badge bg-warning">Ativo</span>
+                            <span class="badge badge-enhanced bg-warning">Ativo</span>
                         {% else %}
-                            <span class="badge bg-success">Inativo</span>
+                            <span class="badge badge-enhanced bg-success">Inativo</span>
                         {% endif %}
                     </p>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold">SECRET_KEY:</label>
-                    <p class="form-control-plaintext">
+                <div class="form-group-comfortable">
+                    <label class="form-label form-label-enhanced fw-bold">SECRET_KEY:</label>
+                    <p class="form-control-plaintext text-body">
                         {% if settings.SECRET_KEY %}
-                            <span class="badge bg-success">Configurada</span>
+                            <span class="badge badge-enhanced bg-success">Configurada</span>
                         {% else %}
-                            <span class="badge bg-danger">Não configurada</span>
+                            <span class="badge badge-enhanced bg-danger">Não configurada</span>
                         {% endif %}
                     </p>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold">ALLOWED_HOSTS:</label>
-                    <p class="form-control-plaintext">
+                <div class="form-group-comfortable">
+                    <label class="form-label form-label-enhanced fw-bold">ALLOWED_HOSTS:</label>
+                    <p class="form-control-plaintext text-body">
                         {% if settings.ALLOWED_HOSTS %}
-                            <span class="badge bg-success">{{ settings.ALLOWED_HOSTS|length }} host(s)</span>
+                            <span class="badge badge-enhanced bg-success">{{ settings.ALLOWED_HOSTS|length }} host(s)</span>
                         {% else %}
-                            <span class="badge bg-warning">Nenhum</span>
+                            <span class="badge badge-enhanced bg-warning">Nenhum</span>
                         {% endif %}
                     </p>
                 </div>
@@ -102,62 +102,62 @@
         </div>
 
         <!-- Dicas de Segurança -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-warning text-dark border-0">
-                <h6 class="mb-0">
+        <div class="card-django border-0 shadow-sm mb-4">
+            <div class="card-header card-django-header-comfortable bg-warning text-body border-0 card-django">
+                <h6 class="mb-0 text-sans text-body">
                     <i class="fas fa-shield-alt me-2"></i>Dicas de Segurança
                 </h6>
             </div>
-            <div class="card-body">
+            <div class="card-body card-django-body-spacious card-django">
                 <div class="d-flex align-items-start mb-3">
                     <i class="fas fa-exclamation-triangle text-warning me-2 mt-1"></i>
                     <div>
                         <strong>DEBUG em Produção</strong>
-                        <div class="small text-muted">Sempre desative DEBUG em produção</div>
+                        <div class="small text-secondary">Sempre desative DEBUG em produção</div>
                     </div>
                 </div>
                 <div class="d-flex align-items-start mb-3">
                     <i class="fas fa-key text-danger me-2 mt-1"></i>
                     <div>
                         <strong>SECRET_KEY</strong>
-                        <div class="small text-muted">Use uma chave longa e aleatória</div>
+                        <div class="small text-secondary">Use uma chave longa e aleatória</div>
                     </div>
                 </div>
                 <div class="d-flex align-items-start mb-3">
                     <i class="fas fa-lock text-success me-2 mt-1"></i>
                     <div>
                         <strong>HTTPS</strong>
-                        <div class="small text-muted">Ative SSL/HTTPS em produção</div>
+                        <div class="small text-secondary">Ative SSL/HTTPS em produção</div>
                     </div>
                 </div>
                 <div class="d-flex align-items-start">
                     <i class="fas fa-globe text-info me-2 mt-1"></i>
                     <div>
                         <strong>ALLOWED_HOSTS</strong>
-                        <div class="small text-muted">Configure apenas domínios confiáveis</div>
+                        <div class="small text-secondary">Configure apenas domínios confiáveis</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Exemplos de Variáveis -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-light border-0">
-                <h6 class="mb-0">
+        <div class="card-django border-0 shadow-sm mb-4">
+            <div class="card-header card-django-header-comfortable bg-secondary border-0 card-django">
+                <h6 class="mb-0 text-sans text-body">
                     <i class="fas fa-code me-2"></i>Exemplos de Variáveis
                 </h6>
             </div>
-            <div class="card-body">
+            <div class="card-body card-django-body-spacious card-django">
                 <div class="accordion" id="examplesAccordion">
                     <div class="accordion-item border-0">
-                        <h2 class="accordion-header">
+                        <h2 class="accordion-header text-sans text-body">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#example1">
                                 <i class="fas fa-cog me-2"></i>Configurações Básicas
                             </button>
                         </h2>
                         <div id="example1" class="accordion-collapse collapse" data-bs-parent="#examplesAccordion">
                             <div class="accordion-body">
-                                <pre class="small bg-light p-2 rounded">API_KEY=sua_api_key_aqui
+                                <pre class="small bg-secondary p-2 rounded text-body">API_KEY=sua_api_key_aqui
 REDIS_URL=redis://localhost:6379/0
 SENTRY_DSN=https://...
 MAX_UPLOAD_SIZE=52428800</pre>
@@ -166,14 +166,14 @@ MAX_UPLOAD_SIZE=52428800</pre>
                     </div>
                     
                     <div class="accordion-item border-0">
-                        <h2 class="accordion-header">
+                        <h2 class="accordion-header text-sans text-body">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#example2">
                                 <i class="fas fa-database me-2"></i>Banco de Dados
                             </button>
                         </h2>
                         <div id="example2" class="accordion-collapse collapse" data-bs-parent="#examplesAccordion">
                             <div class="accordion-body">
-                                <pre class="small bg-light p-2 rounded">DB_HOST=localhost
+                                <pre class="small bg-secondary p-2 rounded text-body">DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=meu_projeto
 DB_USER=postgres
@@ -183,14 +183,14 @@ DB_PASSWORD=senha_segura</pre>
                     </div>
                     
                     <div class="accordion-item border-0">
-                        <h2 class="accordion-header">
+                        <h2 class="accordion-header text-sans text-body">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#example3">
                                 <i class="fas fa-envelope me-2"></i>Email
                             </button>
                         </h2>
                         <div id="example3" class="accordion-collapse collapse" data-bs-parent="#examplesAccordion">
                             <div class="accordion-body">
-                                <pre class="small bg-light p-2 rounded">EMAIL_HOST=smtp.gmail.com
+                                <pre class="small bg-secondary p-2 rounded text-body">EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USER=seu-email@gmail.com
 EMAIL_PASSWORD=sua_senha_app
@@ -203,21 +203,21 @@ EMAIL_USE_TLS=true</pre>
         </div>
 
         <!-- Ações Rápidas -->
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-light border-0">
-                <h6 class="mb-0">
+        <div class="card-django border-0 shadow-sm">
+            <div class="card-header card-django-header-comfortable bg-secondary border-0 card-django">
+                <h6 class="mb-0 text-sans text-body">
                     <i class="fas fa-bolt me-2"></i>Ações Rápidas
                 </h6>
             </div>
-            <div class="card-body">
+            <div class="card-body card-django-body-spacious card-django">
                 <div class="d-grid gap-2">
-                    <button type="button" class="btn btn-outline-warning" onclick="generateSecretKey()">
+                    <button type="button" class="btn btn-outline text-sans-warning" onclick="generateSecretKey()">
                         <i class="fas fa-key me-1"></i>Gerar SECRET_KEY
                     </button>
-                    <a href="{% url 'config:system_config' %}" class="btn btn-outline-primary">
+                    <a href="{% url 'config:system_config' %}" class="btn btn-outline-primary btn-enhanced">
                         <i class="fas fa-tachometer-alt me-1"></i>Visão Geral
                     </a>
-                    <button type="button" class="btn btn-outline-secondary" onclick="document.querySelector('form').reset()">
+                    <button type="button" class="btn btn-outline text-sans-secondary" onclick="document.querySelector('form').reset()">
                         <i class="fas fa-undo me-1"></i>Restaurar Formulário
                     </button>
                 </div>
@@ -256,11 +256,11 @@ pre:hover {
     box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }
 
-.card {
+.card-django {
     transition: transform 0.2s ease;
 }
 
-.card:hover {
+.card-django:hover {
     transform: translateY(-2px);
 }
 </style>
@@ -344,7 +344,7 @@ function showToast(message, type = 'info') {
     toast.style.zIndex = '9999';
     toast.innerHTML = `
         <i class="fas fa-check me-2"></i>${message}
-        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+        <button type="button" class="btn-close text-sans" onclick="this.parentElement.remove()"></button>
     `;
     
     document.body.appendChild(toast);

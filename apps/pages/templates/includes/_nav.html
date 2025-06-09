@@ -1,9 +1,9 @@
 {% load static %}
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
-    <div class="container">
+<nav class="navbar navbar-expand-lg navbar-django shadow-sm">
+    <div class="container mb-3">
         <!-- Brand -->
-        <a class="navbar-brand fw-bold" href="{% url 'pages:home' %}">
+        <a class="navbar-brand" href="{% url 'pages:home' %}">
             <i class="fas fa-rocket me-2"></i>Havoc
         </a>
         
@@ -32,6 +32,11 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'design_demo' %}active{% endif %}" href="{% url 'pages:design_demo' %}">
+                        <i class="fas fa-palette me-1"></i>Design Demo
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'pages:contact' %}">
                         <i class="fas fa-envelope me-1"></i>Contato
                     </a>
@@ -39,7 +44,8 @@
                 
                 <!-- Dropdown Pages -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menu de páginas">
                         <i class="fas fa-file-alt me-1"></i>Páginas
                     </a>
                     <ul class="dropdown-menu">
@@ -58,10 +64,12 @@
             </ul>
             
             <!-- Search Form -->
-            <form class="d-flex me-3" method="get" action="{% url 'articles:search' %}">
+            <form class="d-flex me-3 form-django" method="get" action="{% url 'articles:search' %}" aria-label="Formulário de busca" role="form">
                 <div class="input-group">
-                    <input class="form-control form-control-sm" type="search" name="q" placeholder="Buscar..." aria-label="Search" value="{{ request.GET.q }}">
-                    <button class="btn btn-outline-light btn-sm" type="submit">
+                    <input class="form-control form-control-enhanced form-control-sm" type="search" name="q" placeholder="Buscar..."
+                           aria-label="Campo de busca" aria-describedby="search-button" value="{{ request.GET.q }}">
+                    <button class="btn btn-outline-light btn-sm text-sans" type="submit"
+                            id="search-button" aria-label="Buscar">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
@@ -71,21 +79,18 @@
             <ul class="navbar-nav">
                 {% if user.is_authenticated %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menu do usuário">
                             <div class="avatar-sm me-2">
-                                {% if user.profile_picture %}
-                                    <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name }}" class="rounded-circle" width="24" height="24">
-                                {% else %}
-                                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
-                                        <i class="fas fa-user text-muted small"></i>
-                                    </div>
-                                {% endif %}
+                                <div class="bg-django-green rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
+                                    <i class="fas fa-user text-white small"></i>
+                                </div>
                             </div>
                             <span class="d-none d-md-inline">{{ user.get_full_name|default:user.username }}</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <h6 class="dropdown-header">
+                                <h6 class="dropdown-header text-sans text-body">
                                     <i class="fas fa-user me-2"></i>{{ user.email }}
                                 </h6>
                             </li>
@@ -93,7 +98,7 @@
                             
                             <!-- Profile -->
                             {% if request.resolver_match.url_name == 'profile' %}
-                            <li><span class="dropdown-item active bg-primary text-white">
+                            <li><span class="dropdown-item active bg-django-green text-light">
                                 <i class="fas fa-user-circle me-2"></i>Meu Perfil (atual)
                             </span></li>
                             {% else %}
@@ -106,7 +111,7 @@
                             {% if user.is_staff %}
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <h6 class="dropdown-header text-primary">
+                                    <h6 class="dropdown-header text-django-green text-sans text-body">
                                         <i class="fas fa-cog me-2"></i>Administração
                                     </h6>
                                 </li>
@@ -122,7 +127,7 @@
                             
                             <!-- Settings -->
                             {% if request.resolver_match.url_name == 'settings' %}
-                            <li><span class="dropdown-item active bg-primary text-white">
+                            <li><span class="dropdown-item active bg-django-green text-light">
                                 <i class="fas fa-cog me-2"></i>Configurações (atual)
                             </span></li>
                             {% else %}
@@ -145,7 +150,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-outline-light btn-sm ms-2" href="{% url 'accounts:register' %}">
+                        <a class="btn btn-outline-light btn-sm ms-2 btn-enhanced" href="{% url 'accounts:register' %}">
                             <i class="fas fa-user-plus me-1"></i>Registrar
                         </a>
                     </li>
@@ -157,7 +162,7 @@
 
 <!-- Breadcrumbs -->
 {% if breadcrumbs %}
-<nav aria-label="breadcrumb" class="bg-light border-bottom">
+<nav aria-label="breadcrumb" class="bg-secondary border-bottom">
     <div class="container">
         <ol class="breadcrumb mb-0 py-2">
             {% for breadcrumb in breadcrumbs %}

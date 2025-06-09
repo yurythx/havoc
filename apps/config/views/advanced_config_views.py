@@ -5,8 +5,6 @@ from django.http import JsonResponse
 from django.core.mail import send_mail
 from django.conf import settings
 from apps.config.forms.advanced_config_forms import (
-    DatabaseConfigForm,
-    EmailConfigForm,
     EnvironmentVariablesForm
 )
 from apps.config.services.system_config_service import SystemConfigService, AuditLogService
@@ -15,89 +13,7 @@ from apps.config.mixins import SuperuserRequiredMixin, PermissionHelperMixin
 import json
 
 
-class DatabaseConfigView(SuperuserRequiredMixin, PermissionHelperMixin, View):
-    """View para configurações de banco de dados - Apenas superusuários"""
-    template_name = 'config/database_config.html'
 
-    def get(self, request):
-        """Exibe formulário de configuração do banco"""
-        form = DatabaseConfigForm()
-        return render(request, self.template_name, {'form': form})
-
-    def post(self, request):
-        """Processa configurações do banco"""
-        form = DatabaseConfigForm(request.POST)
-        
-        if form.is_valid():
-            try:
-                success = form.save(user=request.user)
-                
-                if success:
-                    messages.success(request, 'Configurações do banco de dados salvas com sucesso!')
-                    messages.warning(request, 'Reinicie o servidor para aplicar as alterações.')
-                    return redirect('config:system_config')
-                else:
-                    messages.error(request, 'Erro ao salvar configurações do banco de dados.')
-                    
-            except Exception as e:
-                messages.error(request, f'Erro ao salvar configurações: {str(e)}')
-
-        return render(request, self.template_name, {'form': form})
-
-
-class EmailConfigView(SuperuserRequiredMixin, PermissionHelperMixin, View):
-    """View para configurações de email - Apenas superusuários"""
-    template_name = 'config/email_config.html'
-
-    def get(self, request):
-        """Exibe formulário de configuração de email"""
-        form = EmailConfigForm()
-        return render(request, self.template_name, {'form': form})
-
-    def post(self, request):
-        """Processa configurações de email"""
-        form = EmailConfigForm(request.POST)
-        
-        if 'test' in request.POST:
-            # Testa a conexão SMTP
-            if form.is_valid():
-                success, message = form.test_connection()
-                if success:
-                    messages.success(request, message)
-                else:
-                    messages.error(request, message)
-            else:
-                messages.error(request, 'Corrija os erros no formulário antes de testar.')
-                
-        elif form.is_valid():
-            try:
-                success = form.save(user=request.user)
-                
-                if success:
-                    messages.success(request, 'Configurações de email salvas com sucesso!')
-                    
-                    # Testa envio de email se solicitado
-                    if 'test' in request.POST:
-                        try:
-                            send_mail(
-                                'Teste de Configuração SMTP',
-                                'Este é um email de teste para verificar as configurações SMTP.',
-                                form.cleaned_data['default_from_email'],
-                                [request.user.email],
-                                fail_silently=False,
-                            )
-                            messages.success(request, 'Email de teste enviado com sucesso!')
-                        except Exception as e:
-                            messages.warning(request, f'Configurações salvas, mas erro no teste: {str(e)}')
-                    
-                    return redirect('config:system_config')
-                else:
-                    messages.error(request, 'Erro ao salvar configurações de email.')
-                    
-            except Exception as e:
-                messages.error(request, f'Erro ao salvar configurações: {str(e)}')
-
-        return render(request, self.template_name, {'form': form})
 
 
 class EnvironmentVariablesView(SuperuserRequiredMixin, PermissionHelperMixin, View):
@@ -146,100 +62,7 @@ class EnvironmentVariablesView(SuperuserRequiredMixin, PermissionHelperMixin, Vi
         return render(request, self.template_name, {'form': form})
 
 
-class TestEmailView(SuperuserRequiredMixin, PermissionHelperMixin, View):
-    """View para testar configurações de email via AJAX - Apenas superusuários"""
 
-    def post(self, request):
-        """Testa configurações de email via AJAX"""
-        try:
-            data = json.loads(request.body)
-            
-            # Cria formulário temporário com os dados
-            form = EmailConfigForm(data)
-            
-            if form.is_valid():
-                success, message = form.test_connection()
-                
-                return JsonResponse({
-                    'success': success,
-                    'message': message
-                })
-            else:
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Dados do formulário inválidos',
-                    'errors': form.errors
-                })
-                
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'message': f'Erro ao testar conexão: {str(e)}'
-            })
-
-
-class SendTestEmailView(SuperuserRequiredMixin, PermissionHelperMixin, View):
-    """View para enviar email de teste - Apenas superusuários"""
-
-    def post(self, request):
-        """Envia email de teste"""
-        try:
-            # Obtém configurações atuais de email
-            config_service = SystemConfigService(
-                DjangoSystemConfigRepository(),
-                None
-            )
-            
-            email_config = config_service.get_config('email_settings')
-            
-            if not email_config:
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Configurações de email não encontradas. Configure primeiro.'
-                })
-            
-            # Envia email de teste
-            from django.core.mail import send_mail
-            
-            send_mail(
-                subject='Teste de Configuração SMTP - Havoc',
-                message=f'''
-Este é um email de teste enviado pelo sistema Havoc.
-
-Configurações testadas:
-- Servidor: {email_config.get('EMAIL_HOST', 'N/A')}
-- Porta: {email_config.get('EMAIL_PORT', 'N/A')}
-- TLS: {'Sim' if email_config.get('EMAIL_USE_TLS') else 'Não'}
-- SSL: {'Sim' if email_config.get('EMAIL_USE_SSL') else 'Não'}
-
-Enviado em: {request.user.date_joined.strftime('%d/%m/%Y %H:%M')}
-Usuário: {request.user.get_full_name() or request.user.username}
-
-Se você recebeu este email, as configurações SMTP estão funcionando corretamente!
-                ''',
-                from_email=email_config.get('DEFAULT_FROM_EMAIL'),
-                recipient_list=[request.user.email],
-                fail_silently=False,
-            )
-            
-            # Log da ação
-            audit_service = AuditLogService(DjangoAuditLogRepository())
-            audit_service.log_user_action(
-                user=request.user,
-                action='TEST_EMAIL',
-                description=f'Email de teste enviado para {request.user.email}'
-            )
-            
-            return JsonResponse({
-                'success': True,
-                'message': f'Email de teste enviado com sucesso para {request.user.email}!'
-            })
-            
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'message': f'Erro ao enviar email de teste: {str(e)}'
-            })
 
 
 class ExportConfigView(SuperuserRequiredMixin, PermissionHelperMixin, View):

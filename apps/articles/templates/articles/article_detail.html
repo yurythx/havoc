@@ -16,19 +16,19 @@
                     {% if article.category %}
                         <div class="mb-3">
                             <a href="{% url 'articles:category' article.category.slug %}" 
-                               class="badge bg-primary text-decoration-none">
+                               class="badge bg-django-green text-decoration-none">
                                 {{ article.category.name }}
                             </a>
                         </div>
                     {% endif %}
 
-                    <h1 class="display-5 fw-bold">{{ article.title }}</h1>
+                    <h1 class="display-5 fw-bold text-sans text-body">{{ article.title }}</h1>
                     
                     {% if article.excerpt %}
-                        <p class="lead text-muted">{{ article.excerpt }}</p>
+                        <p class="lead text-secondary text-body">{{ article.excerpt }}</p>
                     {% endif %}
                     
-                    <div class="d-flex align-items-center text-muted mb-3">
+                    <div class="d-flex align-items-center text-secondary mb-3">
                         <!-- Author -->
                         {% if article.author %}
                             <div class="d-flex align-items-center me-4">
@@ -36,9 +36,9 @@
                                     <img src="{{ article.author.profile_picture.url }}" 
                                          class="rounded-circle me-2" width="32" height="32" alt="{{ article.author.get_full_name }}">
                                 {% else %}
-                                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                    <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-2" 
                                          style="width: 32px; height: 32px;">
-                                        <i class="fas fa-user text-muted"></i>
+                                        <i class="fas fa-user text-secondary"></i>
                                     </div>
                                 {% endif %}
                                 <small>{{ article.author.get_full_name|default:article.author.username }}</small>
@@ -78,7 +78,7 @@
                     <div class="mb-4">
                         <img src="{{ article.featured_image.url }}" class="img-fluid rounded" alt="{{ article.title }}">
                         {% if article.image_caption %}
-                            <figcaption class="text-muted text-center mt-2">
+                            <figcaption class="text-secondary text-center mt-2">
                                 <small>{{ article.image_caption }}</small>
                             </figcaption>
                         {% endif %}
@@ -132,24 +132,23 @@
 
             <!-- Author Bio -->
             {% if article.author %}
-                <div class="card mb-5">
-                    <div class="card-body">
+                <div class="card-django mb-5">
+                    <div class="card-body card-django">
                         <div class="row align-items-center">
                             <div class="col-auto">
                                 {% if article.author.profile_picture %}
-                                    <img src="{{ article.author.profile_picture.url }}" 
-                                         class="rounded-circle" width="80" height="80" alt="{{ article.author.get_full_name }}">
+                                    <img src="{{ article.author.profile_picture.url }}"
+                                         class="rounded-circle avatar-lg" alt="{{ article.author.get_full_name|default:article.author.username }}">
                                 {% else %}
-                                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" 
-                                         style="width: 80px; height: 80px;">
-                                        <i class="fas fa-user fa-2x text-muted"></i>
+                                    <div class="bg-secondary rounded-circle icon-container-lg text-secondary">
+                                        <i class="fas fa-user fa-2x"></i>
                                     </div>
                                 {% endif %}
                             </div>
                             <div class="col">
-                                <h5 class="mb-1">{{ article.author.get_full_name|default:article.author.username }}</h5>
+                                <h5 class="mb-1 text-sans text-body">{{ article.author.get_full_name|default:article.author.username }}</h5>
                                 {% if article.author.bio %}
-                                    <p class="text-muted mb-0">{{ article.author.bio }}</p>
+                                    <p class="text-secondary mb-0 text-body">{{ article.author.bio }}</p>
                                 {% endif %}
                             </div>
                         </div>
@@ -162,32 +161,32 @@
         <div class="col-lg-4">
             <!-- Related Articles -->
             {% if related_articles %}
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">
+                <div class="card-django mb-4">
+                    <div class="card-header card-django">
+                        <h5 class="mb-0 text-sans text-body">
                             <i class="fas fa-newspaper me-2"></i>Artigos Relacionados
                         </h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body card-django">
                         {% for related in related_articles %}
                             <div class="d-flex mb-3">
                                 {% if related.featured_image %}
                                     <img src="{{ related.featured_image.url }}" class="me-3 rounded" 
                                          style="width: 60px; height: 60px; object-fit: cover;" alt="{{ related.title }}">
                                 {% else %}
-                                    <div class="me-3 bg-light rounded d-flex align-items-center justify-content-center" 
+                                    <div class="me-3 bg-secondary rounded d-flex align-items-center justify-content-center" 
                                          style="width: 60px; height: 60px;">
-                                        <i class="fas fa-newspaper text-muted"></i>
+                                        <i class="fas fa-newspaper text-secondary"></i>
                                     </div>
                                 {% endif %}
                                 
                                 <div class="flex-grow-1">
-                                    <h6 class="mb-1">
+                                    <h6 class="mb-1 text-sans text-body">
                                         <a href="{% url 'articles:article_detail' related.slug %}" class="text-decoration-none">
                                             {{ related.title|truncatechars:40 }}
                                         </a>
                                     </h6>
-                                    <small class="text-muted">
+                                    <small class="text-secondary">
                                         {{ related.published_at|date:"d/m/Y" }}
                                     </small>
                                 </div>
@@ -198,15 +197,15 @@
             {% endif %}
 
             <!-- Table of Contents -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">
+            <div class="card-django mb-4">
+                <div class="card-header card-django">
+                    <h5 class="mb-0 text-sans text-body">
                         <i class="fas fa-list me-2"></i>Neste Artigo
                     </h5>
                 </div>
-                <div class="card-body">
-                    <div id="table-of-contents">
-                        <p class="text-muted mb-0">Carregando índice...</p>
+                <div class="card-body card-django">
+                    <div id="table table-django-of-contents">
+                        <p class="text-secondary mb-0 text-body">Carregando índice...</p>
                     </div>
                 </div>
             </div>
@@ -214,7 +213,7 @@
             <!-- Back to Top -->
             <div class="text-center">
                 <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" 
-                        class="btn btn-outline-secondary btn-sm">
+                        class="btn btn-outline-secondary btn-sm text-sans">
                     <i class="fas fa-arrow-up me-1"></i>Voltar ao topo
                 </button>
             </div>
@@ -224,9 +223,9 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Generate table of contents
+    // Generate table table-django of contents
     const headings = document.querySelectorAll('.article-content h1, .article-content h2, .article-content h3, .article-content h4');
-    const tocContainer = document.getElementById('table-of-contents');
+    const tocContainer = document.getElementById('table table-django-of-contents');
     
     if (headings.length > 0) {
         let tocHTML = '<ul class="list-unstyled">';
@@ -240,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             tocHTML += `
                 <li style="margin-left: ${indent}px;" class="mb-1">
-                    <a href="#${id}" class="text-decoration-none text-muted">
+                    <a href="#${id}" class="text-decoration-none text-secondary">
                         ${heading.textContent}
                     </a>
                 </li>
@@ -264,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     } else {
-        tocContainer.innerHTML = '<p class="text-muted mb-0">Nenhum cabeçalho encontrado.</p>';
+        tocContainer.innerHTML = '<p class="text-secondary mb-0 text-body">Nenhum cabeçalho encontrado.</p>';
     }
 });
 </script>

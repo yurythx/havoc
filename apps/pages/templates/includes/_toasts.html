@@ -2,14 +2,13 @@
 <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
     {% if messages %}
         {% for message in messages %}
-            <div class="toast align-items-center text-white border-0 show" 
-                 role="alert" 
-                 aria-live="assertive" 
+            <div class="toast align-items-center border-0 show bg-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'secondary' }}{% endif %}"
+                 role="alert"
+                 aria-live="assertive"
                  aria-atomic="true"
                  data-bs-autohide="true"
-                 data-bs-delay="5000"
-                 style="background-color: {% if message.tags == 'success' %}#198754{% elif message.tags == 'error' %}#dc3545{% elif message.tags == 'warning' %}#fd7e14{% elif message.tags == 'info' %}#0dcaf0{% else %}#6c757d{% endif %};">
-                
+                 data-bs-delay="5000">
+
                 <div class="d-flex">
                     <div class="toast-body d-flex align-items-center">
                         <!-- Ícone baseado no tipo de mensagem -->
@@ -24,13 +23,13 @@
                         {% else %}
                             <i class="fas fa-bell me-2"></i>
                         {% endif %}
-                        
+
                         <span>{{ message }}</span>
                     </div>
-                    
-                    <button type="button" 
-                            class="btn-close btn-close-white me-2 m-auto" 
-                            data-bs-dismiss="toast" 
+
+                    <button type="button"
+                            class="btn-close me-2 m-auto"
+                            data-bs-dismiss="toast"
                             aria-label="Close"></button>
                 </div>
             </div>
@@ -87,27 +86,6 @@
     animation: slideOutRight 0.3s ease-in;
 }
 
-/* Cores personalizadas para diferentes tipos */
-.toast-success {
-    background-color: #198754 !important;
-}
-
-.toast-error {
-    background-color: #dc3545 !important;
-}
-
-.toast-warning {
-    background-color: #fd7e14 !important;
-}
-
-.toast-info {
-    background-color: #0dcaf0 !important;
-}
-
-.toast-default {
-    background-color: #6c757d !important;
-}
-
 /* Responsividade */
 @media (max-width: 576px) {
     .toast-container {
@@ -117,7 +95,7 @@
         right: 10px !important;
         max-width: none;
     }
-    
+
     .toast {
         min-width: auto;
         width: 100%;
@@ -154,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function showToast(message, type = 'info', duration = 5000) {
     const toastContainer = document.querySelector('.toast-container');
     if (!toastContainer) return;
-    
+
     const icons = {
         success: 'fas fa-check-circle',
         error: 'fas fa-exclamation-circle',
@@ -162,44 +140,38 @@ function showToast(message, type = 'info', duration = 5000) {
         info: 'fas fa-info-circle',
         default: 'fas fa-bell'
     };
-    
-    const colors = {
-        success: '#198754',
-        error: '#dc3545',
-        warning: '#fd7e14',
-        info: '#0dcaf0',
-        default: '#6c757d'
-    };
-    
+
+    // Mapear 'error' para 'danger' para compatibilidade com Bootstrap
+    const bootstrapType = type === 'error' ? 'danger' : type;
+
     const toastHtml = `
-        <div class="toast align-items-center text-white border-0" 
-             role="alert" 
-             aria-live="assertive" 
-             aria-atomic="true"
-             style="background-color: ${colors[type] || colors.default};">
+        <div class="toast align-items-center border-0 bg-${bootstrapType}"
+             role="alert"
+             aria-live="assertive"
+             aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body d-flex align-items-center">
                     <i class="${icons[type] || icons.default} me-2"></i>
                     <span>${message}</span>
                 </div>
-                <button type="button" 
-                        class="btn-close btn-close-white me-2 m-auto" 
-                        data-bs-dismiss="toast" 
+                <button type="button"
+                        class="btn-close me-2 m-auto"
+                        data-bs-dismiss="toast"
                         aria-label="Close"></button>
             </div>
         </div>
     `;
-    
+
     toastContainer.insertAdjacentHTML('beforeend', toastHtml);
-    
+
     const newToast = toastContainer.lastElementChild;
     const toast = new bootstrap.Toast(newToast, {
         autohide: true,
         delay: duration
     });
-    
+
     toast.show();
-    
+
     newToast.addEventListener('hidden.bs.toast', function() {
         this.remove();
     });

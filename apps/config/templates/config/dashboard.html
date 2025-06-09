@@ -3,100 +3,118 @@
 {% block config_title %}Dashboard{% endblock %}
 
 {% block config_content %}
-        <div class="row">
-            <div class="col-12">
-                <h1>Dashboard de Configurações</h1>
-                <p class="text-muted">Sistema de gerenciamento de usuários e permissões</p>
+<!-- Header do Dashboard -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h2 mb-1 text-sans text-body">
+                    <i class="fas fa-tachometer-alt me-2 text-django-green"></i>Dashboard de Configurações
+                </h1>
+                <p class="text-secondary mb-0 text-body">Sistema de gerenciamento de usuários e permissões</p>
             </div>
         </div>
+    </div>
+</div>
 
-        <!-- Estatísticas -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card bg-primary text-white">
-                    <div class="card-body">
-                        <h5 class="card-title">Total de Usuários</h5>
-                        <h2>{{ total_users }}</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-success text-white">
-                    <div class="card-body">
-                        <h5 class="card-title">Usuários Ativos</h5>
-                        <h2>{{ active_users }}</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-warning text-white">
-                    <div class="card-body">
-                        <h5 class="card-title">Staff</h5>
-                        <h2>{{ staff_users }}</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-info text-white">
-                    <div class="card-body">
-                        <h5 class="card-title">Grupos</h5>
-                        <h2>{{ total_groups }}</h2>
-                    </div>
-                </div>
+<!-- Estatísticas -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card-django bg-primary text-white border-0 shadow-sm">
+            <div class="card-body profile-card-body card-django">
+                <h5 class="card-title text-sans text-body">Total de Usuários</h5>
+                <h2 class="text-sans text-body">{{ total_users }}</h2>
+                <i class="fas fa-users fa-2x opacity-50"></i>
             </div>
         </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card-django bg-success text-white border-0 shadow-sm">
+            <div class="card-body profile-card-body card-django">
+                <h5 class="card-title text-sans text-body">Usuários Ativos</h5>
+                <h2 class="text-sans text-body">{{ active_users }}</h2>
+                <i class="fas fa-user-check fa-2x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card-django bg-warning text-white border-0 shadow-sm">
+            <div class="card-body profile-card-body card-django">
+                <h5 class="card-title text-sans text-body">Staff</h5>
+                <h2 class="text-sans text-body">{{ staff_users }}</h2>
+                <i class="fas fa-user-tie fa-2x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card-django bg-info text-white border-0 shadow-sm">
+            <div class="card-body profile-card-body card-django">
+                <h5 class="card-title text-sans text-body">Grupos</h5>
+                <h2 class="text-sans text-body">{{ total_groups }}</h2>
+                <i class="fas fa-layer-group fa-2x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+</div>
 
-        <!-- Ações Rápidas -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <h3>Ações Rápidas</h3>
-                <div class="d-flex gap-2">
-                    <a href="{% url 'config:user_create' %}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Criar Usuário
-                    </a>
-                    <a href="{% url 'config:user_list' %}" class="btn btn-outline-primary">
-                        <i class="fas fa-users"></i> Gerenciar Usuários
-                    </a>
-                </div>
-            </div>
+<!-- Ações Rápidas -->
+<div class="card-django border-0 shadow-sm mb-4">
+    <div class="card-header profile-card-header">
+        <h6 class="mb-0 text-sans text-body">
+            <i class="fas fa-bolt me-2"></i>Ações Rápidas
+        </h6>
+    </div>
+    <div class="card-body profile-card-body card-django">
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{% url 'config:user_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Criar Usuário
+            </a>
+            <a href="{% url 'config:user_list' %}" class="btn btn-outline-primary">
+                <i class="fas fa-users me-2"></i>Gerenciar Usuários
+            </a>
         </div>
+    </div>
+</div>
 
-        <!-- Atividades Recentes -->
-        <div class="row">
-            <div class="col-12">
-                <h3>Atividades Recentes</h3>
-                <div class="card">
-                    <div class="card-body">
-                        {% if recent_activities %}
-                            <div class="table-responsive">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th>Usuário</th>
-                                            <th>Ação</th>
-                                            <th>Descrição</th>
-                                            <th>Data</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for activity in recent_activities %}
-                                        <tr>
-                                            <td>{{ activity.user.email }}</td>
-                                            <td>
-                                                <span class="badge bg-secondary">{{ activity.get_action_display }}</span>
-                                            </td>
-                                            <td>{{ activity.description|truncatechars:50 }}</td>
-                                            <td>{{ activity.created_at|date:"d/m/Y H:i" }}</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        {% else %}
-                            <p class="text-muted">Nenhuma atividade recente encontrada.</p>
-                        {% endif %}
-                    </div>
-                </div>
+<!-- Atividades Recentes -->
+<div class="card-django border-0 shadow-sm">
+    <div class="card-header profile-card-header">
+        <h6 class="mb-0 text-sans text-body">
+            <i class="fas fa-clock me-2"></i>Atividades Recentes
+        </h6>
+    </div>
+    <div class="card-body profile-card-body card-django">
+        {% if recent_activities %}
+            <div class="table-responsive">
+                <table class="table table-django">
+                    <thead>
+                        <tr>
+                            <th>Usuário</th>
+                            <th>Ação</th>
+                            <th>Descrição</th>
+                            <th>Data</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for activity in recent_activities %}
+                        <tr>
+                            <td>{{ activity.user.email }}</td>
+                            <td>
+                                <span class="badge bg-secondary">{{ activity.get_action_display }}</span>
+                            </td>
+                            <td>{{ activity.description|truncatechars:50 }}</td>
+                            <td>{{ activity.created_at|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-        </div>
+        {% else %}
+            <div class="text-center text-secondary py-4">
+                <i class="fas fa-clock fa-2x mb-3"></i>
+                <p class="mb-0 text-body">Nenhuma atividade recente encontrada.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

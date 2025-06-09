@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import TemplateView
 from apps.pages.views import (
     HomeView,
     AboutView,
@@ -21,6 +22,9 @@ urlpatterns = [
     path('contato/', ContactView.as_view(), name='contact'),
     path('privacidade/', PrivacyView.as_view(), name='privacy'),
     path('termos/', TermsView.as_view(), name='terms'),
+
+    # Demo do design Django
+    path('design-demo/', TemplateView.as_view(template_name='pages/design-demo.html'), name='design_demo'),
     
     # Páginas dinâmicas
     path('paginas/', PageListView.as_view(), name='page_list'),

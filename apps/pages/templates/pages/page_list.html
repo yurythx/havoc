@@ -8,7 +8,7 @@
         <div class="col-lg-8">
             <!-- Header -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h2">
+                <h1 class="h2 text-sans text-body">
                     <i class="fas fa-file-alt me-2"></i>
                     {% if query %}
                         Resultados para "{{ query }}"
@@ -18,22 +18,22 @@
                 </h1>
                 
                 {% if query %}
-                    <a href="{% url 'pages:page_list' %}" class="btn btn-outline-secondary">
+                    <a href="{% url 'pages:page_list' %}" class="btn btn-outline-secondary btn-enhanced">
                         <i class="fas fa-times me-1"></i>Limpar busca
                     </a>
                 {% endif %}
             </div>
 
             <!-- Search Form -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <form method="get" class="row g-3">
+            <div class="card-django mb-4 mb-3">
+                <div class="card-body card-django-body-spacious card-django">
+                    <form method="get" class="row g-3 form-django" aria-label="Formulário de busca" role="form">
                         <div class="col-md-9">
-                            <input type="search" class="form-control" name="q" 
+                            <input type="search" class="form-control form-control-enhanced" name="q" 
                                    value="{{ query }}" placeholder="Buscar páginas...">
                         </div>
                         <div class="col-md-3">
-                            <button type="submit" class="btn btn-primary w-100">
+                            <button type="submit" class="btn btn-primary w-100 text-sans">
                                 <i class="fas fa-search me-1"></i>Buscar
                             </button>
                         </div>
@@ -46,30 +46,30 @@
                 <div class="row">
                     {% for page in pages %}
                         <div class="col-md-6 mb-4">
-                            <div class="card h-100">
+                            <div class="card-django h-100">
                                 {% if page.featured_image %}
-                                    <img src="{{ page.featured_image.url }}" class="card-img-top" alt="{{ page.title }}" style="height: 200px; object-fit: cover;">
+                                    <img src="{{ page.featured_image.url }}" class="card-django-img-top" alt="{{ page.title }}" style="height: 200px; object-fit: cover;">
                                 {% endif %}
                                 
-                                <div class="card-body">
-                                    <h5 class="card-title">
+                                <div class="card-body card-django-body-spacious card-django">
+                                    <h5 class="card-title text-sans text-body">
                                         <a href="{% url 'pages:page_detail' page.slug %}" class="text-decoration-none">
                                             {{ page.title }}
                                         </a>
                                     </h5>
                                     
                                     {% if page.excerpt %}
-                                        <p class="card-text text-muted">{{ page.excerpt|truncatewords:20 }}</p>
+                                        <p class="card-django-text text-secondary text-body">{{ page.excerpt|truncatewords:20 }}</p>
                                     {% endif %}
                                     
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted">
+                                        <small class="text-secondary">
                                             <i class="fas fa-calendar me-1"></i>
                                             {{ page.created_at|date:"d/m/Y" }}
                                         </small>
                                         
                                         {% if page.views_count %}
-                                            <small class="text-muted">
+                                            <small class="text-secondary">
                                                 <i class="fas fa-eye me-1"></i>
                                                 {{ page.views_count }} visualizações
                                             </small>
@@ -77,8 +77,8 @@
                                     </div>
                                 </div>
                                 
-                                <div class="card-footer bg-transparent">
-                                    <a href="{% url 'pages:page_detail' page.slug %}" class="btn btn-outline-primary btn-sm">
+                                <div class="card-django-footer bg-transparent">
+                                    <a href="{% url 'pages:page_detail' page.slug %}" class="btn btn-outline-primary btn-sm btn-enhanced">
                                         <i class="fas fa-arrow-right me-1"></i>Ler mais
                                     </a>
                                 </div>
@@ -133,13 +133,13 @@
                 {% endif %}
             {% else %}
                 <div class="text-center py-5">
-                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                    <h4>Nenhuma página encontrada</h4>
+                    <i class="fas fa-search fa-3x text-secondary mb-3"></i>
+                    <h4 class="text-sans text-body">Nenhuma página encontrada</h4>
                     {% if query %}
-                        <p class="text-muted">Não encontramos páginas para "{{ query }}".</p>
-                        <a href="{% url 'pages:page_list' %}" class="btn btn-primary">Ver todas as páginas</a>
+                        <p class="text-secondary text-body">Não encontramos páginas para "{{ query }}".</p>
+                        <a href="{% url 'pages:page_list' %}" class="btn btn-primary btn-enhanced">Ver todas as páginas</a>
                     {% else %}
-                        <p class="text-muted">Ainda não há páginas publicadas.</p>
+                        <p class="text-secondary text-body">Ainda não há páginas publicadas.</p>
                     {% endif %}
                 </div>
             {% endif %}
@@ -147,13 +147,13 @@
 
         <!-- Sidebar -->
         <div class="col-lg-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
+            <div class="card-django">
+                <div class="card-header card-django-header-comfortable card-django">
+                    <h5 class="mb-0 text-sans text-body">
                         <i class="fas fa-fire me-2"></i>Páginas Populares
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body card-django-body-spacious card-django">
                     {% if popular_pages %}
                         {% for page in popular_pages %}
                             <div class="d-flex mb-3">
@@ -161,26 +161,26 @@
                                     <img src="{{ page.featured_image.url }}" class="me-3 rounded" 
                                          style="width: 60px; height: 60px; object-fit: cover;" alt="{{ page.title }}">
                                 {% else %}
-                                    <div class="me-3 bg-light rounded d-flex align-items-center justify-content-center" 
+                                    <div class="me-3 bg-secondary rounded d-flex align-items-center justify-content-center" 
                                          style="width: 60px; height: 60px;">
-                                        <i class="fas fa-file-alt text-muted"></i>
+                                        <i class="fas fa-file-alt text-secondary"></i>
                                     </div>
                                 {% endif %}
                                 
                                 <div class="flex-grow-1">
-                                    <h6 class="mb-1">
+                                    <h6 class="mb-1 text-sans text-body">
                                         <a href="{% url 'pages:page_detail' page.slug %}" class="text-decoration-none">
                                             {{ page.title|truncatechars:40 }}
                                         </a>
                                     </h6>
-                                    <small class="text-muted">
+                                    <small class="text-secondary">
                                         <i class="fas fa-eye me-1"></i>{{ page.views_count|default:0 }}
                                     </small>
                                 </div>
                             </div>
                         {% endfor %}
                     {% else %}
-                        <p class="text-muted mb-0">Nenhuma página popular ainda.</p>
+                        <p class="text-secondary mb-0 text-body">Nenhuma página popular ainda.</p>
                     {% endif %}
                 </div>
             </div>

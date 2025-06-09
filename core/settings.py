@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-dev-key-change
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver').split(',')
 
 
 # Application definition
@@ -58,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'apps.accounts.middleware.RateLimitMiddleware',
     'apps.accounts.middleware.AccessControlMiddleware',
     'apps.accounts.middleware.SmartRedirectMiddleware',
 ]
@@ -85,6 +86,12 @@ AUTH_USER_MODEL = 'accounts.User'
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+# Backends de Autenticação
+AUTHENTICATION_BACKENDS = [
+    'apps.accounts.backends.EmailOrUsernameModelBackend',  # Backend principal
+    'django.contrib.auth.backends.ModelBackend',  # Backend padrão como fallback
+]
 
 # Configurações de Email (para desenvolvimento)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

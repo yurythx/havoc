@@ -144,33 +144,16 @@ class FlexibleLoginForm(AuthenticationForm):
         return self.cleaned_data
 
     def authenticate_user(self, username_or_email, password):
-        """Autentica usuário por email ou username"""
+        """Autentica usuário por email ou username usando o backend personalizado"""
 
-        # Primeiro, tentar autenticar como username
+        # O backend personalizado já trata email e username automaticamente
         user = authenticate(
             self.request,
             username=username_or_email,
             password=password
         )
 
-        if user is not None:
-            return user
-
-        # Se não funcionou e parece ser email, tentar buscar por email
-        if '@' in username_or_email:
-            try:
-                user_obj = User.objects.get(email__iexact=username_or_email)
-                # Tentar autenticar com o username do usuário encontrado
-                user = authenticate(
-                    self.request,
-                    username=user_obj.username,
-                    password=password
-                )
-                return user
-            except User.DoesNotExist:
-                pass
-
-        return None
+        return user
 
     def get_user(self):
         """Retorna o usuário autenticado"""
