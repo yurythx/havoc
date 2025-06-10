@@ -15,10 +15,10 @@
                     <!-- Category -->
                     {% if article.category %}
                         <div class="mb-3">
-                            <a href="{% url 'articles:category' article.category.slug %}" 
-                               class="badge bg-django-green text-decoration-none">
+                            <span class="badge bg-django-green">
+                                {% if article.category.icon %}<i class="{{ article.category.icon }} me-1"></i>{% endif %}
                                 {{ article.category.name }}
-                            </a>
+                            </span>
                         </div>
                     {% endif %}
 
@@ -71,6 +71,26 @@
                             </small>
                         {% endif %}
                     </div>
+
+                    <!-- Admin Actions -->
+                    {% if user.is_authenticated and user.is_staff or user.is_superuser %}
+                    <div class="alert alert-info d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-tools me-2"></i>
+                            <strong>Ações de Administrador</strong>
+                        </div>
+                        <div>
+                            <a href="{% url 'articles:article_update' article.slug %}"
+                               class="btn btn-sm btn-warning me-2">
+                                <i class="fas fa-edit me-1"></i>Editar
+                            </a>
+                            <a href="{% url 'articles:article_delete' article.slug %}"
+                               class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash me-1"></i>Deletar
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
                 </header>
 
                 <!-- Featured Image -->
@@ -98,8 +118,7 @@
                                 <div class="mb-3">
                                     <strong>Tags:</strong>
                                     {% for tag in article.tags.all %}
-                                        <a href="{% url 'articles:tag' tag.slug %}" 
-                                           class="badge bg-secondary text-decoration-none me-1">{{ tag.name }}</a>
+                                        <span class="badge bg-secondary me-1">{{ tag.name }}</span>
                                     {% endfor %}
                                 </div>
                             {% endif %}
@@ -182,7 +201,7 @@
                                 
                                 <div class="flex-grow-1">
                                     <h6 class="mb-1 text-sans text-body">
-                                        <a href="{% url 'articles:article_detail' related.slug %}" class="text-decoration-none">
+                                        <a href="{{ related.get_absolute_url }}" class="text-decoration-none">
                                             {{ related.title|truncatechars:40 }}
                                         </a>
                                     </h6>

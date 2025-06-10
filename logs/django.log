@@ -1,0 +1,16 @@
+INFO 2025-06-09 19:45:10,987 autoreload 1428 15864 Watching for file changes with StatReloader
+INFO 2025-06-09 19:45:10,991 autoreload 5788 3320 Watching for file changes with StatReloader
+INFO 2025-06-09 19:45:22,519 autoreload 1428 15864 C:\Users\Yuri\Desktop\Projetos\havoc\core\settings.py changed, reloading.
+INFO 2025-06-09 19:45:22,524 autoreload 5788 3320 C:\Users\Yuri\Desktop\Projetos\havoc\core\settings.py changed, reloading.
+INFO 2025-06-09 19:45:22,991 autoreload 14068 11996 Watching for file changes with StatReloader
+INFO 2025-06-09 19:45:22,991 autoreload 17256 22232 Watching for file changes with StatReloader
+INFO 2025-06-09 19:45:38,583 autoreload 14068 11996 C:\Users\Yuri\Desktop\Projetos\havoc\core\settings.py changed, reloading.
+INFO 2025-06-09 19:45:38,585 autoreload 17256 22232 C:\Users\Yuri\Desktop\Projetos\havoc\core\settings.py changed, reloading.
+INFO 2025-06-09 19:45:39,057 autoreload 24032 23620 Watching for file changes with StatReloader
+INFO 2025-06-09 19:45:39,057 autoreload 2640 16260 Watching for file changes with StatReloader
+INFO 2025-06-09 19:45:56,701 autoreload 2640 16260 C:\Users\Yuri\Desktop\Projetos\havoc\core\settings.py changed, reloading.
+INFO 2025-06-09 19:45:56,701 autoreload 24032 23620 C:\Users\Yuri\Desktop\Projetos\havoc\core\settings.py changed, reloading.
+INFO 2025-06-09 19:45:57,191 autoreload 3192 4716 Watching for file changes with StatReloader
+INFO 2025-06-09 19:45:57,192 autoreload 20680 2312 Watching for file changes with StatReloader
+INFO 2025-06-09 19:47:57,383 autoreload 20680 2312 C:\Users\Yuri\Desktop\Projetos\havoc\core\settings.py changed, reloading.
+INFO 2025-06-09 19:47:57,386 autoreload 3192 4716 C:\Users\Yuri\Desktop\Projetos\havoc\core\settings.py changed, reloading.

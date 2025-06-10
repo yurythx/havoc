@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }} - Artigos{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h2 mb-1">
+                        <i class="fas fa-edit me-2 text-primary"></i>{{ title }}
+                    </h1>
+                    <p class="text-muted mb-0">
+                        {% if object %}
+                            Edite as informações do artigo abaixo
+                        {% else %}
+                            Preencha as informações para criar um novo artigo
+                        {% endif %}
+                    </p>
+                </div>
+                <div>
+                    <a href="{% url 'articles:article_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Voltar
+                    </a>
+                </div>
+            </div>
+
+            <!-- Formulário -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <!-- Coluna Principal -->
+                            <div class="col-lg-8">
+                                <!-- Título -->
+                                <div class="mb-4">
+                                    <label for="{{ form.title.id_for_label }}" class="form-label fw-bold">
+                                        <i class="fas fa-heading me-1"></i>{{ form.title.label }} *
+                                    </label>
+                                    {{ form.title }}
+                                    {% if form.title.help_text %}
+                                        <div class="form-text">{{ form.title.help_text }}</div>
+                                    {% endif %}
+                                    {% if form.title.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.title.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Resumo -->
+                                <div class="mb-4">
+                                    <label for="{{ form.excerpt.id_for_label }}" class="form-label fw-bold">
+                                        <i class="fas fa-align-left me-1"></i>{{ form.excerpt.label }} *
+                                    </label>
+                                    {{ form.excerpt }}
+                                    {% if form.excerpt.help_text %}
+                                        <div class="form-text">{{ form.excerpt.help_text }}</div>
+                                    {% endif %}
+                                    {% if form.excerpt.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.excerpt.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Conteúdo -->
+                                <div class="mb-4">
+                                    <label for="{{ form.content.id_for_label }}" class="form-label fw-bold">
+                                        <i class="fas fa-file-text me-1"></i>{{ form.content.label }} *
+                                    </label>
+                                    {{ form.content }}
+                                    {% if form.content.help_text %}
+                                        <div class="form-text">{{ form.content.help_text }}</div>
+                                    {% endif %}
+                                    {% if form.content.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.content.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Imagem Destacada -->
+                                <div class="row mb-4">
+                                    <div class="col-md-8">
+                                        <label for="{{ form.featured_image.id_for_label }}" class="form-label fw-bold">
+                                            <i class="fas fa-image me-1"></i>{{ form.featured_image.label }}
+                                        </label>
+                                        {{ form.featured_image }}
+                                        {% if form.featured_image.help_text %}
+                                            <div class="form-text">{{ form.featured_image.help_text }}</div>
+                                        {% endif %}
+                                        {% if form.featured_image.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.featured_image.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="{{ form.featured_image_alt.id_for_label }}" class="form-label fw-bold">
+                                            <i class="fas fa-universal-access me-1"></i>{{ form.featured_image_alt.label }}
+                                        </label>
+                                        {{ form.featured_image_alt }}
+                                        {% if form.featured_image_alt.help_text %}
+                                            <div class="form-text">{{ form.featured_image_alt.help_text }}</div>
+                                        {% endif %}
+                                        {% if form.featured_image_alt.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.featured_image_alt.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sidebar -->
+                            <div class="col-lg-4">
+                                <!-- Status e Configurações -->
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h6 class="card-title mb-0">
+                                            <i class="fas fa-cog me-1"></i>Configurações
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <!-- Status -->
+                                        <div class="mb-3">
+                                            <label for="{{ form.status.id_for_label }}" class="form-label fw-bold">
+                                                {{ form.status.label }}
+                                            </label>
+                                            {{ form.status }}
+                                            {% if form.status.help_text %}
+                                                <div class="form-text">{{ form.status.help_text }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Categoria -->
+                                        <div class="mb-3">
+                                            <label for="{{ form.category.id_for_label }}" class="form-label fw-bold">
+                                                {{ form.category.label }}
+                                            </label>
+                                            {{ form.category }}
+                                            {% if form.category.help_text %}
+                                                <div class="form-text">{{ form.category.help_text }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Tags -->
+                                        <div class="mb-3">
+                                            <label for="{{ form.tags.id_for_label }}" class="form-label fw-bold">
+                                                {{ form.tags.label }}
+                                            </label>
+                                            {{ form.tags }}
+                                            {% if form.tags.help_text %}
+                                                <div class="form-text">{{ form.tags.help_text }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Opções -->
+                                        <div class="mb-3">
+                                            <div class="form-check">
+                                                {{ form.is_featured }}
+                                                <label class="form-check-label" for="{{ form.is_featured.id_for_label }}">
+                                                    Artigo em destaque
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                {{ form.allow_comments }}
+                                                <label class="form-check-label" for="{{ form.allow_comments.id_for_label }}">
+                                                    Permitir comentários
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- SEO -->
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h6 class="card-title mb-0">
+                                            <i class="fas fa-search me-1"></i>SEO
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label for="{{ form.meta_title.id_for_label }}" class="form-label">
+                                                {{ form.meta_title.label }}
+                                            </label>
+                                            {{ form.meta_title }}
+                                            {% if form.meta_title.help_text %}
+                                                <div class="form-text">{{ form.meta_title.help_text }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="{{ form.meta_description.id_for_label }}" class="form-label">
+                                                {{ form.meta_description.label }}
+                                            </label>
+                                            {{ form.meta_description }}
+                                            {% if form.meta_description.help_text %}
+                                                <div class="form-text">{{ form.meta_description.help_text }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="{{ form.meta_keywords.id_for_label }}" class="form-label">
+                                                {{ form.meta_keywords.label }}
+                                            </label>
+                                            {{ form.meta_keywords }}
+                                            {% if form.meta_keywords.help_text %}
+                                                <div class="form-text">{{ form.meta_keywords.help_text }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botões de Ação -->
+                        <div class="d-flex justify-content-between align-items-center pt-4 border-top">
+                            <div>
+                                {% if object %}
+                                    <a href="{{ object.get_absolute_url }}" class="btn btn-outline-info">
+                                        <i class="fas fa-eye me-1"></i>Visualizar
+                                    </a>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <a href="{% url 'articles:article_list' %}" class="btn btn-secondary me-2">
+                                    <i class="fas fa-times me-1"></i>Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>{{ submit_text }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-resize textarea
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach(function(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+        
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    });
+    
+    // Character counter for meta fields
+    const metaTitle = document.querySelector('#id_meta_title');
+    const metaDescription = document.querySelector('#id_meta_description');
+    
+    if (metaTitle) {
+        addCharacterCounter(metaTitle, 60);
+    }
+    
+    if (metaDescription) {
+        addCharacterCounter(metaDescription, 160);
+    }
+    
+    function addCharacterCounter(element, maxLength) {
+        const counter = document.createElement('div');
+        counter.className = 'form-text text-end';
+        element.parentNode.appendChild(counter);
+        
+        function updateCounter() {
+            const length = element.value.length;
+            counter.textContent = `${length}/${maxLength}`;
+            counter.className = length > maxLength ? 'form-text text-end text-danger' : 'form-text text-end text-muted';
+        }
+        
+        updateCounter();
+        element.addEventListener('input', updateCounter);
+    }
+});
+</script>
+{% endblock %}

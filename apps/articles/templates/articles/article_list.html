@@ -7,24 +7,35 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="text-sans text-body">Artigos</h1>
                 <div>
-                    <a href="{% url 'articles:search' %}" class="btn btn-outline-primary">
+                    <a href="{% url 'articles:search' %}" class="btn btn-outline-primary me-2">
                         <i class="fas fa-search me-2"></i>Buscar
                     </a>
+                    {% if user.is_authenticated and user.is_staff or user.is_superuser %}
+                        <a href="{% url 'articles:article_create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Novo Artigo
+                        </a>
+                    {% endif %}
                 </div>
             </div>
             
             {% if articles %}
-                <div class="row g-4">
+                <div class="row g-4 stagger-container">
                     {% for article in articles %}
-                    <div class="col-md-6">
-                        <div class="card-django h-100 border-0 shadow-sm">
+                    <div class="col-md-6 scroll-reveal">
+                        <div class="card h-100 border-0 shadow-sm hover-lift">
                             {% if article.featured_image %}
-                                <img src="{{ article.featured_image.url }}" class="card-django-img-top img-height-md img-cover" alt="{{ article.featured_image_alt|default:article.title }}">
+                                <div class="img-container img-container-16-9">
+                                    <img data-src="{{ article.featured_image.url }}"
+                                         class="img-optimized img-lazy"
+                                         alt="{{ article.featured_image_alt|default:article.title }}"
+                                         loading="lazy">
+                                    <div class="img-overlay"></div>
+                                </div>
                             {% endif %}
-                            <div class="card-body d-flex flex-column card-django">
+                            <div class="card-body d-flex flex-column">
                                 <div class="mb-2">
                                     {% if article.category %}
-                                        <span class="badge bg-django-green">
+                                        <span class="badge bg-primary">
                                             {% if article.category.icon %}<i class="{{ article.category.icon }} me-1"></i>{% endif %}
                                             {{ article.category.name }}
                                         </span>
@@ -35,14 +46,14 @@
                                         </span>
                                     {% endif %}
                                 </div>
-                                
-                                <h5 class="card-title text-sans text-body">
-                                    <a href="{{ article.get_absolute_url }}" class="text-decoration-none">
+
+                                <h5 class="card-title">
+                                    <a href="{{ article.get_absolute_url }}" class="text-decoration-none text-dark">
                                         {{ article.title }}
                                     </a>
                                 </h5>
-                                
-                                <p class="card-django-text text-secondary text-body">{{ article.excerpt|truncatechars:120 }}</p>
+
+                                <p class="card-text text-muted">{{ article.excerpt|truncatechars:120 }}</p>
                                 
                                 <div class="mt-auto">
                                     <div class="d-flex justify-content-between align-items-center">
@@ -65,6 +76,21 @@
                                             <i class="fas fa-clock ms-2 me-1"></i>{{ article.reading_time }} min
                                         </div>
                                     </div>
+
+                                    {% if user.is_authenticated and user.is_staff or user.is_superuser %}
+                                    <div class="d-flex justify-content-end mt-3 pt-2 border-top">
+                                        <a href="{% url 'articles:article_update' article.slug %}"
+                                           class="btn btn-sm btn-outline-warning me-2"
+                                           title="Editar artigo">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'articles:article_delete' article.slug %}"
+                                           class="btn btn-sm btn-outline-danger"
+                                           title="Deletar artigo">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -115,23 +141,23 @@
         <div class="col-lg-4">
             <!-- Artigos em Destaque -->
             {% if featured_articles %}
-            <div class="card-django border-0 shadow-sm mb-4">
-                <div class="card-header bg-django-green text-light card-django">
-                    <h6 class="mb-0 text-sans text-body"><i class="fas fa-star me-2"></i>Artigos em Destaque</h6>
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-star me-2"></i>Artigos em Destaque</h6>
                 </div>
-                <div class="card-body card-django">
+                <div class="card-body">
                     {% for featured in featured_articles %}
                     <div class="d-flex mb-3 {% if not forloop.last %}border-bottom pb-3{% endif %}">
                         {% if featured.featured_image %}
                             <img src="{{ featured.featured_image.url }}" class="me-3 rounded" style="width: 60px; height: 60px; object-fit: cover;" alt="{{ featured.title }}">
                         {% endif %}
                         <div class="flex-grow-1">
-                            <h6 class="mb-1 text-sans text-body">
-                                <a href="{{ featured.get_absolute_url }}" class="text-decoration-none">
+                            <h6 class="mb-1">
+                                <a href="{{ featured.get_absolute_url }}" class="text-decoration-none text-dark">
                                     {{ featured.title|truncatechars:50 }}
                                 </a>
                             </h6>
-                            <small class="text-secondary">
+                            <small class="text-muted">
                                 <i class="fas fa-calendar me-1"></i>{{ featured.published_at|date:"d/m/Y" }}
                             </small>
                         </div>
@@ -142,15 +168,15 @@
             {% endif %}
             
             <!-- Busca -->
-            <div class="card-django border-0 shadow-sm mb-4">
-                <div class="card-header bg-secondary card-django">
-                    <h6 class="mb-0 text-sans text-body"><i class="fas fa-search me-2"></i>Buscar Artigos</h6>
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0"><i class="fas fa-search me-2"></i>Buscar Artigos</h6>
                 </div>
-                <div class="card-body mb-3 card-django">
-                    <form method="get" action="{% url 'articles:search' %}" class="form-django" aria-label="Formulário de busca" role="form">
+                <div class="card-body">
+                    <form method="get" action="{% url 'articles:search' %}" aria-label="Formulário de busca" role="form">
                         <div class="input-group">
                             <input type="text" name="q" class="form-control" placeholder="Digite sua busca...">
-                            <button class="btn btn-primary text-sans" type="submit">
+                            <button class="btn btn-primary" type="submit">
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>
