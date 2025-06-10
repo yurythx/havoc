@@ -41,7 +41,7 @@
                         <i class="fas fa-envelope me-1"></i>Contato
                     </a>
                 </li>
-                
+
                 <!-- Dropdown Pages -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button"
@@ -76,7 +76,19 @@
             </form>
             
             <!-- User Menu -->
-            <ul class="navbar-nav">
+            <ul class="navbar-nav align-items-center">
+                <!-- Theme Toggle -->
+                <li class="nav-item me-2">
+                    <div class="theme-toggle" role="radiogroup" aria-label="Escolher tema">
+                        <button class="theme-option" data-theme="light" title="Tema claro" aria-label="Tema claro" role="radio">
+                            <i class="fas fa-sun"></i>
+                        </button>
+                        <button class="theme-option" data-theme="dark" title="Tema escuro" aria-label="Tema escuro" role="radio">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </div>
+                </li>
+
                 {% if user.is_authenticated %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"

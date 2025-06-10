@@ -60,5 +60,5 @@ class VerificationCode(models.Model):
     def save(self, *args, **kwargs):
         """Define a data de expiração ao criar o código"""
         if not self.pk:
-            self.expires_at = timezone.now() + timedelta(minutes=10)
+            self.expires_at = timezone.now() + timedelta(minutes=15)
         super().save(*args, **kwargs)

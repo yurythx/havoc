@@ -1,1 +1,115 @@
-{% extends 'base.html' %} {% block content %} <div class="container my-5"> <!-- Header da Página --> <div class="row mb-4"> <div class="col-12"> <div class="d-flex justify-content-between align-items-center"> <div> <h1 class="h2 mb-1 text-sans text-body"> <i class="fas fa-info-circle me-2 text-django-green"></i>Sobre o Havoc </h1> <p class="text-secondary mb-0 text-body">Sistema moderno de gerenciamento de conteúdo</p> </div> </div> </div> </div> <div class="row"> <div class="col-lg-8 mx-auto"> <div class="card-django-django border-0 shadow-sm mb-4 border-0 shadow-sm"> <div class="card-django-body profile-card-body card-django border-0 shadow-sm"> <h2 class="text-sans text-body">Nossa Missão</h2> <p class="text-body">O Havoc é um sistema de gerenciamento de conteúdo desenvolvido com as melhores práticas de desenvolvimento de software, seguindo os princípios SOLID e arquitetura limpa.</p> <h3 class="text-sans text-body">Características Principais</h3> <ul class="list-unstyled"> <li class="mb-2"> <i class="fas fa-check text-success me-2"></i> <strong>Arquitetura Limpa:</strong> Separação clara de responsabilidades </li> <li class="mb-2"> <i class="fas fa-check text-success me-2"></i> <strong>Princípios SOLID:</strong> Código maintível e extensível </li> <li class="mb-2"> <i class="fas fa-check text-success me-2"></i> <strong>Django Framework:</strong> Robustez e segurança </li> <li class="mb-2"> <i class="fas fa-check text-success me-2"></i> <strong>Interface Moderna:</strong> Bootstrap 5 e design responsivo </li> </ul> </div> </div> <div class="card-django-django border-0 shadow-sm mb-4 border-0 shadow-sm"> <div class="card-django-header profile-card-header border-0 shadow-sm"> <h6 class="mb-0 text-sans text-body"> <i class="fas fa-code me-2"></i>Tecnologias Utilizadas </h6> </div> <div class="card-django-body profile-card-body card-django border-0 shadow-sm"> <div class="row g-3"> <div class="col-md-6"> <div class="card-django-django border-0 bg-secondary border-0 shadow-sm"> <div class="card-django-body profile-card-body card-django border-0 shadow-sm"> <h6 class="text-sans text-body"><i class="fab fa-python text-django-green me-2"></i>Backend</h6> <ul class="list-unstyled small"> <li>Python 3.12+</li> <li>Django 5.2</li> <li>SQLite/PostgreSQL</li> </ul> </div> </div> </div> <div class="col-md-6"> <div class="card-django-django border-0 bg-secondary border-0 shadow-sm"> <div class="card-django-body profile-card-body card-django border-0 shadow-sm"> <h6 class="text-sans text-body"><i class="fab fa-html5 text-danger me-2"></i>Frontend</h6> <ul class="list-unstyled small"> <li>HTML5 & CSS3</li> <li>Bootstrap 5</li> <li>Font Awesome</li> </ul> </div> </div> </div> </div> </div> </div> <div class="card-django-django border-0 shadow-sm border-0 shadow-sm"> <div class="card-django-header profile-card-header border-0 shadow-sm"> <h6 class="mb-0 text-sans text-body"> <i class="fas fa-sitemap me-2"></i>Estrutura do Projeto </h6> </div> <div class="card-django-body profile-card-body card-django border-0 shadow-sm"> <p class="text-body">O projeto está organizado em apps especializados:</p> <ul> <li><strong>Accounts:</strong> Autenticação e gerenciamento de usuários</li> <li><strong>Pages:</strong> Sistema de páginas e navegação</li> <li><strong>Config:</strong> Configurações e administração</li> <li><strong>Articles:</strong> Gerenciamento de artigos (em desenvolvimento)</li> </ul> </div> </div> </div> </div> </div> {% endblock %} 
+{% extends 'base.html' %}
+
+{% block title %}Sobre o Havoc - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Header da Página -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-1 text-sans text-body">
+                        <i class="fas fa-info-circle me-2 text-django-green"></i>Sobre o Havoc
+                    </h1>
+                    <p class="text-secondary mb-0 text-body">Sistema moderno de gerenciamento de conteúdo</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Nossa Missão -->
+            <div class="card-django border-0 shadow-sm mb-4">
+                <div class="card-body profile-card-body">
+                    <h2 class="text-sans text-body">Nossa Missão</h2>
+                    <p class="text-body">
+                        O Havoc é um sistema de gerenciamento de conteúdo desenvolvido com as melhores práticas
+                        de desenvolvimento de software, seguindo os princípios SOLID e arquitetura limpa.
+                    </p>
+
+                    <h3 class="text-sans text-body">Características Principais</h3>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Arquitetura Limpa:</strong> Separação clara de responsabilidades
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Princípios SOLID:</strong> Código maintível e extensível
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Django Framework:</strong> Robustez e segurança
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Interface Moderna:</strong> Bootstrap 5 e design responsivo
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Tecnologias Utilizadas -->
+            <div class="card-django border-0 shadow-sm mb-4">
+                <div class="profile-card-header">
+                    <h6 class="mb-0 text-sans text-body">
+                        <i class="fas fa-code me-2 text-django-green"></i>Tecnologias Utilizadas
+                    </h6>
+                </div>
+                <div class="card-body profile-card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-secondary">
+                                <div class="card-body">
+                                    <h6 class="text-sans text-body">
+                                        <i class="fab fa-python text-django-green me-2"></i>Backend
+                                    </h6>
+                                    <ul class="list-unstyled small">
+                                        <li>Python 3.12+</li>
+                                        <li>Django 5.2</li>
+                                        <li>SQLite/PostgreSQL</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-secondary">
+                                <div class="card-body">
+                                    <h6 class="text-sans text-body">
+                                        <i class="fab fa-html5 text-danger me-2"></i>Frontend
+                                    </h6>
+                                    <ul class="list-unstyled small">
+                                        <li>HTML5 & CSS3</li>
+                                        <li>Bootstrap 5</li>
+                                        <li>Font Awesome</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estrutura do Projeto -->
+            <div class="card-django border-0 shadow-sm">
+                <div class="profile-card-header">
+                    <h6 class="mb-0 text-sans text-body">
+                        <i class="fas fa-sitemap me-2 text-django-green"></i>Estrutura do Projeto
+                    </h6>
+                </div>
+                <div class="card-body profile-card-body">
+                    <p class="text-body">O projeto está organizado em apps especializados:</p>
+                    <ul>
+                        <li><strong>Accounts:</strong> Autenticação e gerenciamento de usuários</li>
+                        <li><strong>Pages:</strong> Sistema de páginas e navegação</li>
+                        <li><strong>Config:</strong> Configurações e administração</li>
+                        <li><strong>Articles:</strong> Gerenciamento de artigos (em desenvolvimento)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

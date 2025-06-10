@@ -11,6 +11,7 @@ import psutil
 import platform
 import sys
 import os
+import django
 from datetime import datetime, timedelta
 
 User = get_user_model()
@@ -90,6 +91,41 @@ class ConfigDashboardView(ConfigPermissionMixin, PermissionHelperMixin, View):
         except Exception:
             return None
 
+    def get_email_config_status(self):
+        """Verifica status da configuração de email"""
+        try:
+            email_host = getattr(settings, 'EMAIL_HOST', '')
+            email_port = getattr(settings, 'EMAIL_PORT', 587)
+            email_use_tls = getattr(settings, 'EMAIL_USE_TLS', False)
+            email_use_ssl = getattr(settings, 'EMAIL_USE_SSL', False)
+            default_from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', '')
+
+            return {
+                'email_host': email_host,
+                'email_port': email_port,
+                'email_use_tls': email_use_tls,
+                'email_use_ssl': email_use_ssl,
+                'default_from_email': default_from_email,
+                'email_configured': bool(email_host and default_from_email),
+            }
+        except Exception:
+            return {
+                'email_configured': False,
+                'email_host': 'Erro na configuração',
+                'email_port': 'N/A',
+                'email_use_tls': False,
+                'email_use_ssl': False,
+                'default_from_email': 'Não configurado',
+            }
+
+    def get_articles_count(self):
+        """Conta artigos se o app estiver disponível"""
+        try:
+            from apps.articles.models import Article
+            return Article.objects.count()
+        except ImportError:
+            return 0
+
     def get(self, request):
         """Exibe o dashboard com métricas do sistema"""
         # Estatísticas de usuários
@@ -106,6 +142,10 @@ class ConfigDashboardView(ConfigPermissionMixin, PermissionHelperMixin, View):
         # Métricas do sistema
         system_metrics = self.get_system_metrics()
         database_metrics = self.get_database_metrics()
+        email_config = self.get_email_config_status()
+
+        # Contagem de artigos
+        total_articles = self.get_articles_count()
 
         context = {
             # Estatísticas de usuários
@@ -115,10 +155,17 @@ class ConfigDashboardView(ConfigPermissionMixin, PermissionHelperMixin, View):
             'superusers': superusers,
             'total_groups': total_groups,
             'recent_users': recent_users,
+            'total_articles': total_articles,
 
             # Métricas do sistema
             'system_metrics': system_metrics,
             'database_metrics': database_metrics,
+            'django_version': django.get_version(),
+            'debug_mode': settings.DEBUG,
+            'cache_status': True,  # Implementar verificação real do cache
+
+            # Configuração de email
+            **email_config,
         }
 
         return render(request, self.template_name, context)

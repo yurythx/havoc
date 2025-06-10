@@ -11,51 +11,21 @@ class DjangoThemeToggle {
     }
 
     init() {
-        this.createToggleButton();
         this.applyTheme(this.currentTheme);
         this.bindEvents();
         this.updateToggleState();
     }
 
-    createToggleButton() {
-        // Check if toggle already exists
-        if (document.querySelector('.theme-toggle')) return;
-
-        const toggleContainer = document.createElement('div');
-        toggleContainer.className = 'theme-toggle';
-        toggleContainer.setAttribute('role', 'radiogroup');
-        toggleContainer.setAttribute('aria-label', 'Escolher tema');
-
-        const themes = [
-            { name: 'light', icon: 'fas fa-sun', title: 'Tema claro' },
-            { name: 'dark', icon: 'fas fa-moon', title: 'Tema escuro' }
-        ];
-
-        themes.forEach(theme => {
-            const button = document.createElement('button');
-            button.className = 'theme-option';
-            button.setAttribute('data-theme', theme.name);
-            button.setAttribute('title', theme.title);
-            button.setAttribute('aria-label', theme.title);
-            button.setAttribute('role', 'radio');
-            button.innerHTML = `<i class="${theme.icon}"></i>`;
-            
-            button.addEventListener('click', () => this.setTheme(theme.name));
-            
-            toggleContainer.appendChild(button);
+    bindEvents() {
+        // Bind click events to existing theme toggle buttons
+        const themeButtons = document.querySelectorAll('.theme-option');
+        themeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const theme = button.getAttribute('data-theme');
+                this.setTheme(theme);
+            });
         });
 
-        // Add to navbar
-        const navbar = document.querySelector('.navbar-nav');
-        if (navbar) {
-            const li = document.createElement('li');
-            li.className = 'nav-item d-flex align-items-center ms-2';
-            li.appendChild(toggleContainer);
-            navbar.appendChild(li);
-        }
-    }
-
-    bindEvents() {
         // Keyboard navigation
         document.addEventListener('keydown', (e) => {
             if (e.target.classList.contains('theme-option')) {

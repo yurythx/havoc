@@ -30,7 +30,7 @@
                         <i class="fas fa-cogs me-1"></i>Configurações Avançadas
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'config:database_config' %}">
+                        <li><a class="dropdown-item" href="{% url 'config:system_config' %}">
                             <i class="fas fa-database me-2"></i>Banco de Dados
                         </a></li>
                         <li><a class="dropdown-item" href="{% url 'config:email_config' %}">
@@ -166,7 +166,7 @@
                                             <div class="flex-grow-1 ms-3">
                                                 <h6 class="mb-1">Banco de Dados</h6>
                                                 <p class="small mb-2 opacity-75">Configure conexões com diferentes bancos</p>
-                                                <a href="{% url 'config:database_config' %}" class="btn btn-light btn-sm">
+                                                <a href="{% url 'config:system_config' %}" class="btn btn-light btn-sm">
                                                     <i class="fas fa-cog me-1"></i>Configurar
                                                 </a>
                                             </div>

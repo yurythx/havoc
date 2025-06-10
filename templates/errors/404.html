@@ -1,1 +1,180 @@
-{% extends 'base.html' %} {% block title %}Página Não Encontrada - {{ block.super }}{% endblock %} {% block content %} <div class="container"> <div class="row justify-content-center"> <div class="col-lg-8"> <div class="text-center mt-5"> <!-- Ícone de erro --> <div class="form-section"> <i class="fas fa-search text-warning" style="font-size: 6rem;"></i> </div> <!-- Título principal --> <h1 class="display-4 text-warning mb-3 text-sans text-body">404</h1> <h2 class="h3 mb-4 text-sans text-body">Página Não Encontrada</h2> <!-- Mensagem principal --> <div class="alert-info border-0 shadow-sm mb-4"> <div class="d-flex align-items-center"> <i class="fas fa-info-circle text-info me-3 fa-2x"></i> <div class="text-start"> <h5 class="alert-heading mb-2 text-sans text-body">Oops! Esta página não existe</h5> <div class="info-value"> A página que você está procurando em <code>{{ requested_path }}</code> não foi encontrada. Ela pode ter sido movida, removida ou você digitou o endereço incorretamente. </p> </div> </div> </div> <!-- Sugestões --> <div class="card-django-django border-0 bg-secondary mb-4 border-0 shadow-sm"> <div class="card-django-body profile-card-body card-django border-0 shadow-sm"> <h6 class="text-secondary mb-3 text-sans text-body"> <i class="fas fa-lightbulb me-2"></i>O que você pode fazer? </h6> <div class="row"> <div class="col-md-4 mb-3"> <i class="fas fa-spell-check text-django-green fa-2x mb-2"></i> <p class="small mb-0 text-body"><strong>Verificar a URL</strong></p> <small class="text-secondary">Confira se não há erros de digitação</small> </div> <div class="col-md-4 mb-3"> <i class="fas fa-arrow-left text-success fa-2x mb-2"></i> <p class="small mb-0 text-body"><strong>Voltar</strong></p> <small class="text-secondary">Use o botão voltar do navegador</small> </div> <div class="col-md-4 mb-3"> <i class="fas fa-home text-info fa-2x mb-2"></i> <p class="small mb-0 text-body"><strong>Ir ao Início</strong></p> <small class="text-secondary">Comece pela página principal</small> </div> </div> </div> </div> <!-- Ações disponíveis --> <div class="row justify-content-center"> <div class="col-md-4 mb-3"> <div class="card-django-django border-django-green border-0 shadow-sm"> <div class="card-django-body profile-card-body text-center card-django border-0 shadow-sm"> <i class="fas fa-home text-django-green fa-2x mb-3"></i> <h6 class="text-sans text-body">Página Inicial</h6> <p class="text-secondary small mb-3 text-body"> Voltar para a página principal </p> <a href="{{ home_url }}" class="btn-primary btn-enhanced"> <i class="fas fa-home me-2"></i>Início </a> </div> </div> </div> {% if user_is_authenticated %} <div class="col-md-4 mb-3"> <div class="card-django-django border-success border-0 shadow-sm"> <div class="card-django-body profile-card-body text-center card-django border-0 shadow-sm"> <i class="fas fa-user-circle text-success fa-2x mb-3"></i> <h6 class="text-sans text-body">Meu Perfil</h6> <p class="text-secondary small mb-3 text-body"> Ir para sua área pessoal </p> <a href="{{ profile_url }}" class="btn-success btn-enhanced"> <i class="fas fa-user me-2"></i>Perfil </a> </div> </div> </div> {% else %} <div class="col-md-4 mb-3"> <div class="card-django-django border-info border-0 shadow-sm"> <div class="card-django-body profile-card-body text-center card-django border-0 shadow-sm"> <i class="fas fa-sign-in-alt text-info fa-2x mb-3"></i> <h6 class="text-sans text-body">Fazer Login</h6> <p class="text-secondary small mb-3 text-body"> Entrar no sistema </p> <a href="{{ login_url }}" class="btn-info btn-enhanced"> <i class="fas fa-sign-in-alt me-2"></i>Login </a> </div> </div> </div> {% endif %} <div class="col-md-4 mb-3"> <div class="card-django-django border-secondary border-0 shadow-sm"> <div class="card-django-body profile-card-body text-center card-django border-0 shadow-sm"> <i class="fas fa-arrow-left text-secondary fa-2x mb-3"></i> <h6 class="text-sans text-body">Voltar</h6> <p class="text-secondary small mb-3 text-body"> Retornar à página anterior </p> <button onclick="history.back()" class="btn-secondary text-sans"> <i class="fas fa-arrow-left me-2"></i>Voltar </button> </div> </div> </div> </div> <!-- Páginas populares --> <div class="mt-4"> <h6 class="text-secondary mb-3 text-sans text-body">Páginas Populares</h6> <div class="d-flex flex-wrap justify-content-center gap-2"> <a href="{{ home_url }}" class="btn-outline-primary btn-sm btn-enhanced"> <i class="fas fa-home me-1"></i>Início </a> {% if user_is_authenticated %} <a href="{{ profile_url }}" class="btn-outline-success btn-sm btn-enhanced"> <i class="fas fa-user me-1"></i>Perfil </a> {% else %} <a href="{{ login_url }}" class="btn-outline-info btn-sm btn-enhanced"> <i class="fas fa-sign-in-alt me-1"></i>Login </a> {% endif %} </div> </div> <!-- Informações de contato --> <div class="mt-4"> <p class="text-secondary text-body"> <i class="fas fa-question-circle me-1"></i> Se o problema persistir, entre em contato com o suporte. </p> </div> </div> </div> </div> </div> <style> .card-django { transition: transform 0.2s ease, box-shadow 0.2s ease; } .card-django:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); } .btn { transition: all 0.3s ease; } .btn:hover { transform: translateY(-1px); } .alert { border-radius: 15px; } .fa-search { animation: bounce 2s infinite; } @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } 60% { transform: translateY(-5px); } } code { background-color: #f8f9fa; padding: 2px 6px; border-radius: 4px; color: #e83e8c; font-size: 0.9em; } /* Responsividade */ @media (max-width: 768px) { .display-4 { font-size: 3rem; } .fa-search { font-size: 4rem !important; } .card-body { padding: 1rem; } .d-flex.gap-2 { gap: 0.5rem !important; } } </style> <script> document.addEventListener('DOMContentLoaded', function() { // Animação de entrada const container = document.querySelector('.container'); if (container) { container.style.opacity = '0'; container.style.transform = 'translateY(20px)'; setTimeout(() => { container.style.transition = 'all 0.5s ease'; container.style.opacity = '1'; container.style.transform = 'translateY(0)'; }, 100); } // Auto-focus no botão de início const homeBtn = document.querySelector('a[href*="home"], a[href="/"]'); if (homeBtn) { setTimeout(() => { homeBtn.focus(); }, 500); } // Adicionar funcionalidade de busca rápida document.addEventListener('keydown', function(e) { // Ctrl/Cmd + K para busca rápida if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); // Implementar busca rápida se necessário console.log('Busca rápida ativada'); } }); }); </script> {% endblock %} 
+{% extends 'base.html' %}
+
+{% block title %}Página Não Encontrada - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Header da Página -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-1 text-sans text-body">
+                        <i class="fas fa-exclamation-triangle me-2 text-django-green"></i>Página Não Encontrada
+                    </h1>
+                    <p class="text-secondary mb-0 text-body">A página solicitada não foi encontrada</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center">
+                <!-- Ícone de erro -->
+                <div class="mb-4">
+                    <i class="fas fa-search text-warning" style="font-size: 6rem;"></i>
+                </div>
+
+                <!-- Título principal -->
+                <h2 class="h1 mb-1 text-sans text-body">404</h2>
+                <h3 class="h3 mb-4 text-sans text-body">Página Não Encontrada</h3>
+
+                <!-- Mensagem principal -->
+                <div class="card-django border-0 shadow-sm mb-4">
+                    <div class="card-body profile-card-body card-django">
+                        <div class="alert alert-info">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-info-circle text-info me-3 fa-2x"></i>
+                                <div class="text-start">
+                                    <h5 class="alert-heading mb-2 text-sans text-body">Oops! Esta página não existe</h5>
+                                    <p class="mb-0 text-body">
+                                        A página que você está procurando não foi encontrada.
+                                        Ela pode ter sido movida, removida ou você digitou o endereço incorretamente.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sugestões -->
+                <div class="card-django border-0 shadow-sm mb-4">
+                    <div class="card-header profile-card-header">
+                        <h6 class="mb-0 text-sans text-body">
+                            <i class="fas fa-lightbulb me-2"></i>O que você pode fazer?
+                        </h6>
+                    </div>
+                    <div class="card-body profile-card-body card-django">
+                        <div class="row text-center">
+                            <div class="col-md-4 mb-3">
+                                <i class="fas fa-spell-check text-django-green fa-2x mb-2"></i>
+                                <p class="small mb-0 text-body"><strong>Verificar a URL</strong></p>
+                                <small class="text-secondary">Confira se não há erros de digitação</small>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <i class="fas fa-arrow-left text-success fa-2x mb-2"></i>
+                                <p class="small mb-0 text-body"><strong>Voltar</strong></p>
+                                <small class="text-secondary">Use o botão voltar do navegador</small>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <i class="fas fa-home text-info fa-2x mb-2"></i>
+                                <p class="small mb-0 text-body"><strong>Ir ao Início</strong></p>
+                                <small class="text-secondary">Comece pela página principal</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ações disponíveis -->
+                <div class="row justify-content-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="card-django border-0 shadow-sm">
+                            <div class="card-body profile-card-body card-django text-center">
+                                <i class="fas fa-home text-django-green fa-2x mb-3"></i>
+                                <h6 class="text-sans text-body">Página Inicial</h6>
+                                <p class="text-secondary small mb-3 text-body">
+                                    Voltar para a página principal
+                                </p>
+                                <a href="{% url 'pages:home' %}" class="btn btn-primary">
+                                    <i class="fas fa-home me-2"></i>Início
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if user.is_authenticated %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card-django border-0 shadow-sm">
+                            <div class="card-body profile-card-body card-django text-center">
+                                <i class="fas fa-user-circle text-success fa-2x mb-3"></i>
+                                <h6 class="text-sans text-body">Meu Perfil</h6>
+                                <p class="text-secondary small mb-3 text-body">
+                                    Ir para sua área pessoal
+                                </p>
+                                <a href="{% url 'accounts:profile' %}" class="btn btn-success">
+                                    <i class="fas fa-user me-2"></i>Perfil
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card-django border-0 shadow-sm">
+                            <div class="card-body profile-card-body card-django text-center">
+                                <i class="fas fa-sign-in-alt text-info fa-2x mb-3"></i>
+                                <h6 class="text-sans text-body">Fazer Login</h6>
+                                <p class="text-secondary small mb-3 text-body">
+                                    Entrar no sistema
+                                </p>
+                                <a href="{% url 'accounts:login' %}" class="btn btn-info">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="col-md-4 mb-3">
+                        <div class="card-django border-0 shadow-sm">
+                            <div class="card-body profile-card-body card-django text-center">
+                                <i class="fas fa-arrow-left text-secondary fa-2x mb-3"></i>
+                                <h6 class="text-sans text-body">Voltar</h6>
+                                <p class="text-secondary small mb-3 text-body">
+                                    Retornar à página anterior
+                                </p>
+                                <button onclick="history.back()" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Voltar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Páginas populares -->
+                <div class="mt-4">
+                    <h6 class="text-secondary mb-3 text-sans text-body">Páginas Populares</h6>
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        <a href="{% url 'pages:home' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-home me-1"></i>Início
+                        </a>
+                        <a href="{% url 'pages:about' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-info-circle me-1"></i>Sobre
+                        </a>
+                        <a href="{% url 'pages:contact' %}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-envelope me-1"></i>Contato
+                        </a>
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'accounts:profile' %}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-user me-1"></i>Perfil
+                        </a>
+                        {% else %}
+                        <a href="{% url 'accounts:login' %}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Informações de contato -->
+                <div class="mt-4">
+                    <p class="text-secondary text-body">
+                        <i class="fas fa-question-circle me-1"></i>
+                        Se o problema persistir, entre em contato com o suporte.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

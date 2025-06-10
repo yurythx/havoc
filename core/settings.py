@@ -61,6 +61,8 @@ MIDDLEWARE = [
     'apps.accounts.middleware.RateLimitMiddleware',
     'apps.accounts.middleware.AccessControlMiddleware',
     'apps.accounts.middleware.SmartRedirectMiddleware',
+    'apps.config.middleware.module_middleware.ModuleAccessMiddleware',
+    'apps.config.middleware.module_middleware.ModuleContextMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'

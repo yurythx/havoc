@@ -1,1 +1,140 @@
-{% extends 'config/base_config.html' %} {% load crispy_forms_tags %} {% block config_title %}Detalhes do Usuário{% endblock %} {% block breadcrumbs %} <div class="container"> <nav aria-label="breadcrumb"> <ol class="breadcrumb"> <li class="breadcrumb-item"><a href="{% url 'config:dashboard' %}">Dashboard</a></li> <li class="breadcrumb-item"><a href="{% url 'config:user_list' %}">Usuários</a></li> <li class="breadcrumb-item active">{{ user_detail.email }}</li> </ol> </nav> </div> {% endblock %} {% block config_content %} <!-- Header --> <div class="d-flex justify-content-between align-items-center mb-4"> <div> <h1 class="h2 text-sans text-body"> <i class="fas fa-user me-2"></i>Detalhes do Usuário </h1> </div> <div> <a href="{% url 'config:user_update' user_detail.slug %}" class="btn-primary btn-enhanced"> <i class="fas fa-edit me-1"></i>Editar </a> <a href="{% url 'config:user_list' %}" class="btn-outline-secondary btn-enhanced"> <i class="fas fa-arrow-left me-1"></i>Voltar </a> </div> </div> <div class="row"> <!-- Informações Básicas --> <div class="col-lg-8"> <div class="card-django-django mb-4 border-0 shadow-sm"> <div class="card-django-header-comfortable card-django border-0 shadow-sm"> <h5 class="mb-0 text-sans text-body"> <i class="fas fa-info-circle me-2"></i>Informações Básicas </h5> </div> <div class="card-django-body profile-card-body card-django border-0 shadow-sm"> <div class="row"> <div class="col-md-6"><div class="info-item"> <label class="form-label-enhanced fw-bold">E-mail:</label> <p class="form-control-plaintext text-body">{{ user_detail.email }}</p> </div> <div class="col-md-6"><div class="info-item"> <label class="form-label-enhanced fw-bold">Nome de usuário:</label> <p class="form-control-plaintext text-body">{{ user_detail.username }}</p> </div> <div class="col-md-6"><div class="info-item"> <label class="form-label-enhanced fw-bold">Nome:</label> <p class="form-control-plaintext text-body">{{ user_detail.first_name|default:"Não informado" }}</p> </div> <div class="col-md-6"><div class="info-item"> <label class="form-label-enhanced fw-bold">Sobrenome:</label> <p class="form-control-plaintext text-body">{{ user_detail.last_name|default:"Não informado" }}</p> </div> <div class="col-md-6"><div class="info-item"> <label class="form-label-enhanced fw-bold">Data de criação:</label> <p class="form-control-plaintext text-body">{{ user_detail.date_joined|date:"d/m/Y H:i" }}</p> </div> <div class="col-md-6"><div class="info-item"> <label class="form-label-enhanced fw-bold">Último acesso:</label> <p class="form-control-plaintext text-body">{{ user_detail.last_login|date:"d/m/Y H:i"|default:"Nunca" }}</p> </div> </div> </div> </div> <!-- Status e Permissões --> <div class="card-django-django mb-4 border-0 shadow-sm"> <div class="card-django-header-comfortable card-django border-0 shadow-sm"> <h5 class="mb-0 text-sans text-body"> <i class="fas fa-shield-alt me-2"></i>Status e Permissões </h5> </div> <div class="card-django-body profile-card-body card-django border-0 shadow-sm"> <div class="row"> <div class="col-md-4 mb-3"> <label class="form-label-enhanced fw-bold">Status:</label> <div> {% if user_detail.is_active %} <span class="badge-enhanced bg-success"> <i class="fas fa-check me-1"></i>Ativo </span> {% else %} <span class="badge-enhanced bg-danger"> <i class="fas fa-times me-1"></i>Inativo </span> {% endif %} {% if user_detail.is_verified %} <span class="badge-enhanced bg-info"> <i class="fas fa-check-circle me-1"></i>Verificado </span> {% else %} <span class="badge-enhanced bg-warning"> <i class="fas fa-exclamation-circle me-1"></i>Não verificado </span> {% endif %} </div> </div> <div class="col-md-4 mb-3"> <label class="form-label-enhanced fw-bold">Tipo de usuário:</label> <div> {% if user_detail.is_superuser %} <span class="badge-enhanced bg-danger"> <i class="fas fa-crown me-1"></i>Superusuário </span> {% elif user_detail.is_staff %} <span class="badge-enhanced bg-warning"> <i class="fas fa-user-tie me-1"></i>Staff </span> {% else %} <span class="badge-enhanced bg-secondary"> <i class="fas fa-user me-1"></i>Usuário comum </span> {% endif %} </div> </div> <div class="col-md-4 mb-3"> <label class="form-label-enhanced fw-bold">Slug:</label> <p class="form-control-plaintext text-body">{{ user_detail.slug|default:"Não gerado" }}</p> </div> </div> </div> </div> <!-- Grupos --> {% if groups %} <div class="card-django-django mb-4 border-0 shadow-sm"> <div class="card-django-header-comfortable card-django border-0 shadow-sm"> <h5 class="mb-0 text-sans text-body"> <i class="fas fa-users me-2"></i>Grupos </h5> </div> <div class="card-django-body profile-card-body card-django border-0 shadow-sm"> {% for group in groups %} <span class="badge-enhanced bg-django-green me-2 mb-2"> <i class="fas fa-users me-1"></i>{{ group.name }} </span> {% endfor %} </div> </div> {% endif %} <!-- Permissões Específicas --> {% if permissions %} <div class="card-django-django mb-4 border-0 shadow-sm"> <div class="card-django-header-comfortable card-django border-0 shadow-sm"> <h5 class="mb-0 text-sans text-body"> <i class="fas fa-key me-2"></i>Permissões Específicas </h5> </div> <div class="card-django-body profile-card-body card-django border-0 shadow-sm"> <div class="row"> {% for permission in permissions %} <div class="col-md-6 mb-2"> <span class="badge-enhanced bg-info"> {{ permission.name }} </span> </div> {% endfor %} </div> </div> </div> {% endif %} </div> <!-- Sidebar --> <div class="col-lg-4"> <!-- Ações --> <div class="card-django-django mb-4 border-0 shadow-sm"> <div class="card-django-header-comfortable card-django border-0 shadow-sm"> <h5 class="mb-0 text-sans text-body"> <i class="fas fa-cogs me-2"></i>Ações </h5> </div> <div class="card-django-body profile-card-body card-django border-0 shadow-sm"> <div class="d-grid gap-2"> <a href="{% url 'config:user_update' user_detail.slug %}" class="btn-primary btn-enhanced"> <i class="fas fa-edit me-1"></i>Editar Usuário </a> {% if user_detail != request.user %} <a href="{% url 'config:user_delete' user_detail.slug %}" class="btn-outline-danger btn-enhanced"> <i class="fas fa-trash me-1"></i>Deletar Usuário </a> {% endif %} <hr> <a href="{% url 'config:user_list' %}" class="btn-outline-secondary btn-enhanced"> <i class="fas fa-list me-1"></i>Lista de Usuários </a> <a href="{% url 'config:user_create' %}" class="btn-outline-primary btn-enhanced"> <i class="fas fa-plus me-1"></i>Criar Novo Usuário </a> </div> </div> </div> <!-- Estatísticas --> <div class="card-django-django border-0 shadow-sm"> <div class="card-django-header-comfortable card-django border-0 shadow-sm"> <h5 class="mb-0 text-sans text-body"> <i class="fas fa-chart-bar me-2"></i>Estatísticas </h5> </div> <div class="card-django-body profile-card-body card-django border-0 shadow-sm"> <div class="row text-center"> <div class="col-6 mb-3"> <div class="border rounded p-2"> <h6 class="text-secondary mb-1 text-sans text-body">Grupos</h6> <h4 class="text-django-green text-sans text-body">{{ groups.count }}</h4> </div> </div> <div class="col-6 mb-3"> <div class="border rounded p-2"> <h6 class="text-secondary mb-1 text-sans text-body">Permissões</h6> <h4 class="text-info text-sans text-body">{{ permissions.count }}</h4> </div> </div> </div> <div class="mt-3"> <small class="text-secondary"> <i class="fas fa-info-circle me-1"></i> Usuário criado há {{ user_detail.date_joined|timesince }} </small> </div> </div> </div> </div> </div> {% endblock %} 
+{% extends 'config/base_config.html' %}
+{% load crispy_forms_tags %}
+
+{% block config_title %}Detalhes do Usuário{% endblock %}
+
+{% block config_content %}
+<div class="container my-5">
+    <!-- Header da Página -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-1 text-sans text-body">
+                        <i class="fas fa-user me-2 text-django-green"></i>Detalhes do Usuário
+                    </h1>
+                    <p class="text-secondary mb-0 text-body">Informações completas do usuário {{ user_detail.email }}</p>
+                </div>
+                <div>
+                    <a href="{% url 'config:user_update' user_detail.slug %}" class="btn btn-primary">
+                        <i class="fas fa-edit me-1"></i>Editar
+                    </a>
+                    <a href="{% url 'config:user_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Voltar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Informações Básicas -->
+        <div class="col-lg-8">
+            <div class="card-django mb-4 border-0 shadow-sm">
+                <div class="card-header profile-card-header">
+                    <h6 class="mb-0 text-sans text-body">
+                        <i class="fas fa-info-circle me-2"></i>Informações Básicas
+                    </h6>
+                </div>
+                <div class="card-body profile-card-body card-django">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-sans">E-mail:</label>
+                                <p class="form-control-plaintext text-body">{{ user_detail.email }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-sans">Nome:</label>
+                                <p class="form-control-plaintext text-body">{{ user_detail.first_name|default:"Não informado" }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-sans">Username:</label>
+                                <p class="form-control-plaintext text-body">{{ user_detail.username }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-sans">Sobrenome:</label>
+                                <p class="form-control-plaintext text-body">{{ user_detail.last_name|default:"Não informado" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status e Permissões -->
+            <div class="card-django mb-4 border-0 shadow-sm">
+                <div class="card-header profile-card-header">
+                    <h6 class="mb-0 text-sans text-body">
+                        <i class="fas fa-shield-alt me-2"></i>Status e Permissões
+                    </h6>
+                </div>
+                <div class="card-body profile-card-body card-django">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold text-sans">Status:</label>
+                            <div>
+                                {% if user_detail.is_active %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check me-1"></i>Ativo
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-times me-1"></i>Inativo
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold text-sans">Tipo:</label>
+                            <div>
+                                {% if user_detail.is_superuser %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-crown me-1"></i>Superusuário
+                                    </span>
+                                {% elif user_detail.is_staff %}
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-user-tie me-1"></i>Staff
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-user me-1"></i>Usuário
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Ações -->
+            <div class="card-django mb-4 border-0 shadow-sm">
+                <div class="card-header profile-card-header">
+                    <h6 class="mb-0 text-sans text-body">
+                        <i class="fas fa-cogs me-2"></i>Ações
+                    </h6>
+                </div>
+                <div class="card-body profile-card-body card-django">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'config:user_update' user_detail.slug %}" class="btn btn-primary">
+                            <i class="fas fa-edit me-1"></i>Editar Usuário
+                        </a>
+                        {% if user_detail != request.user %}
+                            <a href="{% url 'config:user_delete' user_detail.slug %}" class="btn btn-outline-danger">
+                                <i class="fas fa-trash me-1"></i>Deletar Usuário
+                            </a>
+                        {% endif %}
+                        <hr>
+                        <a href="{% url 'config:user_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-list me-1"></i>Lista de Usuários
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

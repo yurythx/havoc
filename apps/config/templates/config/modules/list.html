@@ -1,0 +1,276 @@
+{% extends 'config/base_config.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Gerenciamento de Módulos - {{ block.super }}{% endblock %}
+
+{% block config_content %}
+<div class="container-fluid">
+    <!-- Header da Página -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-1 text-sans text-body">
+                        <i class="fas fa-puzzle-piece me-2 text-django-green"></i>Gerenciamento de Módulos
+                    </h1>
+                    <p class="text-secondary mb-0 text-body">Configure quais módulos estão disponíveis no sistema</p>
+                </div>
+                <div>
+                    <form method="post" action="{% url 'config:module_sync' %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="fas fa-sync me-2"></i>Sincronizar Apps
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card-django border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <i class="fas fa-cubes fa-2x text-primary me-3"></i>
+                        <div>
+                            <h3 class="mb-0 text-sans">{{ module_stats.total }}</h3>
+                            <small class="text-muted">Total de Módulos</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-django border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <i class="fas fa-check-circle fa-2x text-success me-3"></i>
+                        <div>
+                            <h3 class="mb-0 text-sans">{{ module_stats.enabled }}</h3>
+                            <small class="text-muted">Habilitados</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-django border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <i class="fas fa-times-circle fa-2x text-danger me-3"></i>
+                        <div>
+                            <h3 class="mb-0 text-sans">{{ module_stats.disabled }}</h3>
+                            <small class="text-muted">Desabilitados</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-django border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <i class="fas fa-star fa-2x text-warning me-3"></i>
+                        <div>
+                            <h3 class="mb-0 text-sans">{{ module_stats.core }}</h3>
+                            <small class="text-muted">Principais</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Módulos -->
+    <div class="card-django border-0 shadow-sm">
+        <div class="profile-card-header">
+            <h6 class="mb-0 text-sans text-body">
+                <i class="fas fa-list me-2 text-django-green"></i>Módulos do Sistema
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Módulo</th>
+                            <th>Tipo</th>
+                            <th>Status</th>
+                            <th>Menu</th>
+                            <th>Dependências</th>
+                            <th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for module in modules %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <i class="{{ module.menu_icon }} fa-lg text-django-green"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 text-sans">{{ module.display_name }}</h6>
+                                        <small class="text-muted">{{ module.app_name }}</small>
+                                        {% if module.description %}
+                                            <br><small class="text-secondary">{{ module.description|truncatechars:60 }}</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge {% if module.is_core %}bg-warning{% else %}bg-info{% endif %}">
+                                    {{ module.get_module_type_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if module.is_enabled %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check me-1"></i>Ativo
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-times me-1"></i>Inativo
+                                    </span>
+                                {% endif %}
+                                
+                                {% if module.status != 'active' %}
+                                    <br><small class="text-muted">{{ module.get_status_display }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if module.show_in_menu %}
+                                    <i class="fas fa-eye text-success" title="Visível no menu"></i>
+                                    <small class="text-muted ms-1">Ordem: {{ module.menu_order }}</small>
+                                {% else %}
+                                    <i class="fas fa-eye-slash text-muted" title="Oculto do menu"></i>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if module.dependencies %}
+                                    <small class="text-muted">
+                                        {{ module.dependencies|length }} dependência{{ module.dependencies|length|pluralize }}
+                                    </small>
+                                {% else %}
+                                    <small class="text-muted">Nenhuma</small>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group" role="group">
+                                    <!-- Botão Ver Detalhes -->
+                                    <a href="{% url 'config:module_detail' module.app_name %}" 
+                                       class="btn btn-sm btn-outline-primary" title="Ver detalhes">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    
+                                    <!-- Botão Editar -->
+                                    <a href="{% url 'config:module_update' module.app_name %}" 
+                                       class="btn btn-sm btn-outline-secondary" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    
+                                    <!-- Botão Toggle (apenas para módulos não principais) -->
+                                    {% if not module.is_core %}
+                                        <form method="post" action="{% url 'config:module_toggle' module.app_name %}" class="d-inline">
+                                            {% csrf_token %}
+                                            {% if module.is_enabled %}
+                                                <input type="hidden" name="action" value="disable">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                        title="Desabilitar módulo"
+                                                        onclick="return confirm('Desabilitar o módulo {{ module.display_name }}?')">
+                                                    <i class="fas fa-power-off"></i>
+                                                </button>
+                                            {% else %}
+                                                <input type="hidden" name="action" value="enable">
+                                                <button type="submit" class="btn btn-sm btn-outline-success" 
+                                                        title="Habilitar módulo">
+                                                    <i class="fas fa-power-off"></i>
+                                                </button>
+                                            {% endif %}
+                                        </form>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-outline-secondary" disabled title="Módulo principal">
+                                            <i class="fas fa-lock"></i>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-puzzle-piece fa-3x mb-3"></i>
+                                    <p>Nenhum módulo encontrado.</p>
+                                    <form method="post" action="{% url 'config:module_sync' %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-sync me-2"></i>Sincronizar Apps
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paginação -->
+    {% if is_paginated %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <nav aria-label="Paginação de módulos">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">Primeira</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                            </li>
+                        {% endif %}
+                        
+                        <li class="page-item active">
+                            <span class="page-link">
+                                Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-refresh das estatísticas a cada 30 segundos
+    setInterval(function() {
+        fetch('{% url "config:module_stats_api" %}')
+            .then(response => response.json())
+            .then(data => {
+                // Atualiza os números nas estatísticas
+                document.querySelector('.fa-cubes').nextElementSibling.querySelector('h3').textContent = data.total;
+                document.querySelector('.fa-check-circle').nextElementSibling.querySelector('h3').textContent = data.enabled;
+                document.querySelector('.fa-times-circle').nextElementSibling.querySelector('h3').textContent = data.disabled;
+                document.querySelector('.fa-star').nextElementSibling.querySelector('h3').textContent = data.core;
+            })
+            .catch(error => console.log('Erro ao atualizar estatísticas:', error));
+    }, 30000);
+});
+</script>
+{% endblock %}

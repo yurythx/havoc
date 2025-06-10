@@ -1,161 +1,189 @@
 {% extends 'base.html' %}
 
+{% block title %}{% if page %}{{ page.title }} - {{ block.super }}{% else %}Bem-vindo - {{ block.super }}{% endif %}{% endblock %}
+
 {% block content %}
-<!-- Hero Section -->
-<div class="hero-section bg-primary text-white py-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6 fade-in-left">
-                {% if page %}
-                    <h1 class="display-4 fw-bold">{{ page.title }}</h1>
-                    {% if page.excerpt %}
-                        <p class="lead">{{ page.excerpt }}</p>
-                    {% endif %}
-                {% else %}
-                    <h1 class="display-4 fw-bold">Bem-vindo ao Havoc</h1>
-                    <p class="lead">Sistema moderno de gerenciamento de conteúdo com arquitetura limpa e princípios SOLID.</p>
-                {% endif %}
-                <div class="mt-4">
-                    <a href="{% url 'pages:about' %}" class="btn btn-light btn-lg me-3 hover-lift">
-                        <i class="fas fa-info-circle me-2"></i>Saiba Mais
-                    </a>
-                    <a href="{% url 'pages:contact' %}" class="btn btn-outline-light btn-lg hover-scale">
-                        <i class="fas fa-envelope me-2"></i>Contato
-                    </a>
-                </div>
-            </div>
-            <div class="col-lg-6 fade-in-right">
-                <div class="text-center">
-                    <i class="fas fa-rocket fa-10x opacity-75 pulse"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-{% if page and page.content %}
 <div class="container my-5">
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="content">
-                {{ page.content|safe }}
+    <!-- Header da Página -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-1 text-sans text-body">
+                        <i class="fas fa-home me-2 text-django-green"></i>Bem-vindo ao Havoc
+                    </h1>
+                    <p class="text-secondary mb-0 text-body">Sistema moderno de gerenciamento de conteúdo com arquitetura limpa</p>
+                </div>
             </div>
         </div>
-        <div class="col-lg-4">
-            <!-- Sidebar content -->
-        </div>
     </div>
-</div>
-{% endif %}
 
-<!-- Features Section -->
-<div class="container my-5">
-    <div class="row">
-        <div class="col-12 text-center mb-5 scroll-reveal">
-            <h2>Funcionalidades Principais</h2>
-            <p class="text-muted">Conheça as principais características do sistema</p>
-        </div>
-    </div>
-    <div class="row g-4 stagger-container">
-        <div class="col-md-4 scroll-reveal stagger-1">
-            <div class="card h-100 border-0 shadow-sm hover-lift">
-                <div class="card-body text-center">
-                    <div class="feature-icon mb-3">
-                        <i class="fas fa-users fa-3x text-primary hover-scale"></i>
-                    </div>
-                    <h5 class="card-title">Gerenciamento de Usuários</h5>
-                    <p class="card-text">Sistema completo de autenticação, permissões e gerenciamento de usuários.</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 scroll-reveal stagger-2">
-            <div class="card h-100 border-0 shadow-sm hover-lift">
-                <div class="card-body text-center">
-                    <div class="feature-icon mb-3">
-                        <i class="fas fa-file-alt fa-3x text-primary hover-scale"></i>
-                    </div>
-                    <h5 class="card-title">Páginas Dinâmicas</h5>
-                    <p class="card-text">Criação e gerenciamento de páginas com templates personalizáveis.</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 scroll-reveal stagger-3">
-            <div class="card h-100 border-0 shadow-sm hover-lift">
-                <div class="card-body text-center">
-                    <div class="feature-icon mb-3">
-                        <i class="fas fa-cog fa-3x text-primary hover-scale"></i>
-                    </div>
-                    <h5 class="card-title">Configurações</h5>
-                    <p class="card-text">Painel administrativo completo para configuração do sistema.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Popular Pages -->
-{% if popular_pages %}
-<div class="bg-light py-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-12 mb-4">
-                <h3>Páginas Populares</h3>
-            </div>
-        </div>
-        <div class="row g-3">
-            {% for popular_page in popular_pages %}
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <h6 class="card-title">
-                            <a href="{{ popular_page.get_absolute_url }}" class="text-decoration-none">
-                                {{ popular_page.title }}
-                            </a>
-                        </h6>
-                        {% if popular_page.excerpt %}
-                            <p class="card-text small text-muted">{{ popular_page.excerpt|truncatechars:100 }}</p>
+    <!-- Hero Section -->
+    <div class="card-django border-0 shadow-sm mb-4">
+        <div class="card-body profile-card-body">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    {% if page %}
+                        <h2 class="display-6 fw-bold text-sans text-body">
+                            {{ page.title }}
+                        </h2>
+                        {% if page.excerpt %}
+                            <p class="lead text-body">
+                                {{ page.excerpt }}
+                            </p>
                         {% endif %}
-                        <small class="text-muted">
-                            <i class="fas fa-eye me-1"></i>{{ popular_page.view_count }} visualizações
-                        </small>
+                    {% else %}
+                        <h2 class="display-6 fw-bold text-sans text-body">Sistema Havoc</h2>
+                        <p class="lead text-body">Plataforma robusta com princípios SOLID e Clean Architecture.</p>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <a href="{% url 'pages:about' %}" class="btn btn-primary btn-lg me-3">
+                            <i class="fas fa-info-circle me-2"></i>Saiba Mais
+                        </a>
+                        <a href="{% url 'pages:contact' %}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-envelope me-2"></i>Contato
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="text-center">
+                        <i class="fas fa-rocket fa-8x text-django-green opacity-75"></i>
                     </div>
                 </div>
             </div>
-            {% endfor %}
         </div>
     </div>
-</div>
-{% endif %}
 
-<!-- Recent Pages -->
-{% if recent_pages %}
-<div class="container my-5">
+    <!-- Conteúdo da Página -->
+    {% if page and page.content %}
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="content">
+                    {{ page.content|safe }}
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <!-- Sidebar content -->
+            </div>
+        </div>
+    {% endif %}
+    <!-- Features Section -->
     <div class="row">
-        <div class="col-12 mb-4">
-            <h3>Páginas Recentes</h3>
+        <div class="col-12 text-center mb-5">
+            <h2>Funcionalidades Principais</h2>
+            <p class="text-muted text-body">Conheça as principais características do sistema</p>
         </div>
     </div>
-    <div class="row g-3">
-        {% for recent_page in recent_pages %}
-        <div class="col-md-6 col-lg-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <h6 class="card-title">
-                        <a href="{{ recent_page.get_absolute_url }}" class="text-decoration-none">
-                            {{ recent_page.title }}
-                        </a>
-                    </h6>
-                    {% if recent_page.excerpt %}
-                        <p class="card-text small text-muted">{{ recent_page.excerpt|truncatechars:100 }}</p>
-                    {% endif %}
-                    <small class="text-muted">
-                        <i class="fas fa-calendar me-1"></i>{{ recent_page.updated_at|date:"d/m/Y" }}
-                    </small>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card-django h-100 border-0 shadow-sm">
+                <div class="card-body profile-card-body text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-users fa-3x text-django-green"></i>
+                    </div>
+                    <h5 class="card-title text-sans text-body">Gerenciamento de Usuários</h5>
+                    <p class="card-text text-body">Sistema completo de autenticação, permissões e gerenciamento de usuários.</p>
                 </div>
             </div>
         </div>
-        {% endfor %}
+
+        <div class="col-md-4">
+            <div class="card-django h-100 border-0 shadow-sm">
+                <div class="card-body profile-card-body text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-file-alt fa-3x text-django-green"></i>
+                    </div>
+                    <h5 class="card-title text-sans text-body">Páginas Dinâmicas</h5>
+                    <p class="card-text text-body">Criação e gerenciamento de páginas com templates personalizáveis.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card-django h-100 border-0 shadow-sm">
+                <div class="card-body profile-card-body text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-cog fa-3x text-django-green"></i>
+                    </div>
+                    <h5 class="card-title text-sans text-body">Configurações</h5>
+                    <p class="card-text text-body">Painel administrativo completo para configuração do sistema.</p>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- Popular Pages -->
+    {% if popular_pages %}
+        <div class="bg-secondary py-5 mt-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 mb-4">
+                        <h3 class="text-sans text-body">Páginas Populares</h3>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    {% for popular_page in popular_pages %}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card-django border-0 shadow-sm">
+                                <div class="card-body profile-card-body">
+                                    <h6 class="card-title text-sans text-body">
+                                        <a href="{{ popular_page.get_absolute_url }}" class="text-decoration-none text-django-green">
+                                            {{ popular_page.title }}
+                                        </a>
+                                    </h6>
+                                    {% if popular_page.excerpt %}
+                                        <p class="card-text small text-muted text-body">
+                                            {{ popular_page.excerpt|truncatechars:100 }}
+                                        </p>
+                                    {% endif %}
+                                    <small class="text-muted">
+                                        <i class="fas fa-eye me-1"></i>
+                                        {{ popular_page.view_count }} visualizações
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Recent Pages -->
+    {% if recent_pages %}
+        <div class="mt-5">
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <h3 class="text-sans text-body">Páginas Recentes</h3>
+                </div>
+            </div>
+            <div class="row g-3">
+                {% for recent_page in recent_pages %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card-django border-0 shadow-sm">
+                            <div class="card-body profile-card-body">
+                                <h6 class="card-title text-sans text-body">
+                                    <a href="{{ recent_page.get_absolute_url }}" class="text-decoration-none text-django-green">
+                                        {{ recent_page.title }}
+                                    </a>
+                                </h6>
+                                {% if recent_page.excerpt %}
+                                    <p class="card-text small text-muted text-body">
+                                        {{ recent_page.excerpt|truncatechars:100 }}
+                                    </p>
+                                {% endif %}
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    {{ recent_page.updated_at|date:"d/m/Y" }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
 </div>
-{% endif %}
 {% endblock %}
