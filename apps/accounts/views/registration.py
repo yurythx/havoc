@@ -87,6 +87,7 @@ class RegistrationView(View):
         
         return render(request, self.template_name, {'form': form})
 
+@method_decorator(ratelimit(key='ip', rate='10/h', method='POST', block=True), name='post')
 class VerificationView(View):
     """View para verificação de e-mail"""
     template_name = 'accounts/verify.html'
@@ -102,7 +103,6 @@ class VerificationView(View):
         form = self.form_class(initial={'email': email})
         return render(request, self.template_name, {'form': form, 'email': email})
     
-    @ratelimit(key='ip', rate='5/h', block=True)
     def post(self, request):
         """Processa o código de verificação"""
         form = self.form_class(request.POST)
