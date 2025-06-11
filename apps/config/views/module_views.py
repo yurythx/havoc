@@ -1,39 +1,168 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import ListView, DetailView, UpdateView
+from django.views.generic import DetailView, UpdateView
 from django.views import View
 from django.http import JsonResponse
-from django.db import transaction
 from apps.config.models.app_module_config import AppModuleConfiguration
 from apps.config.services.module_service import ModuleService
-from apps.config.forms.module_forms import ModuleConfigurationForm, ModuleToggleForm
-import json
+from apps.config.forms.module_forms import ModuleConfigurationForm
 
 
-class ModuleListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
-    """Lista todos os módulos do sistema"""
-    model = AppModuleConfiguration
+class ModuleListView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """Lista e gerencia todos os módulos do sistema com funcionalidades de teste integradas"""
     template_name = 'config/modules/list.html'
-    context_object_name = 'modules'
-    paginate_by = 20
-    
+
     def test_func(self):
         return self.request.user.is_staff
-    
-    def get_queryset(self):
-        return AppModuleConfiguration.objects.all().order_by('menu_order', 'display_name')
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+
+    def get(self, request):
+        """Exibe página de gerenciamento de módulos com testes integrados"""
         module_service = ModuleService()
-        
-        context.update({
-            'module_stats': module_service.get_module_statistics(),
+
+        # Obtém todos os módulos
+        all_modules = module_service.get_all_modules()
+        enabled_modules = module_service.get_enabled_modules()
+        disabled_modules = [m for m in all_modules if not m.is_available]
+
+        # Testa URLs dos módulos
+        module_tests = []
+        for module in all_modules:
+            test_result = self._test_module_access(module)
+            module_tests.append({
+                'module': module,
+                'test_result': test_result
+            })
+
+        # Estatísticas
+        module_stats = module_service.get_module_statistics()
+
+        context = {
+            'modules': all_modules,
+            'enabled_modules': enabled_modules,
+            'disabled_modules': disabled_modules,
+            'module_tests': module_tests,
+            'module_stats': module_stats,
             'page_title': 'Gerenciamento de Módulos',
-            'page_description': 'Configure quais módulos estão disponíveis no sistema',
-        })
-        return context
+            'page_description': 'Configure e teste os módulos do sistema',
+        }
+
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        """Processa ações de gerenciamento e teste"""
+        action = request.POST.get('action')
+        module_name = request.POST.get('module_name')
+
+        if not action or not module_name:
+            messages.error(request, 'Ação ou módulo não especificado.')
+            return redirect('config:module_list')
+
+        module_service = ModuleService()
+
+        if action == 'toggle':
+            success = self._handle_toggle_module(module_service, module_name, request.user)
+        elif action == 'test_access':
+            success = self._handle_test_access(module_service, module_name)
+        elif action == 'enable':
+            success = module_service.enable_module(module_name, request.user)
+            if success:
+                messages.success(request, f'Módulo habilitado com sucesso.')
+            else:
+                messages.error(request, f'Erro ao habilitar módulo.')
+        elif action == 'disable':
+            success = module_service.disable_module(module_name, request.user)
+            if success:
+                messages.success(request, f'Módulo desabilitado com sucesso.')
+            else:
+                messages.error(request, f'Erro ao desabilitar módulo.')
+        else:
+            messages.error(request, 'Ação não reconhecida.')
+
+        return redirect('config:module_list')
+
+    def _handle_toggle_module(self, module_service, module_name, user):
+        """Alterna status do módulo"""
+        module = module_service.get_module_by_name(module_name)
+        if not module:
+            messages.error(self.request, f'Módulo {module_name} não encontrado.')
+            return False
+
+        if module.is_core:
+            messages.error(self.request, f'Módulo {module.display_name} é principal e não pode ser desabilitado.')
+            return False
+
+        if module.is_enabled:
+            success = module_service.disable_module(module_name, user)
+            action = 'desabilitado'
+        else:
+            success = module_service.enable_module(module_name, user)
+            action = 'habilitado'
+
+        if success:
+            messages.success(self.request, f'Módulo {module.display_name} {action} com sucesso.')
+        else:
+            messages.error(self.request, f'Erro ao alterar status do módulo {module.display_name}.')
+
+        return success
+
+    def _handle_test_access(self, module_service, module_name):
+        """Testa acesso ao módulo"""
+        module = module_service.get_module_by_name(module_name)
+        if module:
+            test_result = self._test_module_access(module)
+            if test_result['accessible']:
+                messages.success(self.request, f'Módulo {module.display_name} está acessível.')
+            else:
+                messages.warning(self.request, f'Módulo {module.display_name} não está acessível: {test_result["reason"]}')
+            return True
+        else:
+            messages.error(self.request, f'Módulo {module_name} não encontrado.')
+            return False
+
+    def _test_module_access(self, module):
+        """Testa se um módulo está acessível"""
+        try:
+            # Verifica se está habilitado
+            if not module.is_available:
+                return {
+                    'accessible': False,
+                    'reason': 'Módulo desabilitado',
+                    'status': 'disabled'
+                }
+
+            # Verifica dependências
+            if module.dependencies:
+                module_service = ModuleService()
+                for dep in module.dependencies:
+                    dep_module = module_service.get_module_by_name(dep)
+                    if not dep_module or not dep_module.is_available:
+                        return {
+                            'accessible': False,
+                            'reason': f'Dependência {dep} não disponível',
+                            'status': 'dependency_error'
+                        }
+
+            # Verifica se a URL está configurada
+            if not module.url_pattern:
+                return {
+                    'accessible': True,
+                    'reason': 'Módulo sem URL específica',
+                    'status': 'no_url'
+                }
+
+            return {
+                'accessible': True,
+                'reason': 'Módulo totalmente funcional',
+                'status': 'ok'
+            }
+
+        except Exception as e:
+            return {
+                'accessible': False,
+                'reason': f'Erro interno: {str(e)}',
+                'status': 'error'
+            }
 
 
 class ModuleDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
@@ -136,36 +265,7 @@ class ModuleToggleView(LoginRequiredMixin, UserPassesTestMixin, View):
         return redirect('config:module_list')
 
 
-class ModuleSyncView(LoginRequiredMixin, UserPassesTestMixin, View):
-    """Sincroniza módulos com apps instalados"""
-    
-    def test_func(self):
-        return self.request.user.is_staff
-    
-    def post(self, request):
-        module_service = ModuleService()
-        
-        try:
-            sync_result = module_service.sync_with_installed_apps(request.user)
-            
-            if sync_result['created']:
-                messages.success(
-                    request,
-                    f'Sincronização concluída! Módulos criados: {", ".join(sync_result["created"])}'
-                )
-            else:
-                messages.info(request, 'Sincronização concluída. Nenhum novo módulo encontrado.')
-            
-            if sync_result['missing']:
-                messages.warning(
-                    request,
-                    f'Módulos sem app correspondente: {", ".join(sync_result["missing"])}'
-                )
-        
-        except Exception as e:
-            messages.error(request, f'Erro na sincronização: {str(e)}')
-        
-        return redirect('config:module_list')
+
 
 
 class ModuleStatsAPIView(LoginRequiredMixin, UserPassesTestMixin, View):

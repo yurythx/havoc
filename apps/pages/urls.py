@@ -16,7 +16,7 @@ app_name = 'pages'
 urlpatterns = [
     # Página inicial
     path('', HomeView.as_view(), name='home'),
-    
+
     # Páginas estáticas
     path('sobre/', AboutView.as_view(), name='about'),
     path('contato/', ContactView.as_view(), name='contact'),
@@ -25,7 +25,7 @@ urlpatterns = [
 
     # Demo do design Django
     path('design-demo/', TemplateView.as_view(template_name='pages/design-demo.html'), name='design_demo'),
-    
+
     # Páginas dinâmicas
     path('paginas/', PageListView.as_view(), name='page_list'),
     path('busca/', PageSearchView.as_view(), name='search'),

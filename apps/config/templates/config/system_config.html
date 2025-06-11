@@ -31,7 +31,7 @@
                     </button>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{% url 'config:system_config' %}">
-                            <i class="fas fa-database me-2"></i>Banco de Dados
+                            <i class="fas fa-tachometer-alt me-2"></i>Visão Geral
                         </a></li>
                         <li><a class="dropdown-item" href="{% url 'config:email_config' %}">
                             <i class="fas fa-envelope me-2"></i>Email SMTP
@@ -40,8 +40,8 @@
                             <i class="fas fa-code me-2"></i>Variáveis de Ambiente
                         </a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{% url 'config:export_config' %}">
-                            <i class="fas fa-download me-2"></i>Exportar Configurações
+                        <li><a class="dropdown-item" href="{% url 'config:module_list' %}">
+                            <i class="fas fa-puzzle-piece me-2"></i>Módulos do Sistema
                         </a></li>
                     </ul>
                 </div>

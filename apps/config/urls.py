@@ -10,26 +10,24 @@ from apps.config.views import (
 )
 from apps.config.views.advanced_config_views import (
     EnvironmentVariablesView,
-    ExportConfigView,
-    ImportConfigView,
 )
 from apps.config.views.email_views import (
     EmailConfigView,
     EmailTestView,
     EmailTemplatesView,
     EmailStatsView,
-    test_email_connection,
     send_test_email_ajax,
+    test_email_connection_ajax,
 )
 from apps.config.views.module_views import (
     ModuleListView,
     ModuleDetailView,
     ModuleUpdateView,
     ModuleToggleView,
-    ModuleSyncView,
     ModuleStatsAPIView,
     ModuleDependencyCheckView,
 )
+
 
 
 app_name = 'config'
@@ -59,7 +57,7 @@ urlpatterns = [
     path('email/estatisticas/', EmailStatsView.as_view(), name='email_stats'),
 
     # AJAX Email
-    path('ajax/test-email-connection/', test_email_connection, name='test_email_connection'),
+    path('ajax/test-email-connection/', test_email_connection_ajax, name='test_email_connection'),
     path('ajax/send-test-email/', send_test_email_ajax, name='send_test_email_ajax'),
 
     # Configurações do Sistema
@@ -67,7 +65,6 @@ urlpatterns = [
 
     # Módulos do Sistema
     path('modulos/', ModuleListView.as_view(), name='module_list'),
-    path('modulos/sync/', ModuleSyncView.as_view(), name='module_sync'),
     path('modulos/<str:app_name>/', ModuleDetailView.as_view(), name='module_detail'),
     path('modulos/<str:app_name>/editar/', ModuleUpdateView.as_view(), name='module_update'),
     path('modulos/<str:app_name>/toggle/', ModuleToggleView.as_view(), name='module_toggle'),
@@ -78,10 +75,6 @@ urlpatterns = [
 
     # Configurações Avançadas
     path('sistema/variaveis-ambiente/', EnvironmentVariablesView.as_view(), name='environment_variables'),
-
-    # Import/Export
-    path('sistema/export/', ExportConfigView.as_view(), name='export_config'),
-    path('sistema/import/', ImportConfigView.as_view(), name='import_config'),
 
     # Backup & Manutenção (TODO)
     path('backup/', SystemConfigView.as_view(), name='backup_config'),

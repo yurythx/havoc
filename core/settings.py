@@ -12,13 +12,19 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+import logging
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables from .env file
+load_dotenv(BASE_DIR / '.env')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+
+# =============================================================================
+# CONFIGURAÇÕES BÁSICAS DO DJANGO
+# =============================================================================
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-dev-key-change-in-production')
@@ -26,6 +32,10 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-dev-key-change
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
+# Ambiente de execução
+ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')
+
+# Hosts permitidos
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver').split(',')
 
 
@@ -100,29 +110,61 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Backend padrão como fallback
 ]
 
-# Configurações de Email (para desenvolvimento)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# Em produção, use:
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.seuprovedor.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'seu@email.com'
-# EMAIL_HOST_PASSWORD = 'suasenha'
-# DEFAULT_FROM_EMAIL = 'seu@email.com'
+# =============================================================================
+# CONFIGURAÇÕES DE EMAIL
+# =============================================================================
+
+# Configurações dinâmicas de email baseadas em variáveis de ambiente
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() == 'true'
+EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'False').lower() == 'true'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', '30'))
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@havoc.com')
+CONTACT_EMAIL = os.environ.get('CONTACT_EMAIL', 'contato@havoc.com')
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+# =============================================================================
+# CONFIGURAÇÕES DE BANCO DE DADOS
+# =============================================================================
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Configuração dinâmica de banco de dados baseada em variáveis de ambiente
+DATABASE_ENGINE = os.environ.get('DATABASE_ENGINE', 'sqlite')
+
+if DATABASE_ENGINE == 'postgresql':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DATABASE_NAME', 'havoc'),
+            'USER': os.environ.get('DATABASE_USER', 'havoc_user'),
+            'PASSWORD': os.environ.get('DATABASE_PASSWORD', ''),
+            'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
+            'PORT': os.environ.get('DATABASE_PORT', '5432'),
+        }
     }
-}
+elif DATABASE_ENGINE == 'mysql':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('DATABASE_NAME', 'havoc'),
+            'USER': os.environ.get('DATABASE_USER', 'havoc_user'),
+            'PASSWORD': os.environ.get('DATABASE_PASSWORD', ''),
+            'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
+            'PORT': os.environ.get('DATABASE_PORT', '3306'),
+        }
+    }
+else:  # SQLite (padrão)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / os.environ.get('DATABASE_NAME', 'db.sqlite3'),
+        }
+    }
 
 
 
@@ -167,16 +209,26 @@ STORAGES = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Configurações de Segurança
+# =============================================================================
+# CONFIGURAÇÕES DE SEGURANÇA
+# =============================================================================
+
+# Configurações básicas de segurança
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 SECURE_REFERRER_POLICY = 'same-origin'
 SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
 
-# Configurações de Sessão
-SESSION_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SECURE = not DEBUG
+# Configurações SSL/HTTPS (baseadas em variáveis de ambiente)
+SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'False').lower() == 'true'
+SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '0'))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'False').lower() == 'true'
+SECURE_HSTS_PRELOAD = os.environ.get('SECURE_HSTS_PRELOAD', 'False').lower() == 'true'
+
+# Configurações de Sessão e Cookies
+SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', str(not DEBUG)).lower() == 'true'
+CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', str(not DEBUG)).lower() == 'true'
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_AGE = 86400  # 24 horas
@@ -186,10 +238,7 @@ SESSION_SAVE_EVERY_REQUEST = False
 # CSRF Settings
 CSRF_COOKIE_AGE = 31449600  # 1 ano
 CSRF_USE_SESSIONS = False
-CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1:8000',
-    'http://localhost:8000',
-]
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://127.0.0.1:8000,http://localhost:8000').split(',')
 
 # Password Validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -210,20 +259,34 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Cache Configuration (necessário para django-ratelimit)
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
+# =============================================================================
+# CONFIGURAÇÕES DE CACHE E PERFORMANCE
+# =============================================================================
+
+# Configuração dinâmica de cache
+CACHE_BACKEND = os.environ.get('CACHE_BACKEND', 'django.core.cache.backends.locmem.LocMemCache')
+CACHE_LOCATION = os.environ.get('CACHE_LOCATION', 'unique-snowflake')
+
+if 'redis' in CACHE_BACKEND.lower():
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/1'),
+        }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': CACHE_BACKEND,
+            'LOCATION': CACHE_LOCATION,
+        }
+    }
 
-# Configurações de Rate Limiting (quando django-ratelimit for instalado)
-RATELIMIT_ENABLE = True
-RATELIMIT_USE_CACHE = 'default'
+# Configurações de Rate Limiting
+RATELIMIT_ENABLE = os.environ.get('RATELIMIT_ENABLE', 'True').lower() == 'true'
+RATELIMIT_USE_CACHE = os.environ.get('RATELIMIT_USE_CACHE', 'default')
 
-# Custom User Model
-AUTH_USER_MODEL = 'accounts.User'
+# Custom User Model (já definido acima, removendo duplicação)
 
 # Crispy Forms Configuration
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -232,12 +295,33 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 # Form rendering
 CRISPY_FAIL_SILENTLY = not DEBUG
 
-# Email Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@havoc.com'
-CONTACT_EMAIL = 'contato@havoc.com'
+# =============================================================================
+# CONFIGURAÇÕES DE LOGGING
+# =============================================================================
 
-# Logging Configuration
+# Nível de log baseado em variável de ambiente
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'DEBUG' if DEBUG else 'INFO')
+LOG_FILE = os.environ.get('LOG_FILE', '')
+
+# Configuração de logging
+# Configuração dinâmica de handlers baseada em variáveis de ambiente
+handlers = {
+    'console': {
+        'level': LOG_LEVEL,
+        'class': 'logging.StreamHandler',
+        'formatter': 'simple',
+    },
+}
+
+# Adiciona handler de arquivo se especificado
+if LOG_FILE:
+    handlers['file'] = {
+        'level': LOG_LEVEL,
+        'class': 'logging.FileHandler',
+        'filename': LOG_FILE,
+        'formatter': 'verbose',
+    }
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -251,52 +335,58 @@ LOGGING = {
             'style': '{',
         },
     },
-    'handlers': {
-        'console': {
-            'level': 'DEBUG' if DEBUG else 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
-        },
-    },
+    'handlers': handlers,
     'root': {
-        'handlers': ['console'],
+        'handlers': list(handlers.keys()),
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
+            'handlers': list(handlers.keys()),
             'level': 'INFO',
             'propagate': False,
         },
         'apps': {
-            'handlers': ['console'],
-            'level': 'DEBUG' if DEBUG else 'INFO',
+            'handlers': list(handlers.keys()),
+            'level': LOG_LEVEL,
             'propagate': False,
         },
     },
 }
 
-# File Upload Settings
-FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+# =============================================================================
+# CONFIGURAÇÕES DE ARQUIVOS E MÍDIA
+# =============================================================================
+
+# Configurações de upload baseadas em variáveis de ambiente
+MAX_UPLOAD_SIZE = int(os.environ.get('MAX_UPLOAD_SIZE', '5242880'))  # 5MB padrão
+FILE_UPLOAD_MAX_MEMORY_SIZE = MAX_UPLOAD_SIZE
+DATA_UPLOAD_MAX_MEMORY_SIZE = MAX_UPLOAD_SIZE
 FILE_UPLOAD_PERMISSIONS = 0o644
 FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755
 
-# Allowed file types for uploads
-ALLOWED_IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
-ALLOWED_DOCUMENT_EXTENSIONS = ['.pdf', '.doc', '.docx', '.txt']
-MAX_UPLOAD_SIZE = 5242880  # 5MB
+# Extensões permitidas (baseadas em variáveis de ambiente)
+ALLOWED_IMAGE_EXTENSIONS = os.environ.get('ALLOWED_IMAGE_EXTENSIONS', '.jpg,.jpeg,.png,.gif,.webp').split(',')
+ALLOWED_DOCUMENT_EXTENSIONS = os.environ.get('ALLOWED_DOCUMENT_EXTENSIONS', '.pdf,.doc,.docx,.txt').split(',')
 
-# Pagination Settings
-PAGINATE_BY = 12
-ARTICLES_PER_PAGE = 12
-USERS_PER_PAGE = 20
+# =============================================================================
+# CONFIGURAÇÕES DO SITE E PAGINAÇÃO
+# =============================================================================
 
-# Site Settings
-SITE_NAME = 'Havoc'
-SITE_DESCRIPTION = 'Sistema de gerenciamento de conteúdo moderno'
+# Configurações de paginação baseadas em variáveis de ambiente
+PAGINATE_BY = int(os.environ.get('PAGINATE_BY', '12'))
+ARTICLES_PER_PAGE = int(os.environ.get('ARTICLES_PER_PAGE', '12'))
+USERS_PER_PAGE = int(os.environ.get('USERS_PER_PAGE', '20'))
+
+# Informações do site
+SITE_NAME = os.environ.get('SITE_NAME', 'Havoc')
+SITE_DESCRIPTION = os.environ.get('SITE_DESCRIPTION', 'Sistema de gerenciamento de conteúdo moderno')
 SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')
 
-# Social Media Settings
+# =============================================================================
+# REDES SOCIAIS E ANALYTICS
+# =============================================================================
+
+# Redes sociais
 SOCIAL_MEDIA = {
     'facebook': os.environ.get('FACEBOOK_URL', ''),
     'twitter': os.environ.get('TWITTER_URL', ''),
@@ -304,7 +394,89 @@ SOCIAL_MEDIA = {
     'github': os.environ.get('GITHUB_URL', ''),
 }
 
-# Analytics Settings
+# Analytics e tracking
 GOOGLE_ANALYTICS_ID = os.environ.get('GOOGLE_ANALYTICS_ID', '')
 GOOGLE_TAG_MANAGER_ID = os.environ.get('GOOGLE_TAG_MANAGER_ID', '')
 FACEBOOK_PIXEL_ID = os.environ.get('FACEBOOK_PIXEL_ID', '')
+
+# =============================================================================
+# CONFIGURAÇÕES PERSONALIZADAS DO HAVOC
+# =============================================================================
+
+# Módulos ativos do sistema
+ACTIVE_MODULES = os.environ.get('ACTIVE_MODULES', 'accounts,config,pages,articles').split(',')
+
+# Configurações de tema e localização
+DEFAULT_THEME = os.environ.get('DEFAULT_THEME', 'light')
+DEFAULT_LANGUAGE = os.environ.get('DEFAULT_LANGUAGE', 'pt-br')
+DEFAULT_TIMEZONE = os.environ.get('DEFAULT_TIMEZONE', 'America/Sao_Paulo')
+
+# Configurações de backup
+BACKUP_DIR = os.environ.get('BACKUP_DIR', 'backups')
+BACKUP_RETENTION_DAYS = int(os.environ.get('BACKUP_RETENTION_DAYS', '30'))
+
+# Configurações de monitoramento
+SENTRY_DSN = os.environ.get('SENTRY_DSN', '')
+HEALTH_CHECK_ENABLED = os.environ.get('HEALTH_CHECK_ENABLED', 'True').lower() == 'true'
+
+# Configurações de desenvolvimento
+DJANGO_DEBUG_TOOLBAR = os.environ.get('DJANGO_DEBUG_TOOLBAR', 'False').lower() == 'true'
+SHOW_SQL_QUERIES = os.environ.get('SHOW_SQL_QUERIES', 'False').lower() == 'true'
+
+# =============================================================================
+# CONFIGURAÇÕES CONDICIONAIS BASEADAS NO AMBIENTE
+# =============================================================================
+
+# Configurações específicas para produção
+if ENVIRONMENT == 'production':
+    # Força HTTPS em produção
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 ano
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+    # Cookies seguros em produção
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+    # Log level mais restritivo em produção
+    if not os.environ.get('LOG_LEVEL'):
+        LOG_LEVEL = 'WARNING'
+
+# Configurações específicas para desenvolvimento
+elif ENVIRONMENT == 'development':
+    # Debug toolbar se habilitado
+    if DJANGO_DEBUG_TOOLBAR:
+        INSTALLED_APPS.append('debug_toolbar')
+        MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+        INTERNAL_IPS = ['127.0.0.1', 'localhost']
+
+    # Mostrar queries SQL se habilitado
+    if SHOW_SQL_QUERIES:
+        LOGGING['loggers']['django.db.backends'] = {
+            'level': 'DEBUG',
+            'handlers': list(handlers.keys()),
+            'propagate': False,
+        }
+
+# Configuração do Sentry para monitoramento de erros
+if SENTRY_DSN:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.django import DjangoIntegration
+        from sentry_sdk.integrations.logging import LoggingIntegration
+
+        sentry_logging = LoggingIntegration(
+            level=logging.INFO,
+            event_level=logging.ERROR
+        )
+
+        sentry_sdk.init(
+            dsn=SENTRY_DSN,
+            integrations=[DjangoIntegration(), sentry_logging],
+            traces_sample_rate=0.1,
+            send_default_pii=True,
+            environment=ENVIRONMENT,
+        )
+    except ImportError:
+        pass  # Sentry não instalado

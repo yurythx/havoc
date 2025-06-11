@@ -56,13 +56,7 @@ class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         user_groups = list(user.groups.values_list('name', flat=True))
 
         # Mensagem detalhada baseada no status do usuário
-        if user.is_staff:
-            messages.error(
-                self.request,
-                '🚫 Acesso negado! Sua conta staff não tem permissões suficientes para esta área. '
-                'Entre em contato com um superusuário se precisar de acesso.'
-            )
-        elif user_groups:
+        if user_groups:
             groups_text = ', '.join(user_groups)
             messages.error(
                 self.request,

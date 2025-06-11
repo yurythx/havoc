@@ -1,1 +1,1 @@
-default_app_config = 'apps.accounts.apps.AccountsConfig'
+# default_app_config é deprecated no Django 3.2+

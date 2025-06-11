@@ -16,6 +16,10 @@ class ModuleService:
     def __init__(self):
         self.core_apps = AppModuleConfiguration.CORE_APPS
     
+    def get_all_modules(self) -> List[AppModuleConfiguration]:
+        """Retorna todos os módulos"""
+        return AppModuleConfiguration.objects.all().order_by('menu_order', 'display_name')
+
     def get_enabled_modules(self) -> List[AppModuleConfiguration]:
         """Retorna todos os módulos habilitados"""
         return AppModuleConfiguration.get_enabled_modules()
@@ -48,7 +52,7 @@ class ModuleService:
         return app_name in self.core_apps
     
     @transaction.atomic
-    def enable_module(self, app_name: str, user: User = None) -> bool:
+    def enable_module(self, app_name: str, user=None) -> bool:
         """Habilita um módulo"""
         try:
             module = self.get_module_by_name(app_name)
@@ -74,7 +78,7 @@ class ModuleService:
             return False
     
     @transaction.atomic
-    def disable_module(self, app_name: str, user: User = None) -> bool:
+    def disable_module(self, app_name: str, user=None) -> bool:
         """Desabilita um módulo (se não for principal)"""
         try:
             module = self.get_module_by_name(app_name)

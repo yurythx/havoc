@@ -13,15 +13,15 @@
                     <h1 class="h2 mb-1 text-sans text-body">
                         <i class="fas fa-puzzle-piece me-2 text-django-green"></i>Gerenciamento de Módulos
                     </h1>
-                    <p class="text-secondary mb-0 text-body">Configure quais módulos estão disponíveis no sistema</p>
+                    <p class="text-secondary mb-0 text-body">Configure e teste os módulos do sistema</p>
                 </div>
-                <div>
-                    <form method="post" action="{% url 'config:module_sync' %}" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-primary">
-                            <i class="fas fa-sync me-2"></i>Sincronizar Apps
-                        </button>
-                    </form>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-info" onclick="testAllModules()">
+                        <i class="fas fa-vial me-2"></i>Testar Todos
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="location.reload()">
+                        <i class="fas fa-sync me-2"></i>Atualizar
+                    </button>
                 </div>
             </div>
         </div>
@@ -96,105 +96,169 @@
                     <thead class="table-light">
                         <tr>
                             <th>Módulo</th>
-                            <th>Tipo</th>
                             <th>Status</th>
-                            <th>Menu</th>
+                            <th>Teste de Acesso</th>
+                            <th>URL</th>
                             <th>Dependências</th>
                             <th class="text-center">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for module in modules %}
+                        {% for test in module_tests %}
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="me-3">
-                                        <i class="{{ module.menu_icon }} fa-lg text-django-green"></i>
+                                        <i class="{{ test.module.menu_icon }} fa-lg text-django-green"></i>
                                     </div>
                                     <div>
-                                        <h6 class="mb-0 text-sans">{{ module.display_name }}</h6>
-                                        <small class="text-muted">{{ module.app_name }}</small>
-                                        {% if module.description %}
-                                            <br><small class="text-secondary">{{ module.description|truncatechars:60 }}</small>
+                                        <h6 class="mb-0 text-sans">{{ test.module.display_name }}</h6>
+                                        <small class="text-muted">{{ test.module.app_name }}</small>
+                                        {% if test.module.description %}
+                                            <br><small class="text-secondary">{{ test.module.description|truncatechars:60 }}</small>
                                         {% endif %}
+
+                                        <!-- Badges de tipo -->
+                                        <div class="mt-1">
+                                            {% if test.module.is_core %}
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="fas fa-lock me-1"></i>Principal
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-info">
+                                                    <i class="fas fa-puzzle-piece me-1"></i>{{ test.module.get_module_type_display }}
+                                                </span>
+                                            {% endif %}
+
+                                            {% if test.module.show_in_menu %}
+                                                <span class="badge bg-secondary">
+                                                    <i class="fas fa-eye me-1"></i>Menu
+                                                </span>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                             </td>
                             <td>
-                                <span class="badge {% if module.is_core %}bg-warning{% else %}bg-info{% endif %}">
-                                    {{ module.get_module_type_display }}
-                                </span>
+                                {% if test.module.is_available %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check me-1"></i>Habilitado
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-times me-1"></i>Desabilitado
+                                    </span>
+                                {% endif %}
+
+                                {% if test.module.status != 'active' %}
+                                    <br><small class="text-muted">{{ test.module.get_status_display }}</small>
+                                {% endif %}
                             </td>
                             <td>
-                                {% if module.is_enabled %}
+                                {% if test.test_result.status == 'ok' %}
                                     <span class="badge bg-success">
-                                        <i class="fas fa-check me-1"></i>Ativo
+                                        <i class="fas fa-check-circle me-1"></i>OK
+                                    </span>
+                                {% elif test.test_result.status == 'disabled' %}
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-ban me-1"></i>Desabilitado
+                                    </span>
+                                {% elif test.test_result.status == 'dependency_error' %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>Dependência
+                                    </span>
+                                {% elif test.test_result.status == 'no_url' %}
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-info-circle me-1"></i>Sem URL
                                     </span>
                                 {% else %}
                                     <span class="badge bg-danger">
-                                        <i class="fas fa-times me-1"></i>Inativo
+                                        <i class="fas fa-times-circle me-1"></i>Erro
                                     </span>
                                 {% endif %}
-                                
-                                {% if module.status != 'active' %}
-                                    <br><small class="text-muted">{{ module.get_status_display }}</small>
-                                {% endif %}
+
+                                <br><small class="text-muted">{{ test.test_result.reason }}</small>
                             </td>
                             <td>
-                                {% if module.show_in_menu %}
-                                    <i class="fas fa-eye text-success" title="Visível no menu"></i>
-                                    <small class="text-muted ms-1">Ordem: {{ module.menu_order }}</small>
+                                {% if test.module.url_pattern %}
+                                    <code>/{{ test.module.url_pattern }}</code>
+                                    {% if test.module.is_available %}
+                                        <br><a href="/{{ test.module.url_pattern }}" target="_blank" class="btn btn-sm btn-outline-primary mt-1">
+                                            <i class="fas fa-external-link-alt me-1"></i>Testar
+                                        </a>
+                                    {% endif %}
                                 {% else %}
-                                    <i class="fas fa-eye-slash text-muted" title="Oculto do menu"></i>
+                                    <span class="text-muted">Sem URL específica</span>
                                 {% endif %}
                             </td>
                             <td>
-                                {% if module.dependencies %}
+                                {% if test.module.dependencies %}
                                     <small class="text-muted">
-                                        {{ module.dependencies|length }} dependência{{ module.dependencies|length|pluralize }}
+                                        {{ test.module.dependencies|length }} dependência{{ test.module.dependencies|length|pluralize }}
                                     </small>
+                                    <br>
+                                    {% for dep in test.module.dependencies %}
+                                        <span class="badge bg-light text-dark">{{ dep }}</span>
+                                    {% endfor %}
                                 {% else %}
                                     <small class="text-muted">Nenhuma</small>
                                 {% endif %}
                             </td>
                             <td class="text-center">
-                                <div class="btn-group" role="group">
-                                    <!-- Botão Ver Detalhes -->
-                                    <a href="{% url 'config:module_detail' module.app_name %}" 
-                                       class="btn btn-sm btn-outline-primary" title="Ver detalhes">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    
-                                    <!-- Botão Editar -->
-                                    <a href="{% url 'config:module_update' module.app_name %}" 
-                                       class="btn btn-sm btn-outline-secondary" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    
-                                    <!-- Botão Toggle (apenas para módulos não principais) -->
-                                    {% if not module.is_core %}
-                                        <form method="post" action="{% url 'config:module_toggle' module.app_name %}" class="d-inline">
+                                <div class="btn-group-vertical btn-group-sm" role="group">
+                                    <!-- Primeira linha de ações -->
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <!-- Botão Ver Detalhes -->
+                                        <a href="{% url 'config:module_detail' test.module.app_name %}"
+                                           class="btn btn-outline-primary" title="Ver detalhes">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+
+                                        <!-- Botão Editar -->
+                                        <a href="{% url 'config:module_update' test.module.app_name %}"
+                                           class="btn btn-outline-secondary" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+
+                                        <!-- Botão Testar -->
+                                        <form method="post" class="d-inline">
                                             {% csrf_token %}
-                                            {% if module.is_enabled %}
-                                                <input type="hidden" name="action" value="disable">
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                                        title="Desabilitar módulo"
-                                                        onclick="return confirm('Desabilitar o módulo {{ module.display_name }}?')">
-                                                    <i class="fas fa-power-off"></i>
-                                                </button>
-                                            {% else %}
-                                                <input type="hidden" name="action" value="enable">
-                                                <button type="submit" class="btn btn-sm btn-outline-success" 
-                                                        title="Habilitar módulo">
-                                                    <i class="fas fa-power-off"></i>
-                                                </button>
-                                            {% endif %}
+                                            <input type="hidden" name="action" value="test_access">
+                                            <input type="hidden" name="module_name" value="{{ test.module.app_name }}">
+                                            <button type="submit" class="btn btn-outline-info" title="Testar acesso">
+                                                <i class="fas fa-vial"></i>
+                                            </button>
                                         </form>
-                                    {% else %}
-                                        <button class="btn btn-sm btn-outline-secondary" disabled title="Módulo principal">
-                                            <i class="fas fa-lock"></i>
-                                        </button>
-                                    {% endif %}
+                                    </div>
+
+                                    <!-- Segunda linha de ações -->
+                                    <div class="btn-group btn-group-sm mt-1" role="group">
+                                        <!-- Botão Toggle (apenas para módulos não principais) -->
+                                        {% if not test.module.is_core %}
+                                            <form method="post" class="d-inline">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="module_name" value="{{ test.module.app_name }}">
+                                                {% if test.module.is_enabled %}
+                                                    <input type="hidden" name="action" value="disable">
+                                                    <button type="submit" class="btn btn-outline-warning"
+                                                            title="Desabilitar módulo"
+                                                            onclick="return confirm('Desabilitar o módulo {{ test.module.display_name }}?')">
+                                                        <i class="fas fa-toggle-off me-1"></i>Desabilitar
+                                                    </button>
+                                                {% else %}
+                                                    <input type="hidden" name="action" value="enable">
+                                                    <button type="submit" class="btn btn-outline-success"
+                                                            title="Habilitar módulo">
+                                                        <i class="fas fa-toggle-on me-1"></i>Habilitar
+                                                    </button>
+                                                {% endif %}
+                                            </form>
+                                        {% else %}
+                                            <button class="btn btn-outline-secondary" disabled title="Módulo principal protegido">
+                                                <i class="fas fa-lock me-1"></i>Protegido
+                                            </button>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -204,12 +268,9 @@
                                 <div class="text-muted">
                                     <i class="fas fa-puzzle-piece fa-3x mb-3"></i>
                                     <p>Nenhum módulo encontrado.</p>
-                                    <form method="post" action="{% url 'config:module_sync' %}" class="d-inline">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-sync me-2"></i>Sincronizar Apps
-                                        </button>
-                                    </form>
+                                    <button type="button" class="btn btn-primary" onclick="location.reload()">
+                                        <i class="fas fa-sync me-2"></i>Atualizar Página
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -271,6 +332,101 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => console.log('Erro ao atualizar estatísticas:', error));
     }, 30000);
+
+    // Adiciona confirmação para ações críticas
+    document.querySelectorAll('button[onclick*="confirm"]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            if (!confirm(this.getAttribute('onclick').match(/'([^']+)'/)[1])) {
+                e.preventDefault();
+            }
+        });
+    });
 });
+
+// Função para testar todos os módulos
+function testAllModules() {
+    const forms = document.querySelectorAll('form input[value="test_access"]');
+    let testCount = 0;
+
+    if (forms.length === 0) {
+        alert('Nenhum módulo encontrado para testar.');
+        return;
+    }
+
+    if (!confirm(`Testar acesso de ${forms.length} módulos?`)) {
+        return;
+    }
+
+    // Mostra indicador de carregamento
+    const button = document.querySelector('button[onclick="testAllModules()"]');
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Testando...';
+    button.disabled = true;
+
+    // Testa cada módulo com delay
+    forms.forEach((input, index) => {
+        setTimeout(() => {
+            const form = input.closest('form');
+            const formData = new FormData(form);
+
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                testCount++;
+                if (testCount === forms.length) {
+                    // Todos os testes concluídos
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+
+                    // Recarrega a página para mostrar resultados
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao testar módulo:', error);
+                testCount++;
+                if (testCount === forms.length) {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }
+            });
+        }, index * 500); // Delay de 500ms entre cada teste
+    });
+}
+
+// Função para toggle rápido de módulo
+function quickToggleModule(moduleName, action) {
+    const formData = new FormData();
+    formData.append('action', action);
+    formData.append('module_name', moduleName);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+    fetch(window.location.href, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            // Recarrega a página para mostrar mudanças
+            window.location.reload();
+        } else {
+            alert('Erro ao alterar status do módulo.');
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao alterar status do módulo.');
+    });
+}
 </script>
 {% endblock %}

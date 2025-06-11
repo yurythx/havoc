@@ -1,4 +1,4 @@
-from django.http import Http404, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
 from django.utils.deprecation import MiddlewareMixin
@@ -18,7 +18,7 @@ class ModuleAccessMiddleware(MiddlewareMixin):
     
     def process_request(self, request):
         """Processa a requisição para verificar acesso ao módulo"""
-        
+
         # URLs que sempre devem ser acessíveis
         exempt_paths = [
             '/admin/',
@@ -26,58 +26,81 @@ class ModuleAccessMiddleware(MiddlewareMixin):
             '/media/',
             '/accounts/login/',
             '/accounts/logout/',
+            '/accounts/register/',
+            '/accounts/password-reset/',
             '/config/',  # Todo o painel de configuração
         ]
-        
+
         # Verifica se a URL está na lista de exceções
         for exempt_path in exempt_paths:
             if request.path.startswith(exempt_path):
                 return None
-        
+
         # Extrai o nome do app da URL
         app_name = self._extract_app_name(request.path)
-        
-        # Se não conseguir identificar o app, permite acesso (provavelmente é pages)
+
+        # Se não conseguir identificar o app, permite acesso
         if not app_name:
             return None
-        
+
         # Verifica se o módulo está habilitado
         if not self.module_service.is_module_enabled(app_name):
-            # Se for um módulo principal, algo está errado
+            # Se for um módulo principal, algo está errado - log mas permite acesso
             if self.module_service.is_core_module(app_name):
                 logger.error(f"Módulo principal {app_name} está desabilitado!")
                 return None
-            
+
+            # Obtém informações do módulo para mensagem mais informativa
+            module = self.module_service.get_module_by_name(app_name)
+            module_display_name = module.display_name if module else app_name.title()
+
             # Módulo desabilitado, redireciona para home com mensagem
             messages.warning(
                 request,
-                f'O módulo "{app_name}" não está disponível no momento.'
+                f'O módulo "{module_display_name}" não está disponível no momento. '
+                f'Entre em contato com o administrador se precisar acessar esta funcionalidade.'
             )
             return HttpResponseRedirect(reverse('pages:home'))
-        
+
         return None
     
     def _extract_app_name(self, path):
         """Extrai o nome do app da URL"""
         # Remove a barra inicial e divide por barras
         path_parts = path.strip('/').split('/')
-        
+
         if not path_parts or path_parts[0] == '':
-            return None
-        
+            return 'pages'  # URL raiz pertence ao app pages
+
         # Mapeia URLs para nomes de apps
         url_to_app_mapping = {
             'accounts': 'accounts',
             'config': 'config',
             'artigos': 'articles',
-            'articles': 'articles',
             'blog': 'blog',
             'shop': 'shop',
             'forum': 'forum',
         }
-        
+
         first_part = path_parts[0]
-        return url_to_app_mapping.get(first_part, first_part)
+
+        # Se a URL está no mapeamento, retorna o app correspondente
+        if first_part in url_to_app_mapping:
+            return url_to_app_mapping[first_part]
+
+        # URLs que pertencem ao app pages (páginas estáticas e dinâmicas)
+        pages_urls = [
+            'sobre', 'contato', 'privacidade', 'termos', 'design-demo',
+            'paginas', 'busca'
+        ]
+
+        if first_part in pages_urls:
+            return 'pages'
+
+        # Se não está no mapeamento e não é uma URL conhecida do pages,
+        # pode ser uma página dinâmica (slug) do pages
+        # Vamos assumir que é pages por padrão para URLs não mapeadas
+        return 'pages'
 
 
 class ModuleContextMiddleware(MiddlewareMixin):

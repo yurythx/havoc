@@ -15,27 +15,72 @@ from django.utils import timezone
 
 from apps.config.mixins import ConfigPermissionMixin
 from apps.config.forms import EmailConfigForm, EmailTestForm
+from apps.config.forms.advanced_config_forms import EmailConfigForm as AdvancedEmailConfigForm
+from apps.config.services.email_config_service import DynamicEmailConfigService
+import logging
+
+logger = logging.getLogger(__name__)
 
 
-class EmailConfigView(ConfigPermissionMixin, TemplateView):
-    """View para configurações de email."""
+class EmailConfigView(ConfigPermissionMixin, FormView):
+    """View para configuração de email com aplicação dinâmica"""
     template_name = 'config/email/config.html'
-    
+    form_class = AdvancedEmailConfigForm
+    success_url = '/config/email/'
+
+    def get_form(self, form_class=None):
+        """Retorna uma instância do formulário com configurações carregadas"""
+        form = super().get_form(form_class)
+        form.load_current_config()
+        return form
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        # Configurações atuais do email
+
+        # Adiciona informações do serviço de email
+        email_service = DynamicEmailConfigService()
+        current_config = email_service.get_active_config()
+
         context.update({
-            'email_host': getattr(settings, 'EMAIL_HOST', ''),
-            'email_port': getattr(settings, 'EMAIL_PORT', 587),
-            'email_host_user': getattr(settings, 'EMAIL_HOST_USER', ''),
-            'email_use_tls': getattr(settings, 'EMAIL_USE_TLS', True),
-            'email_use_ssl': getattr(settings, 'EMAIL_USE_SSL', False),
-            'default_from_email': getattr(settings, 'DEFAULT_FROM_EMAIL', ''),
-            'email_backend': getattr(settings, 'EMAIL_BACKEND', ''),
+            'title': 'Configurações de Email',
+            'subtitle': 'Configure o sistema de email com aplicação dinâmica',
+            'breadcrumbs': [
+                {'name': 'Dashboard', 'url': '/config/'},
+                {'name': 'Configurações', 'url': '/config/'},
+                {'name': 'Email', 'url': None}
+            ],
+            'current_backend': current_config.get('EMAIL_BACKEND', 'Não configurado'),
+            'backend_info': email_service.get_backend_info(current_config.get('EMAIL_BACKEND', '')),
+            'preset_configs': email_service.get_preset_configs(),
         })
-        
         return context
+
+    def form_valid(self, form):
+        try:
+            # Salva as configurações usando o novo serviço
+            if form.save(user=self.request.user):
+                messages.success(
+                    self.request,
+                    '✅ Configurações de email salvas e aplicadas com sucesso! '
+                    'As alterações já estão em vigor.'
+                )
+
+                # Log da ação
+                logger.info(f'Configurações de email atualizadas por {self.request.user.username}')
+
+            else:
+                messages.error(
+                    self.request,
+                    '❌ Erro ao salvar configurações de email.'
+                )
+        except Exception as e:
+            logger.error(f'Erro ao salvar configurações de email: {e}', exc_info=True)
+            messages.error(
+                self.request,
+                f'❌ Erro inesperado: {str(e)}'
+            )
+
+        return super().form_valid(form)
 
 
 class EmailTestView(ConfigPermissionMixin, FormView):
@@ -198,4 +243,31 @@ def send_test_email_ajax(request):
     except ValidationError:
         return JsonResponse({'error': 'Email inválido'})
     except Exception as e:
+        logger.error(f'Erro ao enviar email de teste: {e}', exc_info=True)
         return JsonResponse({'error': f'Erro ao enviar email: {str(e)}'})
+
+
+def test_email_connection_ajax(request):
+    """AJAX endpoint para testar conexão de email usando serviço dinâmico."""
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return JsonResponse({'error': 'Acesso negado'}, status=403)
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método não permitido'}, status=405)
+
+    try:
+        # Usa o serviço dinâmico para testar a conexão
+        email_service = DynamicEmailConfigService()
+        success, message = email_service.test_connection()
+
+        return JsonResponse({
+            'success': success,
+            'message': message
+        })
+
+    except Exception as e:
+        logger.error(f'Erro ao testar conexão de email: {e}', exc_info=True)
+        return JsonResponse({
+            'success': False,
+            'message': f'Erro inesperado: {str(e)}'
+        })

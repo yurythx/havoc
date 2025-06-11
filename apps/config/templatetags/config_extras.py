@@ -88,3 +88,71 @@ def connection_string(config):
 def config_count_badge(count, label, color="primary"):
     """Gera badge com contador"""
     return f'<span class="badge bg-{color}">{count}</span> {label}'
+
+
+@register.simple_tag(takes_context=True)
+def is_config_section_active(context, section_urls):
+    """Verifica se uma seção da sidebar está ativa"""
+    request = context.get('request')
+    if not request:
+        return False
+
+    current_url_name = request.resolver_match.url_name if request.resolver_match else None
+
+    if isinstance(section_urls, str):
+        section_urls = [section_urls]
+
+    return current_url_name in section_urls
+
+
+@register.simple_tag(takes_context=True)
+def sidebar_section_class(context, section_urls):
+    """Retorna classe CSS para seção da sidebar"""
+    is_active = is_config_section_active(context, section_urls)
+    return 'sidebar-section-active' if is_active else 'sidebar-section'
+
+
+@register.inclusion_tag('config/includes/sidebar_item.html', takes_context=True)
+def sidebar_item(context, url_name, icon, title, description=""):
+    """Renderiza item da sidebar"""
+    request = context.get('request')
+    is_active = False
+
+    if request and request.resolver_match:
+        is_active = request.resolver_match.url_name == url_name
+
+    return {
+        'url_name': url_name,
+        'icon': icon,
+        'title': title,
+        'description': description,
+        'is_active': is_active,
+        'request': request
+    }
+
+
+@register.simple_tag
+def get_config_stats():
+    """Obtém estatísticas rápidas para a sidebar"""
+    from django.contrib.auth import get_user_model
+    from apps.config.models import EmailConfiguration, AppModuleConfiguration
+
+    User = get_user_model()
+
+    try:
+        stats = {
+            'total_users': User.objects.count(),
+            'active_users': User.objects.filter(is_active=True).count(),
+            'email_configs': EmailConfiguration.objects.count(),
+            'active_modules': AppModuleConfiguration.objects.filter(is_enabled=True).count(),
+            'total_modules': AppModuleConfiguration.objects.count(),
+        }
+        return stats
+    except Exception:
+        return {
+            'total_users': 0,
+            'active_users': 0,
+            'email_configs': 0,
+            'active_modules': 0,
+            'total_modules': 0,
+        }
