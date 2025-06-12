@@ -29,4 +29,4 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 COPY . .
 
 # Comando padrão do container (pode ser sobrescrito pelo docker-compose)
-CMD ["gunicorn", "havoc.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000"]
