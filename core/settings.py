@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     # Third party apps
     'crispy_forms',
     'crispy_bootstrap5',
+    'tinymce',
 
     # Local apps
     'apps.accounts',
@@ -480,3 +481,98 @@ if SENTRY_DSN:
         )
     except ImportError:
         pass  # Sentry não instalado
+
+# =============================================================================
+# CONFIGURAÇÕES DO TINYMCE
+# =============================================================================
+
+TINYMCE_DEFAULT_CONFIG = {
+    'height': 500,
+    'width': '100%',
+    'cleanup_on_startup': True,
+    'custom_undo_redo_levels': 20,
+    'theme': 'silver',
+    'plugins': '''
+        advlist autolink lists link image charmap preview anchor
+        searchreplace visualblocks code fullscreen insertdatetime media
+        table paste code help wordcount emoticons hr pagebreak
+        nonbreaking save print directionality template
+    ''',
+    'toolbar1': '''
+        undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect |
+        alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist |
+        forecolor backcolor removeformat | pagebreak | charmap emoticons
+    ''',
+    'toolbar2': '''
+        visualblocks visualchars | hr nonbreaking anchor | link unlink | image media |
+        table | code | fullscreen | preview save print | help
+    ''',
+    'menubar': True,
+    'statusbar': True,
+    'branding': False,
+    'promotion': False,
+    'content_css': '/static/css/tinymce-content.css',
+    'contextmenu': 'link image table',
+    'directionality': 'ltr',
+    'language': 'pt_BR',
+    'paste_data_images': True,
+    'paste_as_text': False,
+    'paste_auto_cleanup_on_paste': True,
+    'paste_remove_styles': False,
+    'paste_remove_styles_if_webkit': False,
+    'paste_strip_class_attributes': 'none',
+}
+
+# Configurações específicas para diferentes campos
+TINYMCE_CONFIGS = {
+    'default': TINYMCE_DEFAULT_CONFIG,
+    'simple': {
+        'height': 200,
+        'width': '100%',
+        'plugins': 'link lists textcolor',
+        'toolbar': 'bold italic underline | bullist numlist | link | forecolor',
+        'menubar': False,
+        'statusbar': False,
+        'branding': False,
+        'promotion': False,
+    },
+    'advanced': {
+        'height': 600,
+        'width': '100%',
+        'plugins': '''
+            advlist autolink lists link image charmap preview anchor
+            searchreplace visualblocks code fullscreen insertdatetime media
+            table paste code help wordcount emoticons hr pagebreak
+            nonbreaking save print directionality template codesample
+        ''',
+        'toolbar1': '''
+            undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect |
+            alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist |
+            forecolor backcolor removeformat | pagebreak | charmap emoticons
+        ''',
+        'toolbar2': '''
+            visualblocks visualchars | hr nonbreaking anchor | link unlink | image media |
+            table | codesample code | fullscreen | preview save print | help
+        ''',
+        'menubar': True,
+        'statusbar': True,
+        'branding': False,
+        'promotion': False,
+        'content_css': '/static/css/tinymce-content.css',
+        'contextmenu': 'link image table',
+        'directionality': 'ltr',
+        'language': 'pt_BR',
+        'paste_data_images': True,
+        'codesample_languages': [
+            {'text': 'HTML/XML', 'value': 'markup'},
+            {'text': 'JavaScript', 'value': 'javascript'},
+            {'text': 'CSS', 'value': 'css'},
+            {'text': 'PHP', 'value': 'php'},
+            {'text': 'Python', 'value': 'python'},
+            {'text': 'Java', 'value': 'java'},
+            {'text': 'C', 'value': 'c'},
+            {'text': 'C#', 'value': 'csharp'},
+            {'text': 'C++', 'value': 'cpp'},
+        ],
+    }
+}

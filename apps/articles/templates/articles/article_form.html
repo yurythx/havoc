@@ -72,18 +72,42 @@
 
                                 <!-- Conteúdo -->
                                 <div class="mb-4">
-                                    <label for="{{ form.content.id_for_label }}" class="form-label fw-bold">
-                                        <i class="fas fa-file-text me-1"></i>{{ form.content.label }} *
-                                    </label>
-                                    {{ form.content }}
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label for="{{ form.content.id_for_label }}" class="form-label fw-bold mb-0">
+                                            <i class="fas fa-file-text me-1"></i>{{ form.content.label }} *
+                                        </label>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button type="button" class="btn btn-outline-secondary" id="toggle-preview">
+                                                <i class="fas fa-eye me-1"></i>Preview
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary" id="toggle-fullscreen">
+                                                <i class="fas fa-expand me-1"></i>Tela Cheia
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="tinymce-container">
+                                        {{ form.content }}
+                                    </div>
+
                                     {% if form.content.help_text %}
-                                        <div class="form-text">{{ form.content.help_text }}</div>
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle me-1"></i>{{ form.content.help_text }}
+                                        </div>
                                     {% endif %}
                                     {% if form.content.errors %}
                                         <div class="invalid-feedback d-block">
                                             {{ form.content.errors.0 }}
                                         </div>
                                     {% endif %}
+
+                                    <!-- Preview do conteúdo -->
+                                    <div id="content-preview" class="content-preview" style="display: none;">
+                                        <h6 class="mb-2">
+                                            <i class="fas fa-eye me-1"></i>Preview do Conteúdo
+                                        </h6>
+                                        <div id="preview-content"></div>
+                                    </div>
                                 </div>
 
                                 <!-- Imagem Destacada -->
@@ -248,46 +272,238 @@
 </div>
 {% endblock %}
 
+{% block extra_css %}
+<style>
+/* Estilos específicos para o formulário de artigos */
+.tinymce-container {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.tinymce-container .tox-tinymce {
+    border: none;
+}
+
+.form-label.fw-bold {
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.character-counter {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.character-counter.text-danger {
+    color: #dc3545 !important;
+}
+
+/* Preview do conteúdo */
+.content-preview {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    margin-top: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.content-preview h1, .content-preview h2, .content-preview h3,
+.content-preview h4, .content-preview h5, .content-preview h6 {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.content-preview img {
+    max-width: 100%;
+    height: auto;
+}
+</style>
+{% endblock %}
+
 {% block extra_js %}
+{{ form.media }}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-resize textarea
-    const textareas = document.querySelectorAll('textarea');
-    textareas.forEach(function(textarea) {
-        textarea.style.height = 'auto';
-        textarea.style.height = textarea.scrollHeight + 'px';
-        
-        textarea.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = this.scrollHeight + 'px';
-        });
-    });
-    
     // Character counter for meta fields
     const metaTitle = document.querySelector('#id_meta_title');
     const metaDescription = document.querySelector('#id_meta_description');
-    
+
     if (metaTitle) {
         addCharacterCounter(metaTitle, 60);
     }
-    
+
     if (metaDescription) {
         addCharacterCounter(metaDescription, 160);
     }
-    
+
     function addCharacterCounter(element, maxLength) {
         const counter = document.createElement('div');
-        counter.className = 'form-text text-end';
+        counter.className = 'form-text text-end character-counter';
         element.parentNode.appendChild(counter);
-        
+
         function updateCounter() {
             const length = element.value.length;
             counter.textContent = `${length}/${maxLength}`;
-            counter.className = length > maxLength ? 'form-text text-end text-danger' : 'form-text text-end text-muted';
+            counter.className = length > maxLength ?
+                'form-text text-end character-counter text-danger' :
+                'form-text text-end character-counter text-muted';
         }
-        
+
         updateCounter();
         element.addEventListener('input', updateCounter);
+    }
+
+    // Funcionalidades do TinyMCE
+    let previewVisible = false;
+    let fullscreenMode = false;
+
+    // Toggle Preview
+    const togglePreviewBtn = document.getElementById('toggle-preview');
+    const contentPreview = document.getElementById('content-preview');
+    const previewContent = document.getElementById('preview-content');
+
+    if (togglePreviewBtn) {
+        togglePreviewBtn.addEventListener('click', function() {
+            previewVisible = !previewVisible;
+
+            if (previewVisible) {
+                // Obter conteúdo do TinyMCE
+                if (typeof tinymce !== 'undefined' && tinymce.get('id_content')) {
+                    const content = tinymce.get('id_content').getContent();
+                    previewContent.innerHTML = content;
+                } else {
+                    // Fallback para textarea normal
+                    const textarea = document.getElementById('id_content');
+                    previewContent.innerHTML = textarea.value;
+                }
+
+                contentPreview.style.display = 'block';
+                togglePreviewBtn.innerHTML = '<i class="fas fa-eye-slash me-1"></i>Ocultar Preview';
+                togglePreviewBtn.classList.remove('btn-outline-secondary');
+                togglePreviewBtn.classList.add('btn-secondary');
+            } else {
+                contentPreview.style.display = 'none';
+                togglePreviewBtn.innerHTML = '<i class="fas fa-eye me-1"></i>Preview';
+                togglePreviewBtn.classList.remove('btn-secondary');
+                togglePreviewBtn.classList.add('btn-outline-secondary');
+            }
+        });
+    }
+
+    // Toggle Fullscreen
+    const toggleFullscreenBtn = document.getElementById('toggle-fullscreen');
+
+    if (toggleFullscreenBtn) {
+        toggleFullscreenBtn.addEventListener('click', function() {
+            if (typeof tinymce !== 'undefined' && tinymce.get('id_content')) {
+                const editor = tinymce.get('id_content');
+
+                if (!fullscreenMode) {
+                    editor.execCommand('mceFullScreen');
+                    toggleFullscreenBtn.innerHTML = '<i class="fas fa-compress me-1"></i>Sair Tela Cheia';
+                    toggleFullscreenBtn.classList.remove('btn-outline-secondary');
+                    toggleFullscreenBtn.classList.add('btn-secondary');
+                    fullscreenMode = true;
+                } else {
+                    editor.execCommand('mceFullScreen');
+                    toggleFullscreenBtn.innerHTML = '<i class="fas fa-expand me-1"></i>Tela Cheia';
+                    toggleFullscreenBtn.classList.remove('btn-secondary');
+                    toggleFullscreenBtn.classList.add('btn-outline-secondary');
+                    fullscreenMode = false;
+                }
+            }
+        });
+    }
+
+    // Auto-save (opcional)
+    let autoSaveTimer;
+
+    function autoSave() {
+        if (typeof tinymce !== 'undefined' && tinymce.get('id_content')) {
+            const content = tinymce.get('id_content').getContent();
+            const title = document.getElementById('id_title').value;
+
+            if (content && title) {
+                // Salvar no localStorage como backup
+                const autoSaveData = {
+                    title: title,
+                    content: content,
+                    timestamp: new Date().toISOString()
+                };
+
+                localStorage.setItem('article_autosave', JSON.stringify(autoSaveData));
+
+                // Mostrar indicador de salvamento
+                showAutoSaveIndicator();
+            }
+        }
+    }
+
+    function showAutoSaveIndicator() {
+        // Criar ou atualizar indicador de auto-save
+        let indicator = document.getElementById('autosave-indicator');
+        if (!indicator) {
+            indicator = document.createElement('div');
+            indicator.id = 'autosave-indicator';
+            indicator.className = 'alert alert-success alert-sm position-fixed';
+            indicator.style.cssText = 'top: 20px; right: 20px; z-index: 9999; padding: 0.5rem 1rem; font-size: 0.875rem;';
+            document.body.appendChild(indicator);
+        }
+
+        indicator.innerHTML = '<i class="fas fa-check me-1"></i>Rascunho salvo automaticamente';
+        indicator.style.display = 'block';
+
+        setTimeout(() => {
+            indicator.style.display = 'none';
+        }, 3000);
+    }
+
+    // Configurar auto-save a cada 30 segundos
+    if (typeof tinymce !== 'undefined') {
+        autoSaveTimer = setInterval(autoSave, 30000);
+    }
+
+    // Restaurar auto-save ao carregar a página
+    const savedData = localStorage.getItem('article_autosave');
+    if (savedData && !document.getElementById('id_title').value) {
+        const data = JSON.parse(savedData);
+        const savedDate = new Date(data.timestamp);
+        const now = new Date();
+        const hoursDiff = (now - savedDate) / (1000 * 60 * 60);
+
+        // Só restaurar se foi salvo nas últimas 24 horas
+        if (hoursDiff < 24) {
+            if (confirm('Foi encontrado um rascunho salvo automaticamente. Deseja restaurá-lo?')) {
+                document.getElementById('id_title').value = data.title;
+
+                // Aguardar TinyMCE carregar antes de definir conteúdo
+                const waitForTinyMCE = setInterval(() => {
+                    if (typeof tinymce !== 'undefined' && tinymce.get('id_content')) {
+                        tinymce.get('id_content').setContent(data.content);
+                        clearInterval(waitForTinyMCE);
+                    }
+                }, 100);
+            }
+        }
+    }
+
+    // Limpar auto-save ao enviar formulário
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            localStorage.removeItem('article_autosave');
+            if (autoSaveTimer) {
+                clearInterval(autoSaveTimer);
+            }
+        });
     }
 });
 </script>

@@ -47,6 +47,7 @@ class Comment(models.Model):
     website = models.URLField(
         'website',
         blank=True,
+        null=True,
         help_text='Website do comentarista (opcional)'
     )
     
@@ -155,4 +156,4 @@ class Comment(models.Model):
     @property
     def can_be_replied(self):
         """Verifica se o comentário pode receber respostas"""
-        return self.is_approved and not self.is_spam and self.article.can_be_commented()
+        return self.is_approved and not self.is_spam and self.article.allow_comments

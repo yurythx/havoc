@@ -174,6 +174,108 @@
                     </div>
                 </div>
             {% endif %}
+
+            <!-- Comments Section -->
+            {% if article.allow_comments %}
+            <section class="comments-section mt-5">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="h4">
+                        <i class="fas fa-comments"></i>
+                        Comentários
+                        <span class="badge bg-secondary ms-2" id="comment-count">
+                            {{ article.comment_count }}
+                        </span>
+                    </h3>
+                    <a href="{% url 'articles:comment_list' slug=article.slug %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-expand"></i>
+                        Ver todos
+                    </a>
+                </div>
+
+                <!-- Comment Form -->
+                <div class="comment-form-container mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-edit"></i>
+                                Deixe seu comentário
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" action="{% url 'articles:add_comment' slug=article.slug %}" id="comment-form">
+                                {% csrf_token %}
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" name="name" id="id_name"
+                                                   placeholder="Seu nome" required
+                                                   {% if user.is_authenticated %}value="{{ user.get_full_name|default:user.username }}" readonly{% endif %}>
+                                            <label for="id_name">Nome *</label>
+                                            {% if user.is_authenticated %}
+                                                <div class="form-text">Logado como: {{ user.get_full_name|default:user.username }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating mb-3">
+                                            <input type="email" class="form-control" name="email" id="id_email"
+                                                   placeholder="Seu email" required
+                                                   {% if user.is_authenticated %}value="{{ user.email }}" readonly{% endif %}>
+                                            <label for="id_email">Email *</label>
+                                            {% if user.is_authenticated %}
+                                                <div class="form-text">Email da conta: {{ user.email }}</div>
+                                            {% else %}
+                                                <div class="form-text">Seu email não será publicado</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {% if not user.is_authenticated %}
+                                <div class="form-floating mb-3">
+                                    <input type="url" class="form-control" name="website" id="id_website"
+                                           placeholder="Seu website (opcional)">
+                                    <label for="id_website">Website (opcional)</label>
+                                    <div class="form-text">URL do seu site ou blog</div>
+                                </div>
+                                {% endif %}
+
+                                <div class="form-floating mb-3">
+                                    <textarea class="form-control" name="content" id="id_content"
+                                              placeholder="Escreva seu comentário..." rows="4" required></textarea>
+                                    <label for="id_content">Comentário *</label>
+                                    <div class="form-text">Compartilhe sua opinião, dúvida ou sugestão</div>
+                                </div>
+
+                                <!-- Honeypot -->
+                                <input type="text" name="website_url" style="display: none;">
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle"></i>
+                                        {% if user.is_authenticated and user.is_verified %}
+                                            Seu comentário será publicado imediatamente.
+                                        {% else %}
+                                            Seu comentário será moderado antes da publicação.
+                                        {% endif %}
+                                    </small>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane"></i>
+                                        Enviar Comentário
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comments List -->
+                <div id="comments-container">
+                    {% include 'articles/comments/comment_snippet.html' %}
+                </div>
+            </section>
+            {% endif %}
         </div>
 
         <!-- Sidebar -->

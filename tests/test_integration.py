@@ -12,9 +12,9 @@ from apps.config.models import (
 )
 from apps.articles.models import Article, Category, Tag
 from apps.accounts.services.registration_service import RegistrationService
-from apps.accounts.repositories.django_user_repository import DjangoUserRepository
-from apps.accounts.repositories.django_verification_repository import DjangoVerificationRepository
-from apps.accounts.notifications.email_notification_service import EmailNotificationService
+from apps.accounts.repositories.user_repository import DjangoUserRepository
+from apps.accounts.repositories.verification_repository import DjangoVerificationRepository
+from apps.accounts.notifications.email_notification import EmailNotificationService
 
 User = get_user_model()
 

@@ -27,6 +27,7 @@ urlpatterns = [
     path('accounts/', include('apps.accounts.urls')),
     path('config/', include('apps.config.urls')),
     path('artigos/', include('apps.articles.urls')),
+    path('tinymce/', include('tinymce.urls')),
     path('', include('apps.pages.urls')),  # Pages como app principal
 ]
 

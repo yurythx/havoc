@@ -11,6 +11,15 @@ from apps.articles.views import (
     # TagDetailView,
     # TagListView,
 )
+from apps.articles.views.comment_views import (
+    add_comment,
+    add_reply,
+    comment_list,
+    moderate_comments,
+    moderate_comment_action,
+    comment_stats,
+)
+
 
 app_name = 'articles'
 
@@ -23,6 +32,16 @@ urlpatterns = [
     path('criar/', ArticleCreateView.as_view(), name='article_create'),
     path('<slug:slug>/editar/', ArticleUpdateView.as_view(), name='article_update'),
     path('<slug:slug>/deletar/', ArticleDeleteView.as_view(), name='article_delete'),
+
+    # Comentários
+    path('<slug:slug>/comentarios/', comment_list, name='comment_list'),
+    path('<slug:slug>/comentar/', add_comment, name='add_comment'),
+    path('<slug:slug>/comentarios/<int:comment_id>/responder/', add_reply, name='add_reply'),
+
+    # Moderação de comentários (staff apenas)
+    path('admin/comentarios/', moderate_comments, name='moderate_comments'),
+    path('admin/comentarios/<int:comment_id>/moderar/', moderate_comment_action, name='moderate_comment_action'),
+    path('admin/comentarios/stats/', comment_stats, name='comment_stats'),
 
     # Artigos - Detalhes (deve vir por último para não conflitar)
     path('<slug:slug>/', ArticleDetailView.as_view(), name='article_detail'),

@@ -1,8 +1,17 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
+from django.utils.html import strip_tags
+import re
+
+from tinymce.widgets import TinyMCE
+
 from apps.articles.models.article import Article
 from apps.articles.models.category import Category
 from apps.articles.models.tag import Tag
+from apps.articles.models.comment import Comment
+
+User = get_user_model()
 
 
 class ArticleForm(forms.ModelForm):
@@ -28,11 +37,10 @@ class ArticleForm(forms.ModelForm):
                 'rows': 3,
                 'maxlength': 500
             }),
-            'content': forms.Textarea(attrs={
+            'content': TinyMCE(attrs={
                 'class': 'form-control',
                 'placeholder': 'Escreva o conteúdo completo do artigo...',
-                'rows': 15
-            }),
+            }, mce_attrs={'config': 'advanced'}),
             'featured_image': forms.FileInput(attrs={
                 'class': 'form-control',
                 'accept': 'image/*'
@@ -202,3 +210,235 @@ class ArticleForm(forms.ModelForm):
             self.save_m2m()  # Salvar tags
         
         return article
+
+
+class CommentForm(forms.ModelForm):
+    """Formulário para comentários de artigos"""
+
+    # Campo honeypot para detectar spam
+    website_url = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput(),
+        label='Website URL (deixe em branco)'
+    )
+
+    class Meta:
+        model = Comment
+        fields = ['name', 'email', 'website', 'content']
+
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Seu nome *',
+                'maxlength': 100,
+                'required': True
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Seu email *',
+                'required': True
+            }),
+            'website': forms.URLInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Seu website (opcional)'
+            }),
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Escreva seu comentário... *',
+                'rows': 4,
+                'required': True
+            }),
+        }
+
+        labels = {
+            'name': 'Nome',
+            'email': 'Email',
+            'website': 'Website',
+            'content': 'Comentário',
+        }
+
+        help_texts = {
+            'name': 'Como você gostaria de ser identificado',
+            'email': 'Seu email não será publicado',
+            'website': 'URL do seu site ou blog (opcional)',
+            'content': 'Compartilhe sua opinião, dúvida ou sugestão',
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        self.article = kwargs.pop('article', None)
+        self.parent = kwargs.pop('parent', None)
+        super().__init__(*args, **kwargs)
+
+        # Se usuário está logado, preencher campos automaticamente
+        if self.user and self.user.is_authenticated:
+            self.fields['name'].initial = self.user.get_full_name() or self.user.username
+            self.fields['email'].initial = self.user.email
+            # Tornar campos readonly para usuários logados
+            self.fields['name'].widget.attrs['readonly'] = True
+            self.fields['email'].widget.attrs['readonly'] = True
+            self.fields['name'].help_text = 'Logado como: ' + (self.user.get_full_name() or self.user.username)
+            self.fields['email'].help_text = 'Email da conta: ' + self.user.email
+
+    def clean_website_url(self):
+        """Honeypot para detectar spam"""
+        website_url = self.cleaned_data.get('website_url')
+        if website_url:
+            raise ValidationError('Spam detectado.')
+        return website_url
+
+    def clean_name(self):
+        """Validação do nome"""
+        name = self.cleaned_data.get('name')
+        if name:
+            # Remover tags HTML
+            name = strip_tags(name).strip()
+
+            # Verificar se não é muito curto
+            if len(name) < 2:
+                raise ValidationError('O nome deve ter pelo menos 2 caracteres.')
+
+            # Verificar se não contém apenas números
+            if name.isdigit():
+                raise ValidationError('O nome não pode conter apenas números.')
+
+            # Verificar caracteres suspeitos
+            if re.search(r'[<>{}[\]\\]', name):
+                raise ValidationError('O nome contém caracteres não permitidos.')
+
+        return name
+
+    def clean_email(self):
+        """Validação do email"""
+        email = self.cleaned_data.get('email')
+        if email:
+            # Verificar domínios suspeitos
+            suspicious_domains = [
+                'tempmail.org', '10minutemail.com', 'guerrillamail.com',
+                'mailinator.com', 'throwaway.email'
+            ]
+            domain = email.split('@')[1].lower() if '@' in email else ''
+            if domain in suspicious_domains:
+                raise ValidationError('Email temporário não é permitido.')
+
+        return email
+
+    def clean_content(self):
+        """Validação do conteúdo"""
+        content = self.cleaned_data.get('content')
+        if content:
+            # Remover tags HTML perigosas
+            content = strip_tags(content).strip()
+
+            # Verificar tamanho mínimo
+            if len(content) < 10:
+                raise ValidationError('O comentário deve ter pelo menos 10 caracteres.')
+
+            # Verificar tamanho máximo
+            if len(content) > 2000:
+                raise ValidationError('O comentário não pode ter mais de 2000 caracteres.')
+
+            # Verificar spam patterns
+            spam_patterns = [
+                r'http[s]?://[^\s]+\.[^\s]+',  # URLs
+                r'\b(viagra|casino|poker|loan|credit)\b',  # Palavras spam
+                r'[A-Z]{8,}',  # Muito texto em maiúscula
+                r'(.)\1{6,}',  # Caracteres repetidos
+            ]
+
+            for pattern in spam_patterns:
+                if re.search(pattern, content, re.IGNORECASE):
+                    raise ValidationError('Conteúdo suspeito detectado.')
+
+        return content
+
+    def save(self, commit=True):
+        """Salvar comentário com dados adicionais"""
+        comment = super().save(commit=False)
+
+        # Definir artigo e usuário
+        if self.article:
+            comment.article = self.article
+        if self.user and self.user.is_authenticated:
+            comment.user = self.user
+        if self.parent:
+            comment.parent = self.parent
+
+        # Comentários de usuários verificados são aprovados automaticamente
+        if self.user and self.user.is_authenticated and getattr(self.user, 'is_verified', False):
+            comment.is_approved = True
+            from django.utils import timezone
+            comment.approved_at = timezone.now()
+
+        if commit:
+            comment.save()
+
+        return comment
+
+
+class ReplyForm(CommentForm):
+    """Formulário para respostas a comentários"""
+
+    class Meta(CommentForm.Meta):
+        fields = ['name', 'email', 'content']  # Remover website das respostas
+
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control form-control-sm',
+                'placeholder': 'Seu nome *',
+                'maxlength': 100,
+                'required': True
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control form-control-sm',
+                'placeholder': 'Seu email *',
+                'required': True
+            }),
+            'content': forms.Textarea(attrs={
+                'class': 'form-control form-control-sm',
+                'placeholder': 'Escreva sua resposta... *',
+                'rows': 3,
+                'required': True
+            }),
+        }
+
+
+class CommentModerationForm(forms.ModelForm):
+    """Formulário para moderação de comentários (admin)"""
+
+    class Meta:
+        model = Comment
+        fields = ['is_approved', 'is_spam']
+
+        widgets = {
+            'is_approved': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'is_spam': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+        }
+
+        labels = {
+            'is_approved': 'Aprovado',
+            'is_spam': 'Spam',
+        }
+
+    def save(self, commit=True):
+        """Salvar com lógica de moderação"""
+        comment = super().save(commit=False)
+
+        # Se aprovado, definir data de aprovação
+        if comment.is_approved and not comment.approved_at:
+            from django.utils import timezone
+            comment.approved_at = timezone.now()
+
+        # Se marcado como spam, desaprovar
+        if comment.is_spam:
+            comment.is_approved = False
+            comment.approved_at = None
+
+        if commit:
+            comment.save()
+
+        return comment

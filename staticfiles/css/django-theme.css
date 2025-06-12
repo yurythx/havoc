@@ -66,6 +66,93 @@
     padding: 0.5rem 1rem;
     border-radius: var(--border-radius);
     margin: 0 0.125rem;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+/* Navbar icon alignment */
+.navbar-django .nav-link i {
+    width: 16px;
+    height: 16px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Navbar alignment improvements */
+.navbar-django .navbar-nav {
+    align-items: center;
+}
+
+.navbar-django .nav-item {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-django .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+}
+
+.navbar-django .dropdown-toggle::after {
+    margin-left: 0.5rem;
+}
+
+/* Avatar alignment */
+.navbar-django .avatar-sm {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* User dropdown alignment */
+.navbar-django .dropdown-toggle {
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Search form alignment */
+.navbar-django .form-django {
+    display: flex;
+    align-items: center;
+}
+
+/* Navbar brand alignment */
+.navbar-django .navbar-brand {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+}
+
+/* Mobile toggle alignment */
+.navbar-django .navbar-toggler {
+    border: none;
+    padding: 0.25rem 0.5rem;
+}
+
+.navbar-django .navbar-toggler:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+}
+
+/* Dropdown item icon alignment */
+.navbar-django .dropdown-item i {
+    width: 18px;
+    height: 18px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Brand icon alignment */
+.navbar-django .navbar-brand i {
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
 }
 
 .navbar-django .nav-link:hover {
@@ -77,6 +164,96 @@
     color: white !important;
     background-color: rgba(255, 255, 255, 0.2);
     font-weight: 500;
+}
+
+/* Dropdown menu improvements */
+.navbar-django .dropdown-menu {
+    border: 1px solid var(--border-color);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border-radius: var(--border-radius);
+    padding: 0.5rem 0;
+}
+
+.navbar-django .dropdown-item {
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.navbar-django .dropdown-item:hover {
+    background-color: rgba(12, 75, 51, 0.1);
+    color: var(--django-green);
+}
+
+.navbar-django .dropdown-item.active {
+    background-color: var(--django-green);
+    color: white;
+}
+
+.navbar-django .dropdown-header {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* User avatar in navbar */
+.navbar-django .user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    margin-right: 0.5rem;
+    object-fit: cover;
+}
+
+/* Theme toggle button */
+.navbar-django .theme-toggle {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 1.5rem;
+    padding: 0.25rem;
+    gap: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.navbar-django .theme-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.navbar-django .theme-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.navbar-django .theme-option:hover {
+    color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-django .theme-option.active {
+    background-color: var(--django-green);
+    color: white;
+}
+
+.navbar-django .theme-option:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
 }
 
 /* Django-style Footer */
