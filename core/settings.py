@@ -39,7 +39,7 @@ DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')
 
 # Hosts permitidos
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver,*').split(',')
 
 
 # Application definition
