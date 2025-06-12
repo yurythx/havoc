@@ -27,6 +27,15 @@ from apps.config.views.module_views import (
     ModuleStatsAPIView,
     ModuleDependencyCheckView,
 )
+from apps.config.views.database_views import (
+    DatabaseConfigListView,
+    DatabaseConfigCreateView,
+    DatabaseConfigUpdateView,
+    DatabaseConfigDeleteView,
+    database_test_connection,
+    database_selection,
+    database_quick_setup,
+)
 
 
 
@@ -75,6 +84,15 @@ urlpatterns = [
 
     # Configurações Avançadas
     path('sistema/variaveis-ambiente/', EnvironmentVariablesView.as_view(), name='environment_variables'),
+
+    # Banco de Dados
+    path('banco-dados/', DatabaseConfigListView.as_view(), name='database_list'),
+    path('banco-dados/criar/', DatabaseConfigCreateView.as_view(), name='database_create'),
+    path('banco-dados/<int:pk>/editar/', DatabaseConfigUpdateView.as_view(), name='database_edit'),
+    path('banco-dados/<int:pk>/deletar/', DatabaseConfigDeleteView.as_view(), name='database_delete'),
+    path('banco-dados/<int:pk>/test/', database_test_connection, name='database_test'),
+    path('banco-dados/selecionar/', database_selection, name='database_selection'),
+    path('banco-dados/setup-rapido/', database_quick_setup, name='database_quick_setup'),
 
     # Backup & Manutenção (TODO)
     path('backup/', SystemConfigView.as_view(), name='backup_config'),

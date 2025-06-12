@@ -446,3 +446,54 @@ class DatabaseConfiguration(models.Model):
     def get_active_configs(cls):
         """Retorna todas as configurações ativas"""
         return cls.objects.filter(is_active=True)
+
+    def update_env_file(self):
+        """Atualiza o arquivo .env com esta configuração"""
+        import os
+        from pathlib import Path
+
+        # Caminho do arquivo .env
+        env_path = Path('.env')
+
+        # Ler arquivo atual ou criar novo
+        env_lines = []
+        if env_path.exists():
+            with open(env_path, 'r', encoding='utf-8') as f:
+                env_lines = f.readlines()
+
+        # Variáveis de banco de dados
+        db_vars = {
+            'DB_ENGINE': self.engine,
+            'DB_NAME': self.name_db,
+            'DB_USER': self.user or '',
+            'DB_PASSWORD': self.password or '',
+            'DB_HOST': self.host or '',
+            'DB_PORT': self.port or '',
+        }
+
+        # Atualizar ou adicionar variáveis
+        updated_lines = []
+        updated_vars = set()
+
+        for line in env_lines:
+            line = line.strip()
+            if '=' in line and not line.startswith('#'):
+                var_name = line.split('=')[0].strip()
+                if var_name in db_vars:
+                    updated_lines.append(f"{var_name}={db_vars[var_name]}\n")
+                    updated_vars.add(var_name)
+                else:
+                    updated_lines.append(line + '\n')
+            else:
+                updated_lines.append(line + '\n')
+
+        # Adicionar variáveis que não existiam
+        for var_name, var_value in db_vars.items():
+            if var_name not in updated_vars:
+                updated_lines.append(f"{var_name}={var_value}\n")
+
+        # Escrever arquivo atualizado
+        with open(env_path, 'w', encoding='utf-8') as f:
+            f.writelines(updated_lines)
+
+        return True

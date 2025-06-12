@@ -26,14 +26,19 @@ class DatabaseConfigurationForm(forms.ModelForm):
     class Meta:
         model = DatabaseConfiguration
         fields = [
-            'name', 'engine', 'host', 'port', 'database_name', 
-            'username', 'password', 'options', 'is_default', 'is_active'
+            'name', 'description', 'engine', 'host', 'port', 'name_db',
+            'user', 'password', 'options', 'is_default', 'is_active'
         ]
         
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Nome da configuração (ex: Produção, Desenvolvimento)'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Descrição opcional da configuração'
             }),
             'engine': forms.Select(attrs={
                 'class': 'form-select',
@@ -43,15 +48,15 @@ class DatabaseConfigurationForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'localhost ou IP do servidor'
             }),
-            'port': forms.NumberInput(attrs={
+            'port': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Porta do banco (ex: 5432, 3306)'
             }),
-            'database_name': forms.TextInput(attrs={
+            'name_db': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Nome do banco de dados'
             }),
-            'username': forms.TextInput(attrs={
+            'user': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Usuário do banco de dados'
             }),
@@ -70,11 +75,12 @@ class DatabaseConfigurationForm(forms.ModelForm):
         
         labels = {
             'name': 'Nome da Configuração',
+            'description': 'Descrição',
             'engine': 'Tipo de Banco',
             'host': 'Servidor',
             'port': 'Porta',
-            'database_name': 'Nome do Banco',
-            'username': 'Usuário',
+            'name_db': 'Nome do Banco',
+            'user': 'Usuário',
             'password': 'Senha',
             'options': 'Opções Adicionais',
             'is_default': 'Configuração Padrão',
@@ -83,11 +89,12 @@ class DatabaseConfigurationForm(forms.ModelForm):
         
         help_texts = {
             'name': 'Nome identificador para esta configuração',
+            'description': 'Descrição opcional para identificar o propósito desta configuração',
             'engine': 'Tipo do sistema de banco de dados',
             'host': 'Endereço do servidor do banco de dados',
             'port': 'Porta de conexão do banco de dados',
-            'database_name': 'Nome do banco de dados a ser usado',
-            'username': 'Nome de usuário para autenticação',
+            'name_db': 'Nome do banco de dados a ser usado',
+            'user': 'Nome de usuário para autenticação',
             'options': 'Configurações adicionais em formato JSON',
             'is_default': 'Marque para usar como configuração padrão do sistema',
             'is_active': 'Marque para ativar esta configuração',
@@ -122,8 +129,12 @@ class DatabaseConfigurationForm(forms.ModelForm):
         """Validação da porta"""
         port = self.cleaned_data.get('port')
         if port:
-            if port < 1 or port > 65535:
-                raise ValidationError('A porta deve estar entre 1 e 65535.')
+            try:
+                port_int = int(port)
+                if port_int < 1 or port_int > 65535:
+                    raise ValidationError('A porta deve estar entre 1 e 65535.')
+            except ValueError:
+                raise ValidationError('A porta deve ser um número válido.')
         return port
 
     def clean_options(self):
@@ -142,18 +153,18 @@ class DatabaseConfigurationForm(forms.ModelForm):
         cleaned_data = super().clean()
         engine = cleaned_data.get('engine')
         host = cleaned_data.get('host')
-        database_name = cleaned_data.get('database_name')
-        
+        name_db = cleaned_data.get('name_db')
+
         # Validações específicas por tipo de banco
         if engine == 'django.db.backends.sqlite3':
-            if not database_name:
+            if not name_db:
                 raise ValidationError('Nome do banco é obrigatório para SQLite.')
         else:
             if not host:
                 raise ValidationError('Servidor é obrigatório para este tipo de banco.')
-            if not database_name:
+            if not name_db:
                 raise ValidationError('Nome do banco é obrigatório.')
-        
+
         return cleaned_data
 
     def save(self, commit=True):
