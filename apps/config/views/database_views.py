@@ -165,16 +165,21 @@ def database_selection(request):
             try:
                 config = form.save()
                 messages.success(
-                    request, 
+                    request,
                     f'Configuração "{config.name}" definida como padrão com sucesso!'
                 )
-                
+
                 if form.cleaned_data['update_env']:
-                    messages.info(
-                        request,
-                        'Arquivo .env atualizado. Reinicie o servidor para aplicar as mudanças.'
-                    )
-                
+                    success, message = config.update_env_file()
+                    if success:
+                        messages.success(request, message)
+                        messages.info(
+                            request,
+                            'Reinicie o servidor para aplicar as mudanças nas variáveis de ambiente.'
+                        )
+                    else:
+                        messages.warning(request, f'Configuração aplicada, mas houve problema ao atualizar .env: {message}')
+
                 return redirect('config:database_list')
             except Exception as e:
                 messages.error(request, f'Erro ao aplicar configuração: {str(e)}')
@@ -192,6 +197,78 @@ def database_selection(request):
     }
     
     return render(request, 'config/database/selection.html', context)
+
+
+@login_required
+@user_passes_test(is_admin_user)
+def database_config_preview(request, pk):
+    """Preview da configuração de banco para o .env"""
+    config = get_object_or_404(DatabaseConfiguration, pk=pk)
+
+    if request.method == 'GET':
+        return JsonResponse({
+            'success': True,
+            'name': config.name,
+            'engine': config.engine,
+            'name_db': config.name_db,
+            'user': config.user,
+            'password': '***' if config.password else '',
+            'host': config.host,
+            'port': config.port,
+        })
+
+    return JsonResponse({'success': False, 'error': 'Método não permitido'}, status=405)
+
+
+@login_required
+@user_passes_test(is_admin_user)
+def database_apply_production(request, pk):
+    """Aplicar configuração para produção"""
+    config = get_object_or_404(DatabaseConfiguration, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            # Remover padrão atual
+            DatabaseConfiguration.objects.filter(is_default=True).update(is_default=False)
+
+            # Definir novo padrão
+            config.is_default = True
+            config.save()
+
+            # Atualizar arquivo .env
+            success, message = config.update_env_file()
+
+            if success:
+                # Criar configuração específica para produção
+                prod_config = {
+                    'DB_ENGINE': config.engine,
+                    'DB_NAME': config.name_db,
+                    'DB_USER': config.user,
+                    'DB_PASSWORD': config.password,
+                    'DB_HOST': config.host or 'db',  # Default para Docker
+                    'DB_PORT': config.port or ('5432' if 'postgresql' in config.engine else '3306'),
+                }
+
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Configuração "{config.name}" aplicada para produção',
+                    'env_updated': True,
+                    'config': prod_config,
+                    'restart_required': True
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Erro ao atualizar .env: {message}'
+                })
+
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erro ao aplicar configuração: {str(e)}'
+            })
+
+    return JsonResponse({'success': False, 'message': 'Método não permitido'}, status=405)
 
 
 @login_required

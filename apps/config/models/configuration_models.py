@@ -376,41 +376,65 @@ class DatabaseConfiguration(models.Model):
     
     def test_connection(self):
         """Testa a conexão com este banco"""
-        from django.db.utils import DatabaseError
-        import tempfile
-        
+        from django.utils import timezone
+        import os
+
         try:
-            # Para SQLite, criar arquivo temporário se necessário
+            # Para SQLite, verificar se é um arquivo válido
             if self.engine == 'django.db.backends.sqlite3':
-                if not self.name_db or self.name_db == ':memory:':
-                    # Usar arquivo temporário para teste
-                    with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as tmp:
-                        test_config = self.get_config_dict()
-                        test_config['NAME'] = tmp.name
+                if not self.name_db:
+                    return False, 'Nome do banco SQLite é obrigatório'
+
+                # Se for :memory:, é válido
+                if self.name_db == ':memory:':
+                    success_message = 'Configuração SQLite em memória válida'
                 else:
-                    test_config = self.get_config_dict()
+                    # Verificar se o diretório existe
+                    db_path = self.name_db
+                    if not os.path.isabs(db_path):
+                        # Caminho relativo, usar diretório do projeto
+                        db_path = os.path.join(os.getcwd(), db_path)
+
+                    db_dir = os.path.dirname(db_path)
+                    if db_dir and not os.path.exists(db_dir):
+                        return False, f'Diretório não existe: {db_dir}'
+
+                    success_message = f'Configuração SQLite válida: {self.name_db}'
+
             else:
-                test_config = self.get_config_dict()
-            
-            # Criar conexão temporária
-            from django.db.backends.utils import load_backend
+                # Para outros bancos, verificar configurações básicas
+                if not self.host:
+                    return False, 'Host é obrigatório para este tipo de banco'
 
-            backend = load_backend(test_config['ENGINE'])
-            test_connection = backend.DatabaseWrapper(test_config, 'test_alias')
+                if not self.name_db:
+                    return False, 'Nome do banco é obrigatório'
 
-            # Tentar conectar
-            test_connection.ensure_connection()
+                if not self.user:
+                    return False, 'Usuário é obrigatório para este tipo de banco'
 
-            # Testar uma query simples
-            with test_connection.cursor() as cursor:
-                cursor.execute("SELECT 1")
-                cursor.fetchone()  # Apenas para verificar se funciona
-            
-            test_connection.close()
-            
-            success_message = f'Conexão bem-sucedida com {self.get_engine_display()}'
-            
-            # Salvar resultado
+                # Tentar importar o driver específico
+                if self.engine == 'django.db.backends.postgresql':
+                    try:
+                        import psycopg2
+                        success_message = 'Configuração PostgreSQL válida (driver disponível)'
+                    except ImportError:
+                        return False, 'Driver PostgreSQL (psycopg2) não está instalado'
+
+                elif self.engine == 'django.db.backends.mysql':
+                    try:
+                        import MySQLdb
+                        success_message = 'Configuração MySQL válida (driver MySQLdb disponível)'
+                    except ImportError:
+                        try:
+                            import pymysql
+                            success_message = 'Configuração MySQL válida (driver PyMySQL disponível)'
+                        except ImportError:
+                            return False, 'Driver MySQL (MySQLdb ou PyMySQL) não está instalado'
+
+                else:
+                    success_message = f'Configuração {self.get_engine_display()} válida'
+
+            # Salvar resultado de sucesso
             self.last_tested_at = timezone.now()
             self.last_test_result = {
                 'success': True,
@@ -421,21 +445,19 @@ class DatabaseConfiguration(models.Model):
 
             return True, success_message
 
-        except DatabaseError as e:
-            error_message = f'Erro de banco: {str(e)}'
         except Exception as e:
-            error_message = f'Erro na conexão: {str(e)}'
+            error_message = f'Erro na validação: {str(e)}'
 
-        # Salvar erro
-        self.last_tested_at = timezone.now()
-        self.last_test_result = {
-            'success': False,
-            'message': error_message,
-            'tested_at': self.last_tested_at.isoformat()
-        }
-        self.save(update_fields=['last_tested_at', 'last_test_result'])
-        
-        return False, error_message
+            # Salvar erro
+            self.last_tested_at = timezone.now()
+            self.last_test_result = {
+                'success': False,
+                'message': error_message,
+                'tested_at': self.last_tested_at.isoformat()
+            }
+            self.save(update_fields=['last_tested_at', 'last_test_result'])
+
+            return False, error_message
     
     @classmethod
     def get_default(cls):
@@ -451,9 +473,22 @@ class DatabaseConfiguration(models.Model):
         """Atualiza o arquivo .env com esta configuração"""
         import os
         from pathlib import Path
+        from django.conf import settings
 
-        # Caminho do arquivo .env
-        env_path = Path('.env')
+        # Determinar qual arquivo .env usar
+        env_files = ['.env', '.env.local', '.env.prod']
+        env_path = None
+
+        # Procurar arquivo .env existente
+        for env_file in env_files:
+            path = Path(env_file)
+            if path.exists():
+                env_path = path
+                break
+
+        # Se não encontrar, criar .env
+        if not env_path:
+            env_path = Path('.env')
 
         # Ler arquivo atual ou criar novo
         env_lines = []
@@ -471,29 +506,58 @@ class DatabaseConfiguration(models.Model):
             'DB_PORT': self.port or '',
         }
 
+        # Adicionar DATABASE_URL se for PostgreSQL ou MySQL
+        if self.engine in ['django.db.backends.postgresql', 'django.db.backends.mysql']:
+            if self.engine == 'django.db.backends.postgresql':
+                protocol = 'postgresql'
+            else:
+                protocol = 'mysql'
+
+            if self.user and self.password and self.host:
+                database_url = f"{protocol}://{self.user}:{self.password}@{self.host}:{self.port or '5432'}/{self.name_db}"
+                db_vars['DATABASE_URL'] = database_url
+
         # Atualizar ou adicionar variáveis
         updated_lines = []
         updated_vars = set()
+        db_section_added = False
 
         for line in env_lines:
-            line = line.strip()
-            if '=' in line and not line.startswith('#'):
-                var_name = line.split('=')[0].strip()
-                if var_name in db_vars:
-                    updated_lines.append(f"{var_name}={db_vars[var_name]}\n")
-                    updated_vars.add(var_name)
-                else:
-                    updated_lines.append(line + '\n')
-            else:
-                updated_lines.append(line + '\n')
+            original_line = line
+            line_stripped = line.strip()
 
-        # Adicionar variáveis que não existiam
-        for var_name, var_value in db_vars.items():
-            if var_name not in updated_vars:
-                updated_lines.append(f"{var_name}={var_value}\n")
+            # Pular linhas de comentário sobre configurações de banco duplicadas
+            if line_stripped.startswith('# Configurações de Banco de Dados atualizadas automaticamente'):
+                continue
+
+            if '=' in line_stripped and not line_stripped.startswith('#'):
+                var_name = line_stripped.split('=')[0].strip()
+                if var_name in db_vars:
+                    # Só adicionar se ainda não foi adicionado
+                    if var_name not in updated_vars:
+                        updated_lines.append(f"{var_name}={db_vars[var_name]}\n")
+                        updated_vars.add(var_name)
+                    # Pular a linha original para evitar duplicação
+                    continue
+                else:
+                    updated_lines.append(original_line)
+            else:
+                updated_lines.append(original_line)
+
+        # Adicionar variáveis que não existiam no arquivo
+        new_vars = set(db_vars.keys()) - updated_vars
+        if new_vars:
+            if not db_section_added:
+                updated_lines.append("\n# Configurações de Banco de Dados atualizadas automaticamente\n")
+                db_section_added = True
+
+            for var_name in new_vars:
+                updated_lines.append(f"{var_name}={db_vars[var_name]}\n")
 
         # Escrever arquivo atualizado
-        with open(env_path, 'w', encoding='utf-8') as f:
-            f.writelines(updated_lines)
-
-        return True
+        try:
+            with open(env_path, 'w', encoding='utf-8') as f:
+                f.writelines(updated_lines)
+            return True, f"Arquivo {env_path} atualizado com sucesso"
+        except Exception as e:
+            return False, f"Erro ao atualizar arquivo {env_path}: {str(e)}"

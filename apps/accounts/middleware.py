@@ -107,7 +107,15 @@ class AccessControlMiddleware:
     
     def get_area_info(self, path):
         """Retorna informações sobre a área que está sendo acessada"""
-        
+
+        # Excluir arquivos estáticos e mídia
+        if path.startswith('/static/') or path.startswith('/media/'):
+            return {
+                'name': 'arquivos estáticos',
+                'type': 'static',
+                'description': 'recursos do sistema'
+            }
+
         area_mappings = {
             '/config/': {
                 'name': 'o Painel de Configurações',
@@ -308,13 +316,18 @@ class SmartRedirectMiddleware:
     
     def is_restricted_area(self, path):
         """Verifica se o caminho é uma área restrita"""
+
+        # Excluir arquivos estáticos e mídia
+        if path.startswith('/static/') or path.startswith('/media/'):
+            return False
+
         restricted_patterns = [
             '/config/',
             '/admin/',
             '/accounts/configuracoes/',
             '/accounts/perfil/',
         ]
-        
+
         return any(path.startswith(pattern) for pattern in restricted_patterns)
     
     def redirect_to_smart_login(self, request):

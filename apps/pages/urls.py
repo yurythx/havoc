@@ -29,5 +29,7 @@ urlpatterns = [
     # Páginas dinâmicas
     path('paginas/', PageListView.as_view(), name='page_list'),
     path('busca/', PageSearchView.as_view(), name='search'),
-    path('<slug:slug>/', PageDetailView.as_view(), name='page_detail'),
+
+    # Página dinâmica - DEVE SER A ÚLTIMA URL para não interferir com outras rotas
+    path('pagina/<slug:slug>/', PageDetailView.as_view(), name='page_detail'),
 ]

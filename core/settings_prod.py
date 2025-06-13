@@ -12,6 +12,87 @@ import dj_database_url
 # =============================================================================
 
 DEBUG = False
+ENVIRONMENT = 'production'
+
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
+
+# Domínios permitidos para CSRF
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='').split(',')
+
+# =============================================================================
+# BANCO DE DADOS
+# =============================================================================
+
+# Configuração via DATABASE_URL ou variáveis individuais
+if config('DATABASE_URL', default=None):
+    DATABASES['default'] = dj_database_url.parse(config('DATABASE_URL'))
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': config('DB_ENGINE', default='django.db.backends.postgresql'),
+            'NAME': config('DB_NAME', default='havoc_prod'),
+            'USER': config('DB_USER', default='postgres'),
+            'PASSWORD': config('DB_PASSWORD', default=''),
+            'HOST': config('DB_HOST', default='db'),
+            'PORT': config('DB_PORT', default='5432'),
+            'OPTIONS': {
+                'connect_timeout': 60,
+                'options': '-c default_transaction_isolation=serializable'
+            },
+        }
+    }
+
+# =============================================================================
+# CACHE E REDIS
+# =============================================================================
+
+REDIS_URL = config('REDIS_URL', default='redis://redis:6379/0')
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': REDIS_URL,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'CONNECTION_POOL_KWARGS': {
+                'max_connections': 50,
+                'retry_on_timeout': True,
+            },
+            'COMPRESSOR': 'django_redis.compressors.zlib.ZlibCompressor',
+            'SERIALIZER': 'django_redis.serializers.json.JSONSerializer',
+        },
+        'KEY_PREFIX': 'havoc',
+        'TIMEOUT': 300,
+    }
+}
+
+# Cache para sessões
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
+SESSION_COOKIE_AGE = 86400  # 24 horas
+
+# =============================================================================
+# CELERY (TAREFAS ASSÍNCRONAS)
+# =============================================================================
+
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_ENABLE_UTC = True
+
+# Configurações de performance
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_TASK_ACKS_LATE = True
+CELERY_WORKER_MAX_TASKS_PER_CHILD = 1000
+
+# =============================================================================
+# CONFIGURAÇÕES BÁSICAS DE PRODUÇÃO
+# =============================================================================
+
+DEBUG = False
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
 

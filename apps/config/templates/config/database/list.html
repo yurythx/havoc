@@ -83,7 +83,7 @@
 
     <!-- Ações Rápidas -->
     <div class="row mb-4">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="card border-primary">
                 <div class="card-body text-center">
                     <i class="fas fa-cog fa-2x text-primary mb-2"></i>
@@ -95,7 +95,19 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-rocket fa-2x text-success mb-2"></i>
+                    <h5 class="card-title">Deploy Produção</h5>
+                    <p class="card-text text-muted">Configure banco para ambiente de produção</p>
+                    <button class="btn btn-success" onclick="showProductionHelp()">
+                        <i class="fas fa-info me-1"></i>Ver Comandos
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
             <div class="card border-info">
                 <div class="card-body text-center">
                     <i class="fas fa-sync fa-2x text-info mb-2"></i>
@@ -142,6 +154,12 @@
                                 </button>
                             </li>
                             {% if not config.is_default %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <button class="dropdown-item text-success" onclick="applyProduction({{ config.pk }})">
+                                    <i class="fas fa-rocket me-1"></i>Aplicar para Produção
+                                </button>
+                            </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a class="dropdown-item text-danger" href="{% url 'config:database_delete' config.pk %}">
@@ -297,13 +315,102 @@ function testConnection(configId) {
 function testAllConnections() {
     const configs = {{ configurations|length }};
     let tested = 0;
-    
+
     {% for config in configurations %}
     setTimeout(() => {
         testConnection({{ config.pk }});
     }, tested * 1000);
     tested++;
     {% endfor %}
+}
+
+function applyProduction(configId) {
+    if (!confirm('Tem certeza de que deseja aplicar esta configuração para produção?\n\nIsso irá:\n- Definir como configuração padrão\n- Atualizar o arquivo .env\n- Requerer reinicialização do servidor')) {
+        return;
+    }
+
+    const button = document.querySelector(`button[onclick="applyProduction(${configId})"]`);
+    const originalText = button.innerHTML;
+
+    // Mostrar loading
+    button.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Aplicando...';
+    button.disabled = true;
+
+    fetch(`/config/banco-dados/${configId}/aplicar-producao/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Restaurar botão
+        button.innerHTML = originalText;
+        button.disabled = false;
+
+        if (data.success) {
+            // Mostrar sucesso
+            alert(`✅ ${data.message}\n\n` +
+                  `Configurações aplicadas:\n` +
+                  `- Engine: ${data.config.DB_ENGINE}\n` +
+                  `- Banco: ${data.config.DB_NAME}\n` +
+                  `- Host: ${data.config.DB_HOST}\n` +
+                  `- Porta: ${data.config.DB_PORT}\n\n` +
+                  `⚠️ IMPORTANTE: Reinicie o servidor para aplicar as mudanças!`);
+
+            // Recarregar página para mostrar novo status
+            location.reload();
+        } else {
+            alert(`❌ Erro: ${data.message}`);
+        }
+    })
+    .catch(error => {
+        button.innerHTML = originalText;
+        button.disabled = false;
+        alert('❌ Erro na requisição: ' + error.message);
+    });
+}
+
+function showProductionHelp() {
+    const helpText = `🚀 CONFIGURAÇÃO PARA PRODUÇÃO
+
+📋 OPÇÕES DISPONÍVEIS:
+
+1️⃣ VIA INTERFACE WEB:
+   • Clique no menu (⋮) de uma configuração
+   • Selecione "Aplicar para Produção"
+   • Confirme a aplicação
+
+2️⃣ VIA LINHA DE COMANDO:
+   • Listar configurações:
+     python manage.py list_db_configs
+
+   • Testar conexão:
+     python manage.py test_db_config <ID>
+
+   • Aplicar configuração:
+     python manage.py apply_db_config <ID> --update-env
+
+3️⃣ VIA DOCKER:
+   • Desenvolvimento:
+     .\\docker-commands.ps1 dev-up
+
+   • Produção:
+     .\\docker-commands.ps1 deploy
+
+⚠️ IMPORTANTE:
+• Sempre teste a conexão antes de aplicar
+• Faça backup antes de mudanças em produção
+• Reinicie o servidor após aplicar configuração
+• Verifique o arquivo .env após aplicação
+
+💡 DICA: Use configurações diferentes para:
+• Desenvolvimento (SQLite)
+• Teste (PostgreSQL local)
+• Produção (PostgreSQL/MySQL remoto)`;
+
+    alert(helpText);
 }
 
 // Adicionar token CSRF se não existir

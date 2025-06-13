@@ -34,6 +34,8 @@ from apps.config.views.database_views import (
     DatabaseConfigDeleteView,
     database_test_connection,
     database_selection,
+    database_config_preview,
+    database_apply_production,
     database_quick_setup,
 )
 
@@ -91,6 +93,8 @@ urlpatterns = [
     path('banco-dados/<int:pk>/editar/', DatabaseConfigUpdateView.as_view(), name='database_edit'),
     path('banco-dados/<int:pk>/deletar/', DatabaseConfigDeleteView.as_view(), name='database_delete'),
     path('banco-dados/<int:pk>/test/', database_test_connection, name='database_test'),
+    path('banco-dados/<int:pk>/preview/', database_config_preview, name='database_preview'),
+    path('banco-dados/<int:pk>/aplicar-producao/', database_apply_production, name='database_apply_production'),
     path('banco-dados/selecionar/', database_selection, name='database_selection'),
     path('banco-dados/setup-rapido/', database_quick_setup, name='database_quick_setup'),
 

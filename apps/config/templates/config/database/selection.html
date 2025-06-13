@@ -109,9 +109,9 @@
                                             {% if config.host %}
                                                 <p class="mb-1"><strong>Servidor:</strong> {{ config.host }}{% if config.port %}:{{ config.port }}{% endif %}</p>
                                             {% endif %}
-                                            <p class="mb-1"><strong>Banco:</strong> {{ config.database_name }}</p>
-                                            {% if config.username %}
-                                                <p class="mb-1"><strong>Usuário:</strong> {{ config.username }}</p>
+                                            <p class="mb-1"><strong>Banco:</strong> {{ config.name_db }}</p>
+                                            {% if config.user %}
+                                                <p class="mb-1"><strong>Usuário:</strong> {{ config.user }}</p>
                                             {% endif %}
                                         </div>
                                         
@@ -264,20 +264,33 @@ function selectConfig(configId) {
 }
 
 function updateEnvPreview(configId) {
-    // Buscar dados da configuração (simulado)
-    const configCard = document.querySelector(`[data-config-id="${configId}"]`);
-    const configName = configCard.querySelector('.card-title').textContent;
-    
-    // Simular preview do .env
-    let envContent = `# Configuração de Banco de Dados: ${configName}\n`;
-    envContent += `DB_ENGINE=django.db.backends.postgresql\n`;
-    envContent += `DB_NAME=havoc_db\n`;
-    envContent += `DB_USER=postgres\n`;
-    envContent += `DB_PASSWORD=***\n`;
-    envContent += `DB_HOST=localhost\n`;
-    envContent += `DB_PORT=5432\n`;
-    
-    document.getElementById('env-preview').innerHTML = `<pre class="mb-0">${envContent}</pre>`;
+    // Fazer requisição AJAX para buscar dados da configuração
+    fetch(`/config/banco-dados/${configId}/preview/`, {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            let envContent = `# Configuração de Banco de Dados: ${data.name}\n`;
+            envContent += `DB_ENGINE=${data.engine}\n`;
+            envContent += `DB_NAME=${data.name_db}\n`;
+            envContent += `DB_USER=${data.user || ''}\n`;
+            envContent += `DB_PASSWORD=${data.password ? '***' : ''}\n`;
+            envContent += `DB_HOST=${data.host || ''}\n`;
+            envContent += `DB_PORT=${data.port || ''}\n`;
+
+            document.getElementById('env-preview').innerHTML = `<pre class="mb-0">${envContent}</pre>`;
+        } else {
+            document.getElementById('env-preview').innerHTML = '<p class="text-danger">Erro ao carregar preview</p>';
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        document.getElementById('env-preview').innerHTML = '<p class="text-danger">Erro ao carregar preview</p>';
+    });
 }
 
 // Marcar configuração atual como selecionada
