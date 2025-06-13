@@ -7,7 +7,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import never_cache
 from django.db import connection
 from django.core.cache import cache
-import redis
+# import redis  # Comentado temporariamente
 import time
 import os
 

@@ -1,47 +1,23 @@
 # Dependências específicas para produção
+# Incluir requirements.txt base + dependências de produção
+
+-r requirements.txt
 
 # Servidor WSGI
-gunicorn==21.2.0
-uvicorn[standard]==0.24.0
+gunicorn==23.0.0
 
-# Banco de dados
-psycopg2-binary==2.9.9
-mysqlclient==2.2.4
-
-# Cache e sessões
-redis==5.0.1
+# Banco de dados adicional
+redis==5.2.1
 django-redis==5.4.0
 
-# Monitoramento e logs
-sentry-sdk[django]==1.38.0
-django-extensions==3.2.3
+# Monitoramento e logs (opcional)
+sentry-sdk[django]==2.19.2
 
-# Segurança
-django-cors-headers==4.3.1
-django-csp==3.7
-django-security==0.20.0
+# Segurança adicional
+django-cors-headers==4.6.0
 
-# Performance
-django-compressor==4.4
-whitenoise==6.6.0
+# Email em produção (opcional)
+django-anymail==12.0
 
-# Tarefas assíncronas
-celery==5.3.4
-flower==2.0.1
-kombu==5.3.4
-
-# Email
-django-anymail==10.2
-
-# Backup
-django-dbbackup==4.0.2
-
-# Healthcheck
-django-health-check==3.17.0
-
-# Métricas
-django-prometheus==2.3.1
-
-# Utilitários
-python-decouple==3.8
-dj-database-url==2.1.0
+# Backup (opcional)
+django-dbbackup==4.1.0

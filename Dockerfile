@@ -22,11 +22,23 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copiar e instalar as dependências do projeto
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+COPY requirements.txt requirements-prod.txt ./
+RUN pip install --upgrade pip && pip install -r requirements-prod.txt
 
 # Copiar o restante do código
 COPY . .
 
-# Comando padrão do container (pode ser sobrescrito pelo docker-compose)
-CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Copiar e dar permissão aos scripts
+COPY docker/entrypoint.sh /entrypoint.sh
+COPY docker/start.sh /start.sh
+RUN chmod +x /entrypoint.sh /start.sh
+
+# Criar diretórios necessários
+RUN mkdir -p /app/logs /app/media /app/staticfiles
+
+# Expor porta
+EXPOSE 8000
+
+# Entrypoint e comando padrão
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/start.sh"]

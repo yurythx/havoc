@@ -102,14 +102,15 @@ class DatabaseConfigurationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
         # Se estamos editando, não mostrar a senha atual
         if self.instance.pk:
             self.fields['password'].required = False
             self.fields['password'].help_text = 'Deixe em branco para manter a senha atual'
         else:
-            self.fields['password'].required = True
-            self.fields['password'].help_text = 'Senha para conectar ao banco de dados'
+            # Para nova configuração, senha não é obrigatória (SQLite não precisa)
+            self.fields['password'].required = False
+            self.fields['password'].help_text = 'Senha para conectar ao banco de dados (opcional para SQLite)'
 
     def clean_name(self):
         """Validação do nome"""
@@ -154,6 +155,8 @@ class DatabaseConfigurationForm(forms.ModelForm):
         engine = cleaned_data.get('engine')
         host = cleaned_data.get('host')
         name_db = cleaned_data.get('name_db')
+        user = cleaned_data.get('user')
+        password = cleaned_data.get('password')
 
         # Validações específicas por tipo de banco
         if engine == 'django.db.backends.sqlite3':
@@ -164,6 +167,11 @@ class DatabaseConfigurationForm(forms.ModelForm):
                 raise ValidationError('Servidor é obrigatório para este tipo de banco.')
             if not name_db:
                 raise ValidationError('Nome do banco é obrigatório.')
+            if not user:
+                raise ValidationError('Usuário é obrigatório para este tipo de banco.')
+            # Senha é obrigatória apenas para bancos não-SQLite e apenas em criação
+            if not password and not self.instance.pk:
+                raise ValidationError('Senha é obrigatória para este tipo de banco.')
 
         return cleaned_data
 

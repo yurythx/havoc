@@ -1,0 +1,439 @@
+{% extends 'config/base_config.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block config_title %}{{ page_title|default:"Configuração de Banco" }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.form-section {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-section h5 {
+    color: #495057;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.engine-option {
+    border: 2px solid #e9ecef;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.engine-option:hover {
+    border-color: #007bff;
+    background-color: #f8f9fa;
+}
+
+.engine-option.selected {
+    border-color: #007bff;
+    background-color: #e7f3ff;
+}
+
+.engine-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.test-connection {
+    position: relative;
+}
+
+.test-result {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    display: none;
+}
+
+.test-result.success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.test-result.error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.field-help {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+.required-field {
+    color: #dc3545;
+}
+</style>
+{% endblock %}
+
+{% block config_content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-1">
+                        <i class="fas fa-database text-primary me-2"></i>
+                        {{ page_title|default:"Configuração de Banco de Dados" }}
+                    </h1>
+                    <p class="text-muted mb-0">
+                        {% if object %}
+                            Editar configuração existente
+                        {% else %}
+                            Criar nova configuração de banco de dados
+                        {% endif %}
+                    </p>
+                </div>
+                <div>
+                    <a href="{% url 'config:database_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Voltar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulário -->
+    <form method="post" id="database-form">
+        {% csrf_token %}
+        
+        <!-- Informações Básicas -->
+        <div class="form-section">
+            <h5>
+                <i class="fas fa-info-circle me-2"></i>
+                Informações Básicas
+            </h5>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.name.id_for_label }}" class="form-label">
+                            Nome da Configuração <span class="required-field">*</span>
+                        </label>
+                        {{ form.name }}
+                        <div class="field-help">Nome identificador para esta configuração</div>
+                        {% if form.name.errors %}
+                            <div class="text-danger small">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.is_default.id_for_label }}" class="form-label">
+                            Status
+                        </label>
+                        <div class="form-check">
+                            {{ form.is_default }}
+                            <label class="form-check-label" for="{{ form.is_default.id_for_label }}">
+                                Configuração padrão
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            {{ form.is_active }}
+                            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                Configuração ativa
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="{{ form.description.id_for_label }}" class="form-label">
+                    Descrição
+                </label>
+                {{ form.description }}
+                <div class="field-help">Descrição detalhada desta configuração</div>
+            </div>
+        </div>
+
+        <!-- Tipo de Banco -->
+        <div class="form-section">
+            <h5>
+                <i class="fas fa-server me-2"></i>
+                Tipo de Banco de Dados
+            </h5>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="engine-option" data-engine="django.db.backends.sqlite3">
+                        <div class="text-center">
+                            <div class="engine-icon">🗃️</div>
+                            <h6>SQLite</h6>
+                            <small class="text-muted">Ideal para desenvolvimento</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <div class="engine-option" data-engine="django.db.backends.postgresql">
+                        <div class="text-center">
+                            <div class="engine-icon">🐘</div>
+                            <h6>PostgreSQL</h6>
+                            <small class="text-muted">Recomendado para produção</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <div class="engine-option" data-engine="django.db.backends.mysql">
+                        <div class="text-center">
+                            <div class="engine-icon">🐬</div>
+                            <h6>MySQL</h6>
+                            <small class="text-muted">Popular e confiável</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <div class="engine-option" data-engine="django.db.backends.oracle">
+                        <div class="text-center">
+                            <div class="engine-icon">🔶</div>
+                            <h6>Oracle</h6>
+                            <small class="text-muted">Enterprise</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {{ form.engine }}
+            {% if form.engine.errors %}
+                <div class="text-danger small">{{ form.engine.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Configurações de Conexão -->
+        <div class="form-section">
+            <h5>
+                <i class="fas fa-plug me-2"></i>
+                Configurações de Conexão
+            </h5>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.name_db.id_for_label }}" class="form-label">
+                            Nome do Banco <span class="required-field">*</span>
+                        </label>
+                        {{ form.name_db }}
+                        <div class="field-help">Nome do banco de dados ou caminho do arquivo (SQLite)</div>
+                        {% if form.name_db.errors %}
+                            <div class="text-danger small">{{ form.name_db.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.host.id_for_label }}" class="form-label">
+                            Host
+                        </label>
+                        {{ form.host }}
+                        <div class="field-help">Endereço do servidor (deixe vazio para SQLite)</div>
+                        {% if form.host.errors %}
+                            <div class="text-danger small">{{ form.host.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.port.id_for_label }}" class="form-label">
+                            Porta
+                        </label>
+                        {{ form.port }}
+                        <div class="field-help">Porta do servidor (deixe vazio para usar padrão)</div>
+                        {% if form.port.errors %}
+                            <div class="text-danger small">{{ form.port.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.user.id_for_label }}" class="form-label">
+                            Usuário
+                        </label>
+                        {{ form.user }}
+                        <div class="field-help">Nome de usuário para conexão</div>
+                        {% if form.user.errors %}
+                            <div class="text-danger small">{{ form.user.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.password.id_for_label }}" class="form-label">
+                            Senha
+                        </label>
+                        {{ form.password }}
+                        <div class="field-help">Senha será criptografada automaticamente</div>
+                        {% if form.password.errors %}
+                            <div class="text-danger small">{{ form.password.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teste de Conexão -->
+        <div class="form-section test-connection">
+            <h5>
+                <i class="fas fa-check-circle me-2"></i>
+                Teste de Conexão
+            </h5>
+            
+            <p class="text-muted">Teste a conexão antes de salvar para garantir que as configurações estão corretas.</p>
+            
+            <button type="button" class="btn btn-outline-primary" id="test-connection-btn">
+                <i class="fas fa-plug me-1"></i>
+                Testar Conexão
+            </button>
+            
+            <div class="test-result" id="test-result"></div>
+        </div>
+
+        <!-- Ações -->
+        <div class="form-section">
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'config:database_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-1"></i>
+                    Cancelar
+                </a>
+                
+                <div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>
+                        {% if object %}Atualizar{% else %}Criar{% endif %} Configuração
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Seleção de engine
+    const engineOptions = document.querySelectorAll('.engine-option');
+    const engineField = document.getElementById('{{ form.engine.id_for_label }}');
+    
+    // Marcar engine atual se editando
+    if (engineField.value) {
+        const currentOption = document.querySelector(`[data-engine="${engineField.value}"]`);
+        if (currentOption) {
+            currentOption.classList.add('selected');
+        }
+    }
+    
+    engineOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Remover seleção anterior
+            engineOptions.forEach(opt => opt.classList.remove('selected'));
+            
+            // Selecionar atual
+            this.classList.add('selected');
+            engineField.value = this.dataset.engine;
+            
+            // Mostrar/ocultar campos baseado no tipo
+            toggleFieldsBasedOnEngine(this.dataset.engine);
+        });
+    });
+    
+    function toggleFieldsBasedOnEngine(engine) {
+        const hostField = document.getElementById('{{ form.host.id_for_label }}').closest('.mb-3');
+        const portField = document.getElementById('{{ form.port.id_for_label }}').closest('.mb-3');
+        const userField = document.getElementById('{{ form.user.id_for_label }}').closest('.mb-3');
+        const passwordField = document.getElementById('{{ form.password.id_for_label }}').closest('.mb-3');
+        
+        if (engine === 'django.db.backends.sqlite3') {
+            hostField.style.display = 'none';
+            portField.style.display = 'none';
+            userField.style.display = 'none';
+            passwordField.style.display = 'none';
+        } else {
+            hostField.style.display = 'block';
+            portField.style.display = 'block';
+            userField.style.display = 'block';
+            passwordField.style.display = 'block';
+        }
+    }
+    
+    // Aplicar toggle inicial
+    if (engineField.value) {
+        toggleFieldsBasedOnEngine(engineField.value);
+    }
+    
+    // Teste de conexão
+    document.getElementById('test-connection-btn').addEventListener('click', function() {
+        const btn = this;
+        const result = document.getElementById('test-result');
+        const originalText = btn.innerHTML;
+        
+        // Mostrar loading
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Testando...';
+        btn.disabled = true;
+        
+        // Coletar dados do formulário
+        const formData = new FormData();
+        formData.append('engine', engineField.value);
+        formData.append('name_db', document.getElementById('{{ form.name_db.id_for_label }}').value);
+        formData.append('host', document.getElementById('{{ form.host.id_for_label }}').value);
+        formData.append('port', document.getElementById('{{ form.port.id_for_label }}').value);
+        formData.append('user', document.getElementById('{{ form.user.id_for_label }}').value);
+        formData.append('password', document.getElementById('{{ form.password.id_for_label }}').value);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+        
+        // Fazer requisição de teste
+        fetch('{% url "config:database_test" 0 %}'.replace('0', '{{ object.pk|default:"0" }}'), {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            result.style.display = 'block';
+            if (data.success) {
+                result.className = 'test-result success';
+                result.innerHTML = `<i class="fas fa-check-circle me-2"></i>${data.message}`;
+            } else {
+                result.className = 'test-result error';
+                result.innerHTML = `<i class="fas fa-times-circle me-2"></i>${data.message}`;
+            }
+        })
+        .catch(error => {
+            result.style.display = 'block';
+            result.className = 'test-result error';
+            result.innerHTML = `<i class="fas fa-times-circle me-2"></i>Erro ao testar conexão: ${error}`;
+        })
+        .finally(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+    });
+});
+</script>
+{% endblock %}

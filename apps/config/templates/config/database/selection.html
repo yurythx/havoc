@@ -1,8 +1,8 @@
-{% extends 'config/base.html' %}
+{% extends 'config/base_config.html' %}
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}{{ page_title }}{% endblock %}
+{% block config_title %}{{ page_title|default:"Selecionar Banco Padrão" }}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -47,7 +47,7 @@
 </style>
 {% endblock %}
 
-{% block content %}
+{% block config_content %}
 <div class="container-fluid">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">

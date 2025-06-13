@@ -205,7 +205,7 @@ class AccountsArticlesIntegrationTest(TestCase):
         
         # Login e acessar perfil
         self.client.login(email='author@example.com', password='authorpass123')
-        response = self.client.get(reverse('accounts:profile', kwargs={'slug': self.author.slug}))
+        response = self.client.get(reverse('accounts:profile_with_slug', kwargs={'slug': self.author.slug}))
         
         # Verificar se artigos aparecem no perfil
         self.assertEqual(response.status_code, 200)
@@ -421,13 +421,14 @@ class FullSystemIntegrationTest(TestCase):
         session.save()
         
         response = self.client.post(reverse('accounts:verification'), {
+            'email': 'user@example.com',
             'code': verification_code.code
         })
         self.assertEqual(response.status_code, 302)
         
         # 4. Login
         response = self.client.post(reverse('accounts:login'), {
-            'login': 'user@example.com',
+            'username': 'user@example.com',
             'password': 'testpass123'
         })
         self.assertEqual(response.status_code, 302)

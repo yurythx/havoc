@@ -1,7 +1,7 @@
 {% extends 'config/base_config.html' %}
 {% load static %}
 
-{% block title %}{{ page_title }}{% endblock %}
+{% block config_title %}{{ page_title|default:"Setup Rápido de Banco" }}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -47,7 +47,7 @@
 </style>
 {% endblock %}
 
-{% block content %}
+{% block config_content %}
 <div class="container-fluid">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">

@@ -27,8 +27,6 @@ def is_admin_user(user):
     return user.is_authenticated and user.is_staff
 
 
-@method_decorator(login_required, name='dispatch')
-@method_decorator(user_passes_test(is_admin_user), name='dispatch')
 class DatabaseConfigListView(ConfigPermissionMixin, ListView):
     """Lista de configurações de banco de dados"""
     model = DatabaseConfiguration
@@ -51,8 +49,6 @@ class DatabaseConfigListView(ConfigPermissionMixin, ListView):
         return context
 
 
-@method_decorator(login_required, name='dispatch')
-@method_decorator(user_passes_test(is_admin_user), name='dispatch')
 class DatabaseConfigCreateView(ConfigPermissionMixin, CreateView):
     """Criar nova configuração de banco"""
     model = DatabaseConfiguration
@@ -78,8 +74,6 @@ class DatabaseConfigCreateView(ConfigPermissionMixin, CreateView):
         return super().form_valid(form)
 
 
-@method_decorator(login_required, name='dispatch')
-@method_decorator(user_passes_test(is_admin_user), name='dispatch')
 class DatabaseConfigUpdateView(ConfigPermissionMixin, UpdateView):
     """Editar configuração de banco"""
     model = DatabaseConfiguration
@@ -105,8 +99,6 @@ class DatabaseConfigUpdateView(ConfigPermissionMixin, UpdateView):
         return super().form_valid(form)
 
 
-@method_decorator(login_required, name='dispatch')
-@method_decorator(user_passes_test(is_admin_user), name='dispatch')
 class DatabaseConfigDeleteView(ConfigPermissionMixin, DeleteView):
     """Deletar configuração de banco"""
     model = DatabaseConfiguration

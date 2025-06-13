@@ -18,9 +18,18 @@ class UserProfileView(LoginRequiredMixin, View):
     template_name = 'accounts/profile.html'
     login_url = '/accounts/login/'
 
-    def get(self, request):
+    def get(self, request, slug=None):
         """Exibe o perfil do usuário"""
-        user = request.user
+        if slug:
+            # Se slug foi fornecido, busca o usuário pelo slug
+            try:
+                user = User.objects.get(slug=slug)
+            except User.DoesNotExist:
+                user = request.user
+        else:
+            # Se não há slug, mostra o perfil do usuário logado
+            user = request.user
+
         context = {
             'profile_user': user,
             'avatar_form': AvatarUpdateForm(instance=user),

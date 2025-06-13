@@ -23,6 +23,7 @@ app_name = 'accounts'
 urlpatterns = [
     # Registro
     path('registro/', RegistrationView.as_view(), name='register'),
+    path('registro/', RegistrationView.as_view(), name='registration'),  # Alias para testes
     path('verificacao/', VerificationView.as_view(), name='verification'),
 
     # Autenticação
@@ -39,6 +40,7 @@ urlpatterns = [
 
     # Perfil
     path('perfil/', UserProfileView.as_view(), name='profile'),
+    path('perfil/<slug:slug>/', UserProfileView.as_view(), name='profile_with_slug'),
     path('configuracoes/', UserUpdateView.as_view(), name='settings'),
     path('remover-avatar/', RemoveAvatarView.as_view(), name='remove_avatar'),
 

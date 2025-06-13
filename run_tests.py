@@ -45,7 +45,7 @@ def main():
         sys.exit(1)
 
     # Configurar variável de ambiente do Django
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings.development')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
     
     print("🧪 EXECUTANDO TESTES DO PROJETO HAVOC")
     print("=" * 60)

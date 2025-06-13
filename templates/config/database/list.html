@@ -1,0 +1,413 @@
+{% extends 'config/base_config.html' %}
+{% load static %}
+
+{% block config_title %}Configurações de Banco de Dados{% endblock %}
+
+{% block extra_css %}
+<style>
+.config-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid #dee2e6;
+}
+
+.config-card.active {
+    border-left-color: #28a745;
+    background-color: #f8fff9;
+}
+
+.config-card.default {
+    border-left-color: #ffc107;
+    background-color: #fffdf5;
+}
+
+.config-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.engine-icon {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+}
+
+.connection-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.btn-test {
+    position: relative;
+}
+
+.btn-test .spinner-border {
+    width: 1rem;
+    height: 1rem;
+}
+</style>
+{% endblock %}
+
+{% block config_content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-1">
+                        <i class="fas fa-database text-primary me-2"></i>
+                        Configurações de Banco de Dados
+                    </h1>
+                    <p class="text-muted mb-0">
+                        Gerencie as configurações de conexão com diferentes bancos de dados
+                    </p>
+                </div>
+                <div class="btn-group">
+                    <a href="{% url 'config:database_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>
+                        Nova Configuração
+                    </a>
+                    <a href="{% url 'config:database_quick_setup' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-magic me-1"></i>
+                        Setup Rápido
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status da Conexão Atual -->
+    {% if connection_info %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <div>
+                        <strong>Conexão Atual:</strong>
+                        {{ connection_info.current_connection.engine|default:"Desconhecido" }} - 
+                        {{ connection_info.current_connection.name|default:"Desconhecido" }}
+                        {% if connection_info.is_synced %}
+                            <span class="badge bg-success ms-2">Sincronizado</span>
+                        {% else %}
+                            <span class="badge bg-warning ms-2">Não sincronizado</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Lista de Configurações -->
+    <div class="row">
+        {% for config in configurations %}
+        <div class="col-lg-6 col-xl-4 mb-4">
+            <div class="card config-card h-100 {% if config.is_active %}active{% endif %} {% if config.is_default %}default{% endif %}">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <span class="engine-icon">
+                            {% if 'sqlite' in config.engine %}
+                                🗃️
+                            {% elif 'postgresql' in config.engine %}
+                                🐘
+                            {% elif 'mysql' in config.engine %}
+                                🐬
+                            {% elif 'oracle' in config.engine %}
+                                🔶
+                            {% else %}
+                                💾
+                            {% endif %}
+                        </span>
+                        <div>
+                            <h6 class="card-title mb-0">{{ config.name }}</h6>
+                            <small class="text-muted">{{ config.get_engine_display }}</small>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-1">
+                        {% if config.is_default %}
+                            <span class="badge bg-warning status-badge">Padrão</span>
+                        {% endif %}
+                        {% if config.is_active %}
+                            <span class="badge bg-success status-badge">Ativo</span>
+                        {% else %}
+                            <span class="badge bg-secondary status-badge">Inativo</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    {% if config.description %}
+                        <p class="card-text text-muted small">{{ config.description }}</p>
+                    {% endif %}
+                    
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <small class="text-muted d-block">Banco:</small>
+                            <strong>{{ config.name_db|truncatechars:20 }}</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Host:</small>
+                            <strong>{{ config.host|default:"localhost"|truncatechars:20 }}</strong>
+                        </div>
+                        {% if config.port %}
+                        <div class="col-6">
+                            <small class="text-muted d-block">Porta:</small>
+                            <strong>{{ config.port }}</strong>
+                        </div>
+                        {% endif %}
+                        {% if config.user %}
+                        <div class="col-6">
+                            <small class="text-muted d-block">Usuário:</small>
+                            <strong>{{ config.user|truncatechars:15 }}</strong>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Status da Conexão -->
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Status da Conexão:</small>
+                        <div class="connection-status" id="status-{{ config.id }}">
+                            {% if config.last_tested_at %}
+                                {% if 'sucesso' in config.last_test_result.message|lower %}
+                                    <span class="text-success">
+                                        <i class="fas fa-check-circle"></i>
+                                        Conectado
+                                    </span>
+                                {% else %}
+                                    <span class="text-danger">
+                                        <i class="fas fa-times-circle"></i>
+                                        Erro
+                                    </span>
+                                {% endif %}
+                                <small class="text-muted ms-2">
+                                    {{ config.last_tested_at|timesince }} atrás
+                                </small>
+                            {% else %}
+                                <span class="text-warning">
+                                    <i class="fas fa-question-circle"></i>
+                                    Não testado
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-transparent">
+                    <div class="btn-group w-100" role="group">
+                        <button type="button" 
+                                class="btn btn-outline-primary btn-sm btn-test" 
+                                onclick="testConnection({{ config.id }})"
+                                data-config-id="{{ config.id }}">
+                            <i class="fas fa-plug"></i>
+                            Testar
+                        </button>
+                        
+                        {% if not config.is_default %}
+                        <button type="button" 
+                                class="btn btn-outline-success btn-sm" 
+                                onclick="activateConfig({{ config.id }})"
+                                title="Ativar como padrão">
+                            <i class="fas fa-star"></i>
+                            Ativar
+                        </button>
+                        {% endif %}
+                        
+                        <a href="{% url 'config:database_edit' config.id %}" 
+                           class="btn btn-outline-secondary btn-sm"
+                           title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        
+                        {% if not config.is_default %}
+                        <a href="{% url 'config:database_delete' config.id %}" 
+                           class="btn btn-outline-danger btn-sm"
+                           title="Excluir">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-database text-muted" style="font-size: 4rem;"></i>
+                <h4 class="text-muted mt-3">Nenhuma configuração encontrada</h4>
+                <p class="text-muted">Crie sua primeira configuração de banco de dados</p>
+                <a href="{% url 'config:database_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>
+                    Criar Configuração
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Ações em Lote -->
+    {% if configurations %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-tools me-2"></i>
+                        Ações Avançadas
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="btn-group">
+                        <a href="{% url 'config:database_selection' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-exchange-alt me-1"></i>
+                            Trocar Banco Padrão
+                        </a>
+                        <button type="button" class="btn btn-outline-info" onclick="backupConfigs()">
+                            <i class="fas fa-download me-1"></i>
+                            Backup Configurações
+                        </button>
+                        <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#restoreModal">
+                            <i class="fas fa-upload me-1"></i>
+                            Restaurar Backup
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal para Restaurar Backup -->
+<div class="modal fade" id="restoreModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Restaurar Configurações</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'config:database_list' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="backup_file" class="form-label">Arquivo de Backup</label>
+                        <input type="file" class="form-control" id="backup_file" name="backup_file" accept=".json" required>
+                        <div class="form-text">Selecione um arquivo JSON de backup das configurações</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">Restaurar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function testConnection(configId) {
+    const btn = document.querySelector(`[data-config-id="${configId}"]`);
+    const statusDiv = document.getElementById(`status-${configId}`);
+    const originalContent = btn.innerHTML;
+    
+    // Mostrar loading
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Testando...';
+    btn.disabled = true;
+    
+    fetch(`/config/banco-dados/${configId}/test/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            statusDiv.innerHTML = `
+                <span class="text-success">
+                    <i class="fas fa-check-circle"></i>
+                    Conectado
+                </span>
+                <small class="text-muted ms-2">agora</small>
+            `;
+            showToast('Sucesso', data.message, 'success');
+        } else {
+            statusDiv.innerHTML = `
+                <span class="text-danger">
+                    <i class="fas fa-times-circle"></i>
+                    Erro
+                </span>
+                <small class="text-muted ms-2">agora</small>
+            `;
+            showToast('Erro', data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        showToast('Erro', 'Erro ao testar conexão', 'error');
+    })
+    .finally(() => {
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+    });
+}
+
+function activateConfig(configId) {
+    if (!confirm('Tem certeza que deseja ativar esta configuração como padrão?')) {
+        return;
+    }
+    
+    fetch(`/config/banco-dados/${configId}/aplicar-producao/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Sucesso', data.message, 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showToast('Erro', data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        showToast('Erro', 'Erro ao ativar configuração', 'error');
+    });
+}
+
+function backupConfigs() {
+    window.location.href = '/config/banco-dados/backup/?download=true';
+}
+
+function showToast(title, message, type) {
+    // Implementar toast notification
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const alert = document.createElement('div');
+    alert.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+    alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alert.innerHTML = `
+        <strong>${title}:</strong> ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alert);
+    
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.parentNode.removeChild(alert);
+        }
+    }, 5000);
+}
+</script>
+{% endblock %}

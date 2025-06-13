@@ -1,0 +1,315 @@
+{% extends 'config/base_config.html' %}
+{% load static %}
+
+{% block config_title %}Excluir Configuração de Banco{% endblock %}
+
+{% block extra_css %}
+<style>
+.danger-zone {
+    border: 2px solid #dc3545;
+    border-radius: 0.375rem;
+    background-color: #fff5f5;
+    padding: 2rem;
+}
+
+.config-details {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.warning-icon {
+    font-size: 4rem;
+    color: #dc3545;
+    margin-bottom: 1rem;
+}
+
+.config-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.config-info:last-child {
+    border-bottom: none;
+}
+
+.config-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.config-value {
+    color: #6c757d;
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.engine-icon {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+}
+
+.consequences {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.btn-danger-confirm {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+    font-weight: 600;
+}
+
+.btn-danger-confirm:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+</style>
+{% endblock %}
+
+{% block config_content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-1 text-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Excluir Configuração de Banco
+                    </h1>
+                    <p class="text-muted mb-0">
+                        Esta ação não pode ser desfeita
+                    </p>
+                </div>
+                <div>
+                    <a href="{% url 'config:database_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Voltar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Zona de Perigo -->
+    <div class="danger-zone text-center">
+        <div class="warning-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        
+        <h3 class="text-danger mb-3">Atenção: Ação Irreversível</h3>
+        
+        <p class="lead mb-4">
+            Você está prestes a excluir permanentemente a configuração de banco de dados:
+        </p>
+        
+        <div class="config-details text-start">
+            <div class="d-flex align-items-center mb-3">
+                <span class="engine-icon">
+                    {% if 'sqlite' in object.engine %}
+                        🗃️
+                    {% elif 'postgresql' in object.engine %}
+                        🐘
+                    {% elif 'mysql' in object.engine %}
+                        🐬
+                    {% elif 'oracle' in object.engine %}
+                        🔶
+                    {% else %}
+                        💾
+                    {% endif %}
+                </span>
+                <div>
+                    <h4 class="mb-1">{{ object.name }}</h4>
+                    <small class="text-muted">{{ object.get_engine_display }}</small>
+                </div>
+                <div class="ms-auto">
+                    {% if object.is_default %}
+                        <span class="badge bg-warning status-badge">Padrão</span>
+                    {% endif %}
+                    {% if object.is_active %}
+                        <span class="badge bg-success status-badge">Ativo</span>
+                    {% else %}
+                        <span class="badge bg-secondary status-badge">Inativo</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if object.description %}
+            <div class="config-info">
+                <span class="config-label">Descrição:</span>
+                <span class="config-value">{{ object.description }}</span>
+            </div>
+            {% endif %}
+            
+            <div class="config-info">
+                <span class="config-label">Banco:</span>
+                <span class="config-value">{{ object.name_db }}</span>
+            </div>
+            
+            {% if object.host %}
+            <div class="config-info">
+                <span class="config-label">Host:</span>
+                <span class="config-value">{{ object.host }}{% if object.port %}:{{ object.port }}{% endif %}</span>
+            </div>
+            {% endif %}
+            
+            {% if object.user %}
+            <div class="config-info">
+                <span class="config-label">Usuário:</span>
+                <span class="config-value">{{ object.user }}</span>
+            </div>
+            {% endif %}
+            
+            <div class="config-info">
+                <span class="config-label">Criado em:</span>
+                <span class="config-value">{{ object.created_at|date:"d/m/Y H:i" }}</span>
+            </div>
+            
+            {% if object.updated_at %}
+            <div class="config-info">
+                <span class="config-label">Última atualização:</span>
+                <span class="config-value">{{ object.updated_at|date:"d/m/Y H:i" }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Consequências -->
+        <div class="consequences text-start">
+            <h6 class="text-warning">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                Consequências desta ação:
+            </h6>
+            <ul class="mb-0">
+                <li>A configuração será <strong>permanentemente removida</strong> do sistema</li>
+                <li>Não será possível <strong>recuperar esta configuração</strong> após a exclusão</li>
+                {% if object.is_default %}
+                <li class="text-danger">
+                    <strong>ATENÇÃO:</strong> Esta é a configuração padrão! 
+                    Você precisará definir outra como padrão.
+                </li>
+                {% endif %}
+                {% if object.is_active %}
+                <li class="text-danger">
+                    <strong>ATENÇÃO:</strong> Esta configuração está ativa! 
+                    O sistema pode parar de funcionar.
+                </li>
+                {% endif %}
+                <li>Backups existentes <strong>não serão afetados</strong></li>
+            </ul>
+        </div>
+
+        <!-- Verificações de Segurança -->
+        {% if object.is_default or object.is_active %}
+        <div class="alert alert-danger text-start">
+            <h6 class="alert-heading">
+                <i class="fas fa-shield-alt me-2"></i>
+                Verificações de Segurança Falharam
+            </h6>
+            <p class="mb-2">Esta configuração não pode ser excluída pelos seguintes motivos:</p>
+            <ul class="mb-0">
+                {% if object.is_default %}
+                <li>É a configuração <strong>padrão</strong> do sistema</li>
+                {% endif %}
+                {% if object.is_active %}
+                <li>Está atualmente <strong>ativa</strong></li>
+                {% endif %}
+            </ul>
+            <hr>
+            <p class="mb-0">
+                <strong>Solução:</strong> 
+                {% if object.is_default %}
+                    Defina outra configuração como padrão primeiro.
+                {% endif %}
+                {% if object.is_active %}
+                    Desative esta configuração antes de excluir.
+                {% endif %}
+            </p>
+        </div>
+        {% endif %}
+
+        <!-- Formulário de Confirmação -->
+        {% if not object.is_default and not object.is_active %}
+        <form method="post" class="mt-4">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="confirm-name" class="form-label text-start d-block">
+                    Para confirmar, digite o nome da configuração: <strong>{{ object.name }}</strong>
+                </label>
+                <input type="text" 
+                       class="form-control" 
+                       id="confirm-name" 
+                       placeholder="Digite: {{ object.name }}"
+                       required>
+            </div>
+            
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'config:database_list' %}" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-times me-2"></i>
+                    Cancelar
+                </a>
+                
+                <button type="submit" 
+                        class="btn btn-danger-confirm btn-lg" 
+                        id="delete-btn" 
+                        disabled>
+                    <i class="fas fa-trash me-2"></i>
+                    Excluir Permanentemente
+                </button>
+            </div>
+        </form>
+        {% else %}
+        <div class="mt-4">
+            <a href="{% url 'config:database_list' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-arrow-left me-2"></i>
+                Voltar para Lista
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmInput = document.getElementById('confirm-name');
+    const deleteBtn = document.getElementById('delete-btn');
+    const expectedName = '{{ object.name }}';
+    
+    if (confirmInput && deleteBtn) {
+        confirmInput.addEventListener('input', function() {
+            if (this.value === expectedName) {
+                deleteBtn.disabled = false;
+                deleteBtn.classList.remove('btn-outline-danger');
+                deleteBtn.classList.add('btn-danger-confirm');
+            } else {
+                deleteBtn.disabled = true;
+                deleteBtn.classList.add('btn-outline-danger');
+                deleteBtn.classList.remove('btn-danger-confirm');
+            }
+        });
+        
+        // Confirmação adicional antes do submit
+        deleteBtn.closest('form').addEventListener('submit', function(e) {
+            if (!confirm('Tem certeza absoluta que deseja excluir esta configuração? Esta ação NÃO pode ser desfeita!')) {
+                e.preventDefault();
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

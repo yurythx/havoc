@@ -1,322 +1,311 @@
-# 🐳 Havoc - Deploy com Docker
+# 🐳 HAVOC - Deploy com Docker
 
-Este guia explica como fazer deploy do projeto Havoc usando Docker e Docker Compose.
+## 🚀 **Deploy Rápido**
 
-## 📋 Pré-requisitos
-
+### **Pré-requisitos**
 - Docker 20.10+
 - Docker Compose 2.0+
-- Make (opcional, mas recomendado)
 
-## 🚀 Quick Start
-
-### 1. Configuração Inicial
-
+### **Comandos Básicos**
 ```bash
-# Clone o repositório
-git clone <repository-url>
-cd havoc
+# 1. Configurar ambiente
+cp .env.prod .env
+# Editar .env com suas configurações
 
-# Configure as variáveis de ambiente
-make setup-env
-# ou
+# 2. Deploy
+docker-compose build
+docker-compose up -d
+
+# 3. Verificar
+docker-compose logs -f
+```
+
+---
+
+## ⚙️ **Configuração**
+
+### **Arquivo .env (obrigatório)**
+```bash
+# Copiar template
 cp .env.prod .env
 
-# Edite o arquivo .env com suas configurações
-nano .env
+# Configurações mínimas necessárias
+SECRET_KEY=sua-chave-secreta-unica-aqui
+ALLOWED_HOSTS=seu-dominio.com,localhost
+DB_PASSWORD=senha-segura-do-banco
 ```
 
-### 2. Desenvolvimento
-
+### **Configurações Importantes**
 ```bash
-# Inicialização completa para desenvolvimento
-make init
+# Produção
+DEBUG=False
+ENVIRONMENT=production
+ALLOWED_HOSTS=meudominio.com,www.meudominio.com
 
-# Ou manualmente:
-make dev-build
-make dev-up
-make dev-migrate
-make dev-collectstatic
+# Banco de dados
+DB_NAME=havoc_prod
+DB_USER=postgres
+DB_PASSWORD=senha-muito-segura
+
+# Email (opcional)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_HOST_USER=seu-email@gmail.com
+EMAIL_HOST_PASSWORD=sua-senha-de-app
 ```
 
-Acesse: http://localhost:8000
+---
 
-### 3. Produção
+## 🛠️ **Comandos Úteis**
 
+### **Gerenciamento**
+```bash
+# Ver logs
+docker-compose logs -f
+
+# Status dos serviços
+docker-compose ps
+
+# Reiniciar serviços
+docker-compose restart
+
+# Parar tudo
+docker-compose down
+```
+
+### **Manutenção**
+```bash
+# Backup do banco
+docker-compose exec db pg_dump -U postgres havoc_prod > backup.sql
+
+# Restaurar backup
+docker-compose exec -T db psql -U postgres havoc_prod < backup.sql
+
+# Shell do Django
+docker-compose exec web python manage.py shell
+
+# Criar superusuário
+docker-compose exec web python manage.py createsuperuser
+```
+
+### **Com Makefile**
 ```bash
 # Deploy completo
 make deploy
 
-# Ou manualmente:
-make build
-make up
-make migrate
-make collectstatic
-```
-
-## 🏗️ Arquitetura
-
-### Serviços
-
-- **web**: Aplicação Django com Gunicorn
-- **db**: PostgreSQL 15
-- **redis**: Redis para cache e Celery
-- **celery_worker**: Worker do Celery
-- **celery_beat**: Agendador do Celery
-- **flower**: Monitoramento do Celery
-- **nginx**: Proxy reverso (produção)
-
-### Volumes
-
-- **postgres_data**: Dados do PostgreSQL
-- **redis_data**: Dados do Redis
-- **static_volume**: Arquivos estáticos
-- **media_volume**: Arquivos de mídia
-- **logs_volume**: Logs da aplicação
-
-## 🔧 Comandos Úteis
-
-### Desenvolvimento
-
-```bash
-make dev-up          # Iniciar serviços
-make dev-down        # Parar serviços
-make dev-logs        # Ver logs
-make dev-shell       # Shell do container
-make dev-migrate     # Executar migrações
-make dev-test        # Executar testes
-```
-
-### Produção
-
-```bash
-make up              # Iniciar serviços
-make down            # Parar serviços
-make logs            # Ver logs
-make shell           # Shell do container
-make migrate         # Executar migrações
-make restart         # Reiniciar serviços
-```
-
-### Manutenção
-
-```bash
-make status          # Status dos serviços
-make health          # Verificar saúde
-make backup-db       # Backup do banco
-make clean           # Limpar recursos
-```
-
-## 🔐 Configurações de Segurança
-
-### Variáveis Obrigatórias
-
-```env
-SECRET_KEY=sua-chave-secreta-muito-forte
-DB_PASSWORD=senha-forte-do-banco
-ALLOWED_HOSTS=seu-dominio.com
-CSRF_TRUSTED_ORIGINS=https://seu-dominio.com
-```
-
-### HTTPS em Produção
-
-1. Obtenha certificados SSL
-2. Coloque em `docker/nginx/ssl/`
-3. Descomente configuração HTTPS no nginx
-4. Configure `SECURE_SSL_REDIRECT=True`
-
-## 📊 Monitoramento
-
-### Health Checks
-
-- **Web**: http://localhost:8000/health/
-- **Flower**: http://localhost:5555/
-- **Nginx**: http://localhost/health/
-
-### Logs
-
-```bash
-# Logs em tempo real
+# Comandos úteis
 make logs
-
-# Logs específicos
-docker-compose logs web
-docker-compose logs celery_worker
+make status
+make health
+make backup-db
 ```
 
-### Métricas
+---
 
+## 🏗️ **Estrutura dos Serviços**
+
+### **Serviços Incluídos**
+- **web** - Aplicação Django (Gunicorn)
+- **db** - PostgreSQL 15
+- **nginx** - Proxy reverso (opcional)
+
+### **Portas**
+- **8000** - Aplicação Django
+- **80** - Nginx (se habilitado)
+- **5432** - PostgreSQL (para debug)
+
+### **Volumes**
+- **postgres_data** - Dados do banco
+- **static_volume** - Arquivos estáticos
+- **media_volume** - Uploads
+- **logs_volume** - Logs
+
+---
+
+## 🔧 **Personalização**
+
+### **Variáveis de Ambiente Disponíveis**
+```bash
+# Django
+SECRET_KEY=
+DEBUG=False
+ALLOWED_HOSTS=
+CSRF_TRUSTED_ORIGINS=
+
+# Banco
+DB_NAME=havoc_prod
+DB_USER=postgres
+DB_PASSWORD=
+DB_HOST=db
+DB_PORT=5432
+
+# Gunicorn
+GUNICORN_WORKERS=4
+GUNICORN_TIMEOUT=30
+
+# Email
+EMAIL_HOST=
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=
+EMAIL_HOST_PASSWORD=
+
+# Site
+SITE_NAME=Havoc
+SITE_URL=https://meudominio.com
+```
+
+---
+
+## 🚨 **Troubleshooting**
+
+### **Problemas Comuns**
+
+**1. Erro de conexão com banco**
+```bash
+# Verificar se o banco está rodando
+docker-compose ps db
+
+# Ver logs do banco
+docker-compose logs db
+```
+
+**2. Erro 500 na aplicação**
+```bash
+# Ver logs da aplicação
+docker-compose logs web
+
+# Verificar configurações
+docker-compose exec web python manage.py check
+```
+
+**3. Arquivos estáticos não carregam**
+```bash
+# Coletar arquivos estáticos
+docker-compose exec web python manage.py collectstatic --noinput
+```
+
+**4. Problemas de permissão**
+```bash
+# Verificar permissões dos volumes
+docker-compose exec web ls -la /app/
+```
+
+### **Reset Completo**
+```bash
+# ATENÇÃO: Remove todos os dados!
+docker-compose down -v
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+---
+
+## 🔒 **Segurança**
+
+### **Checklist de Segurança**
+- ✅ SECRET_KEY única e forte
+- ✅ DEBUG=False em produção
+- ✅ Senhas do banco fortes
+- ✅ ALLOWED_HOSTS configurado
+- ✅ HTTPS configurado (recomendado)
+
+### **Configuração HTTPS**
+```bash
+# No .env
+SECURE_SSL_REDIRECT=True
+SECURE_HSTS_SECONDS=31536000
+SESSION_COOKIE_SECURE=True
+CSRF_COOKIE_SECURE=True
+```
+
+---
+
+## 📈 **Performance**
+
+### **Otimizações**
+```bash
+# Mais workers Gunicorn
+GUNICORN_WORKERS=8
+
+# Cache Redis (opcional)
+REDIS_URL=redis://redis:6379/0
+
+# Configurações de banco
+DB_CONN_MAX_AGE=60
+```
+
+### **Monitoramento**
 ```bash
 # Estatísticas dos containers
-make monitor
+docker stats
 
-# Processos dos containers
-make top
+# Health checks
+curl http://localhost:8000/health/
 ```
 
-## 🔄 Deploy e Atualizações
+---
 
-### Deploy Inicial
+## 🌐 **Deploy em Cloud**
 
+### **AWS ECS**
+- Usar task definition baseada no docker-compose.yml
+- Configurar ALB para load balancing
+- RDS para PostgreSQL
+
+### **Google Cloud Run**
+- Build da imagem: `docker build -t gcr.io/PROJECT/havoc .`
+- Deploy: `gcloud run deploy --image gcr.io/PROJECT/havoc`
+
+### **DigitalOcean**
+- App Platform suporta docker-compose.yml
+- Configurar variáveis de ambiente no painel
+
+---
+
+## 📞 **Suporte**
+
+### **Logs Importantes**
 ```bash
-# 1. Configure ambiente
-make setup-env
+# Logs da aplicação
+docker-compose logs web
 
-# 2. Deploy completo
-make deploy
+# Logs do banco
+docker-compose logs db
 
-# 3. Crie superusuário
-make createsuperuser
+# Logs do nginx
+docker-compose logs nginx
 ```
 
-### Atualizações
-
+### **Comandos de Debug**
 ```bash
-# Deploy rápido (sem rebuild)
-make quick-deploy
-
-# Deploy completo (com rebuild)
-make deploy
-```
-
-### Rollback
-
-```bash
-# Parar serviços
-make down
-
-# Restaurar backup
-make restore-db FILE=backup_20231201_120000.sql
-
-# Reiniciar
-make up
-```
-
-## 🗄️ Backup e Restore
-
-### Backup Automático
-
-```bash
-# Backup manual
-make backup-db
-
-# Backup agendado (adicione ao cron)
-0 2 * * * cd /path/to/havoc && make backup-db
-```
-
-### Restore
-
-```bash
-make restore-db FILE=backup_20231201_120000.sql
-```
-
-## 🐛 Troubleshooting
-
-### Problemas Comuns
-
-1. **Serviços não iniciam**
-   ```bash
-   make logs
-   # Verifique logs para erros
-   ```
-
-2. **Banco não conecta**
-   ```bash
-   # Verifique se PostgreSQL está rodando
-   docker-compose ps db
-   
-   # Teste conexão
-   docker-compose exec db pg_isready -U postgres
-   ```
-
-3. **Arquivos estáticos não carregam**
-   ```bash
-   make collectstatic
-   make restart-web
-   ```
-
-4. **Celery não processa tarefas**
-   ```bash
-   # Verifique worker
-   docker-compose logs celery_worker
-   
-   # Reinicie Celery
-   make restart-celery
-   ```
-
-### Debug
-
-```bash
-# Shell do Django
-make django-shell
-
 # Shell do container
-make shell
+docker-compose exec web bash
 
-# Logs detalhados
-docker-compose logs -f --tail=100 web
+# Verificar configurações Django
+docker-compose exec web python manage.py check --deploy
+
+# Testar conexão com banco
+docker-compose exec web python manage.py dbshell
 ```
 
-## 📈 Performance
+---
 
-### Configurações Recomendadas
+## ✅ **Checklist de Deploy**
 
-#### Produção Pequena (1-2 GB RAM)
-```env
-GUNICORN_WORKERS=2
-CELERY_WORKER_CONCURRENCY=2
-```
+### **Antes do Deploy**
+- [ ] Docker e Docker Compose instalados
+- [ ] Arquivo .env configurado
+- [ ] SECRET_KEY gerada
+- [ ] ALLOWED_HOSTS configurado
+- [ ] Senhas do banco definidas
 
-#### Produção Média (4-8 GB RAM)
-```env
-GUNICORN_WORKERS=4
-CELERY_WORKER_CONCURRENCY=4
-```
+### **Após o Deploy**
+- [ ] Aplicação acessível
+- [ ] Health check funcionando
+- [ ] Admin acessível (/admin/)
+- [ ] Arquivos estáticos carregando
+- [ ] Backup configurado
 
-#### Produção Grande (8+ GB RAM)
-```env
-GUNICORN_WORKERS=8
-CELERY_WORKER_CONCURRENCY=8
-```
+---
 
-### Otimizações
-
-1. **Redis**: Configure maxmemory apropriada
-2. **PostgreSQL**: Ajuste shared_buffers e effective_cache_size
-3. **Nginx**: Configure cache para arquivos estáticos
-4. **Gunicorn**: Use worker_class=gevent para I/O intensivo
-
-## 🔒 Segurança
-
-### Checklist de Segurança
-
-- [ ] SECRET_KEY única e forte
-- [ ] Senhas de banco fortes
-- [ ] HTTPS configurado
-- [ ] Firewall configurado
-- [ ] Backups regulares
-- [ ] Logs monitorados
-- [ ] Atualizações regulares
-
-### Hardening
-
-1. **Usuário não-root**: Containers rodam como usuário django
-2. **Volumes**: Dados persistentes em volumes Docker
-3. **Networks**: Isolamento de rede entre serviços
-4. **Secrets**: Use Docker secrets para dados sensíveis
-
-## 📞 Suporte
-
-Para problemas ou dúvidas:
-
-1. Verifique logs: `make logs`
-2. Consulte documentação
-3. Abra issue no repositório
-
-## 📝 Changelog
-
-### v1.0.0
-- Setup inicial do Docker
-- Configuração de produção
-- Scripts de deploy
-- Monitoramento básico
+**🎉 Projeto Havoc pronto para produção com Docker!**

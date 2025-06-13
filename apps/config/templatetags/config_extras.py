@@ -135,7 +135,7 @@ def sidebar_item(context, url_name, icon, title, description=""):
 def get_config_stats():
     """Obtém estatísticas rápidas para a sidebar"""
     from django.contrib.auth import get_user_model
-    from apps.config.models import EmailConfiguration, AppModuleConfiguration
+    from apps.config.models import EmailConfiguration, AppModuleConfiguration, DatabaseConfiguration
 
     User = get_user_model()
 
@@ -144,6 +144,7 @@ def get_config_stats():
             'total_users': User.objects.count(),
             'active_users': User.objects.filter(is_active=True).count(),
             'email_configs': EmailConfiguration.objects.count(),
+            'database_configs': DatabaseConfiguration.objects.count(),
             'active_modules': AppModuleConfiguration.objects.filter(is_enabled=True).count(),
             'total_modules': AppModuleConfiguration.objects.count(),
         }
@@ -153,6 +154,7 @@ def get_config_stats():
             'total_users': 0,
             'active_users': 0,
             'email_configs': 0,
+            'database_configs': 0,
             'active_modules': 0,
             'total_modules': 0,
         }

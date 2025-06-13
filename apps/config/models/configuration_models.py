@@ -561,3 +561,104 @@ class DatabaseConfiguration(models.Model):
             return True, f"Arquivo {env_path} atualizado com sucesso"
         except Exception as e:
             return False, f"Erro ao atualizar arquivo {env_path}: {str(e)}"
+
+    def activate_configuration(self):
+        """Ativa esta configuração como padrão e atualiza o sistema"""
+        from django.utils import timezone
+
+        # Desativar outras configurações padrão
+        DatabaseConfiguration.objects.filter(is_default=True).update(is_default=False)
+
+        # Ativar esta configuração
+        self.is_default = True
+        self.is_active = True
+        self.save()
+
+        # Atualizar arquivo .env
+        success, message = self.update_env_file()
+
+        if success:
+            # Registrar ativação
+            from .user_activity_log import UserActivityLog
+            UserActivityLog.objects.create(
+                action='database_config_activated',
+                description=f'Configuração de banco "{self.name}" ativada como padrão',
+                metadata={
+                    'config_id': self.id,
+                    'config_name': self.name,
+                    'engine': self.engine,
+                    'activated_at': timezone.now().isoformat()
+                }
+            )
+
+        return success, message
+
+    def get_connection_string(self):
+        """Retorna string de conexão para o banco"""
+        if self.engine == 'django.db.backends.sqlite3':
+            return f"sqlite:///{self.name_db}"
+
+        elif self.engine == 'django.db.backends.postgresql':
+            port = self.port or '5432'
+            return f"postgresql://{self.user}:{self.password}@{self.host}:{port}/{self.name_db}"
+
+        elif self.engine == 'django.db.backends.mysql':
+            port = self.port or '3306'
+            return f"mysql://{self.user}:{self.password}@{self.host}:{port}/{self.name_db}"
+
+        elif self.engine == 'django.db.backends.oracle':
+            port = self.port or '1521'
+            return f"oracle://{self.user}:{self.password}@{self.host}:{port}/{self.name_db}"
+
+        return "Tipo de banco não suportado"
+
+    def get_default_port(self):
+        """Retorna a porta padrão para o tipo de banco"""
+        defaults = {
+            'django.db.backends.postgresql': '5432',
+            'django.db.backends.mysql': '3306',
+            'django.db.backends.oracle': '1521',
+            'django.db.backends.sqlite3': '',
+        }
+        return defaults.get(self.engine, '')
+
+    def backup_current_config(self):
+        """Cria backup da configuração atual antes de ativar nova"""
+        from django.conf import settings
+        import json
+        from pathlib import Path
+        from django.utils import timezone
+
+        # Criar diretório de backup se não existir
+        backup_dir = Path('backups/database_configs')
+        backup_dir.mkdir(parents=True, exist_ok=True)
+
+        # Nome do arquivo de backup
+        timestamp = timezone.now().strftime('%Y%m%d_%H%M%S')
+        backup_file = backup_dir / f'db_config_backup_{timestamp}.json'
+
+        # Dados do backup
+        backup_data = {
+            'timestamp': timezone.now().isoformat(),
+            'previous_config': {
+                'name': self.name,
+                'engine': self.engine,
+                'name_db': self.name_db,
+                'user': self.user,
+                'host': self.host,
+                'port': self.port,
+                'options': self.options,
+            },
+            'django_settings': {
+                'DEBUG': getattr(settings, 'DEBUG', None),
+                'DATABASES': getattr(settings, 'DATABASES', {}),
+            }
+        }
+
+        try:
+            with open(backup_file, 'w', encoding='utf-8') as f:
+                json.dump(backup_data, f, indent=2, ensure_ascii=False)
+
+            return True, f"Backup salvo em {backup_file}"
+        except Exception as e:
+            return False, f"Erro ao criar backup: {str(e)}"

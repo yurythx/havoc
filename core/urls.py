@@ -15,10 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include, re_path
-from django.conf import settings
-from django.conf.urls.static import static
-from django.views.static import serve
+from django.urls import path, include
 from .health_check import health_check, readiness_check, liveness_check
 
 # Importar views de erro personalizadas
@@ -36,9 +33,6 @@ urlpatterns = [
     path('health/', health_check, name='health_check'),
     path('health/ready/', readiness_check, name='readiness_check'),
     path('health/live/', liveness_check, name='liveness_check'),
-
-    # Teste de estilos
-    path('test-styles/', lambda request: __import__('django.http').HttpResponse(open('test_styles_page.html').read(), content_type='text/html'), name='test_styles'),
 
     # Pages como app principal (DEVE SER O ÚLTIMO devido ao catch-all)
     path('', include('apps.pages.urls')),

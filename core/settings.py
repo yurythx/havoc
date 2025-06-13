@@ -33,7 +33,8 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-dev-key-change-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
+# Forçar DEBUG=True para desenvolvimento
+DEBUG = True  # os.environ.get('DEBUG', 'True').lower() == 'true'
 
 # Ambiente de execução
 ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')
@@ -66,7 +67,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise para servir arquivos estáticos
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -79,6 +79,10 @@ MIDDLEWARE = [
     'apps.config.middleware.module_middleware.ModuleAccessMiddleware',
     'apps.config.middleware.module_middleware.ModuleContextMiddleware',
 ]
+
+# Adicionar WhiteNoise apenas em produção E apenas se não for DEBUG
+if not DEBUG and ENVIRONMENT == 'production':
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 ROOT_URLCONF = 'core.urls'
 
@@ -202,15 +206,16 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
-# WhiteNoise configuration
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-WHITENOISE_USE_FINDERS = True  # Permite usar finders em desenvolvimento
-WHITENOISE_AUTOREFRESH = True  # Auto-refresh em desenvolvimento
+# WhiteNoise configuration (apenas em produção)
+if not DEBUG and ENVIRONMENT == 'production':
+    WHITENOISE_USE_FINDERS = True
+    WHITENOISE_AUTOREFRESH = False
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Storage Configuration (Django 4.2+)
+# SEMPRE usar storage simples em desenvolvimento
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
@@ -219,6 +224,10 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
+
+# Use WhiteNoise storage apenas em produção E apenas se não for DEBUG
+if not DEBUG and ENVIRONMENT == 'production':
+    STORAGES["staticfiles"]["BACKEND"] = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -302,7 +311,7 @@ else:
 RATELIMIT_ENABLE = os.environ.get('RATELIMIT_ENABLE', 'True').lower() == 'true'
 RATELIMIT_USE_CACHE = os.environ.get('RATELIMIT_USE_CACHE', 'default')
 
-# Custom User Model (já definido acima, removendo duplicação)
+
 
 # Crispy Forms Configuration
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"

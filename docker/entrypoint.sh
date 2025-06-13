@@ -49,7 +49,7 @@ python manage.py collectstatic --noinput --clear
 
 # Criar superusuário se não existir
 log "Verificando superusuário..."
-python manage.py shell << EOF
+python manage.py shell << 'EOF'
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
