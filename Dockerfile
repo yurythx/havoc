@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
     gcc \
     curl \
     git \
+    netcat-traditional \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

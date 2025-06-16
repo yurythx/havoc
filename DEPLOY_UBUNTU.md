@@ -69,8 +69,7 @@ echo \
 
 ### **5. Instalar Docker Engine:**
 ```bash
-sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
 ```
 
 ### **6. Instalar Docker Compose (versão standalone):**

@@ -27,9 +27,20 @@ if DATABASE_URL:
     import dj_database_url
     DATABASES['default'] = dj_database_url.parse(DATABASE_URL)
 else:
+    # Mapear DATABASE_ENGINE para o formato correto
+    database_engine = os.environ.get('DATABASE_ENGINE', 'postgresql')
+    if database_engine == 'postgresql':
+        engine = 'django.db.backends.postgresql'
+    elif database_engine == 'mysql':
+        engine = 'django.db.backends.mysql'
+    elif database_engine == 'sqlite':
+        engine = 'django.db.backends.sqlite3'
+    else:
+        engine = os.environ.get('DB_ENGINE', 'django.db.backends.postgresql')
+
     DATABASES = {
         'default': {
-            'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.postgresql'),
+            'ENGINE': engine,
             'NAME': os.environ.get('DB_NAME', 'havoc_prod'),
             'USER': os.environ.get('DB_USER', 'postgres'),
             'PASSWORD': os.environ.get('DB_PASSWORD', ''),
@@ -83,16 +94,17 @@ MEDIA_ROOT = os.environ.get('MEDIA_ROOT', '/app/media')
 SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'True').lower() == 'true'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# Cookies seguros
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# Cookies seguros (apenas se HTTPS estiver habilitado)
+SESSION_COOKIE_SECURE = SECURE_SSL_REDIRECT
+CSRF_COOKIE_SECURE = SECURE_SSL_REDIRECT
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
 
-# HSTS
-SECURE_HSTS_SECONDS = 31536000  # 1 ano
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
+# HSTS (apenas se HTTPS estiver habilitado)
+if SECURE_SSL_REDIRECT:
+    SECURE_HSTS_SECONDS = 31536000  # 1 ano
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
 
 # Outras configurações de segurança
 SECURE_CONTENT_TYPE_NOSNIFF = True
