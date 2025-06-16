@@ -76,13 +76,14 @@
                                         <label for="{{ form.content.id_for_label }}" class="form-label fw-bold mb-0">
                                             <i class="fas fa-file-text me-1"></i>{{ form.content.label }} *
                                         </label>
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <button type="button" class="btn btn-outline-secondary" id="toggle-preview">
-                                                <i class="fas fa-eye me-1"></i>Preview
-                                            </button>
-                                            <button type="button" class="btn btn-outline-secondary" id="toggle-fullscreen">
-                                                <i class="fas fa-expand me-1"></i>Tela Cheia
-                                            </button>
+                                        <div class="d-flex align-items-center">
+                                            <small class="text-muted me-3">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Use os botões do editor para Preview e Tela Cheia
+                                            </small>
+                                            <span id="autosave-indicator" class="badge bg-success" style="display: none;">
+                                                <i class="fas fa-save me-1"></i>Salvo automaticamente
+                                            </span>
                                         </div>
                                     </div>
 
@@ -101,13 +102,7 @@
                                         </div>
                                     {% endif %}
 
-                                    <!-- Preview do conteúdo -->
-                                    <div id="content-preview" class="content-preview" style="display: none;">
-                                        <h6 class="mb-2">
-                                            <i class="fas fa-eye me-1"></i>Preview do Conteúdo
-                                        </h6>
-                                        <div id="preview-content"></div>
-                                    </div>
+                                    <!-- Preview removido - usando apenas o nativo do TinyMCE -->
                                 </div>
 
                                 <!-- Imagem Destacada -->
@@ -123,6 +118,42 @@
                                         {% if form.featured_image.errors %}
                                             <div class="invalid-feedback d-block">
                                                 {{ form.featured_image.errors.0 }}
+                                            </div>
+                                        {% endif %}
+
+                                        <!-- Preview da Imagem Destacada -->
+                                        <div id="featured-image-preview" class="mt-3" style="display: none;">
+                                            <div class="border rounded p-2 bg-light">
+                                                <small class="text-muted d-block mb-2">
+                                                    <i class="fas fa-eye me-1"></i>Preview da Imagem Destacada:
+                                                </small>
+                                                <img id="featured-image-preview-img"
+                                                     src=""
+                                                     alt="Preview"
+                                                     class="img-fluid rounded"
+                                                     style="max-height: 200px; max-width: 100%;">
+                                            </div>
+                                        </div>
+
+                                        <!-- Preview da Imagem Atual (se editando) -->
+                                        {% if object and object.featured_image %}
+                                            <div id="current-featured-image" class="mt-3">
+                                                <div class="border rounded p-2 bg-light">
+                                                    <small class="text-muted d-block mb-2">
+                                                        <i class="fas fa-image me-1"></i>Imagem Atual:
+                                                    </small>
+                                                    <img src="{{ object.featured_image.url }}"
+                                                         alt="{{ object.featured_image_alt|default:'Imagem destacada' }}"
+                                                         class="img-fluid rounded"
+                                                         style="max-height: 200px; max-width: 100%;">
+                                                    <div class="mt-2">
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-outline-danger"
+                                                                id="remove-current-image">
+                                                            <i class="fas fa-trash me-1"></i>Remover Imagem
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
                                         {% endif %}
                                     </div>
@@ -304,32 +335,13 @@
     color: #dc3545 !important;
 }
 
-/* Preview do conteúdo */
-.content-preview {
-    border: 1px solid #dee2e6;
-    border-radius: 0.375rem;
-    padding: 1rem;
-    background-color: #f8f9fa;
-    margin-top: 1rem;
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-.content-preview h1, .content-preview h2, .content-preview h3,
-.content-preview h4, .content-preview h5, .content-preview h6 {
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.content-preview img {
-    max-width: 100%;
-    height: auto;
-}
+/* CSS customizado removido - deixando TinyMCE gerenciar fullscreen nativamente */
 </style>
 {% endblock %}
 
 {% block extra_js %}
 {{ form.media }}
+<script src="{% static 'js/tinymce-config.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Character counter for meta fields
@@ -361,147 +373,116 @@ document.addEventListener('DOMContentLoaded', function() {
         element.addEventListener('input', updateCounter);
     }
 
-    // Funcionalidades do TinyMCE
-    let previewVisible = false;
-    let fullscreenMode = false;
+    // Preview da imagem destacada
+    const featuredImageInput = document.getElementById('id_featured_image');
+    const featuredImagePreview = document.getElementById('featured-image-preview');
+    const featuredImagePreviewImg = document.getElementById('featured-image-preview-img');
+    const currentFeaturedImage = document.getElementById('current-featured-image');
+    const removeCurrentImageBtn = document.getElementById('remove-current-image');
 
-    // Toggle Preview
-    const togglePreviewBtn = document.getElementById('toggle-preview');
-    const contentPreview = document.getElementById('content-preview');
-    const previewContent = document.getElementById('preview-content');
+    if (featuredImageInput) {
+        featuredImageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
 
-    if (togglePreviewBtn) {
-        togglePreviewBtn.addEventListener('click', function() {
-            previewVisible = !previewVisible;
+            if (file) {
+                // Verificar se é uma imagem
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
 
-            if (previewVisible) {
-                // Obter conteúdo do TinyMCE
-                if (typeof tinymce !== 'undefined' && tinymce.get('id_content')) {
-                    const content = tinymce.get('id_content').getContent();
-                    previewContent.innerHTML = content;
+                    reader.onload = function(e) {
+                        featuredImagePreviewImg.src = e.target.result;
+                        featuredImagePreview.style.display = 'block';
+
+                        // Ocultar imagem atual se existir
+                        if (currentFeaturedImage) {
+                            currentFeaturedImage.style.display = 'none';
+                        }
+                    };
+
+                    reader.readAsDataURL(file);
                 } else {
-                    // Fallback para textarea normal
-                    const textarea = document.getElementById('id_content');
-                    previewContent.innerHTML = textarea.value;
+                    alert('Por favor, selecione apenas arquivos de imagem.');
+                    featuredImageInput.value = '';
                 }
-
-                contentPreview.style.display = 'block';
-                togglePreviewBtn.innerHTML = '<i class="fas fa-eye-slash me-1"></i>Ocultar Preview';
-                togglePreviewBtn.classList.remove('btn-outline-secondary');
-                togglePreviewBtn.classList.add('btn-secondary');
             } else {
-                contentPreview.style.display = 'none';
-                togglePreviewBtn.innerHTML = '<i class="fas fa-eye me-1"></i>Preview';
-                togglePreviewBtn.classList.remove('btn-secondary');
-                togglePreviewBtn.classList.add('btn-outline-secondary');
-            }
-        });
-    }
+                // Se nenhum arquivo foi selecionado, ocultar preview
+                featuredImagePreview.style.display = 'none';
 
-    // Toggle Fullscreen
-    const toggleFullscreenBtn = document.getElementById('toggle-fullscreen');
-
-    if (toggleFullscreenBtn) {
-        toggleFullscreenBtn.addEventListener('click', function() {
-            if (typeof tinymce !== 'undefined' && tinymce.get('id_content')) {
-                const editor = tinymce.get('id_content');
-
-                if (!fullscreenMode) {
-                    editor.execCommand('mceFullScreen');
-                    toggleFullscreenBtn.innerHTML = '<i class="fas fa-compress me-1"></i>Sair Tela Cheia';
-                    toggleFullscreenBtn.classList.remove('btn-outline-secondary');
-                    toggleFullscreenBtn.classList.add('btn-secondary');
-                    fullscreenMode = true;
-                } else {
-                    editor.execCommand('mceFullScreen');
-                    toggleFullscreenBtn.innerHTML = '<i class="fas fa-expand me-1"></i>Tela Cheia';
-                    toggleFullscreenBtn.classList.remove('btn-secondary');
-                    toggleFullscreenBtn.classList.add('btn-outline-secondary');
-                    fullscreenMode = false;
+                // Mostrar imagem atual novamente se existir
+                if (currentFeaturedImage) {
+                    currentFeaturedImage.style.display = 'block';
                 }
             }
         });
     }
 
-    // Auto-save (opcional)
-    let autoSaveTimer;
+    // Botão para remover imagem atual
+    if (removeCurrentImageBtn) {
+        removeCurrentImageBtn.addEventListener('click', function() {
+            if (confirm('Tem certeza que deseja remover a imagem destacada atual?')) {
+                // Limpar input de arquivo
+                featuredImageInput.value = '';
 
-    function autoSave() {
-        if (typeof tinymce !== 'undefined' && tinymce.get('id_content')) {
-            const content = tinymce.get('id_content').getContent();
-            const title = document.getElementById('id_title').value;
+                // Ocultar imagem atual
+                currentFeaturedImage.style.display = 'none';
 
-            if (content && title) {
-                // Salvar no localStorage como backup
-                const autoSaveData = {
-                    title: title,
-                    content: content,
-                    timestamp: new Date().toISOString()
-                };
-
-                localStorage.setItem('article_autosave', JSON.stringify(autoSaveData));
-
-                // Mostrar indicador de salvamento
-                showAutoSaveIndicator();
+                // Adicionar campo hidden para indicar remoção
+                let removeInput = document.getElementById('remove_featured_image');
+                if (!removeInput) {
+                    removeInput = document.createElement('input');
+                    removeInput.type = 'hidden';
+                    removeInput.name = 'remove_featured_image';
+                    removeInput.id = 'remove_featured_image';
+                    removeInput.value = 'true';
+                    featuredImageInput.parentNode.appendChild(removeInput);
+                }
             }
+        });
+    }
+
+    // Debug e inicialização do TinyMCE
+    console.log('Template: DOM loaded, checking TinyMCE...');
+
+    // Aguardar TinyMCE carregar com timeout
+    let attempts = 0;
+    const maxAttempts = 20; // 10 segundos máximo
+
+    function waitForTinyMCEAndManager() {
+        attempts++;
+
+        if (typeof tinymce !== 'undefined' && window.tinyMCEManager) {
+            console.log('Template: TinyMCE and TinyMCEManager available');
+
+            // Habilitar auto-save
+            window.tinyMCEManager.autoSaveEnabled = true;
+
+            // Verificar se o editor já foi inicializado
+            setTimeout(() => {
+                const editor = tinymce.get('id_content');
+                if (editor) {
+                    console.log('Template: TinyMCE editor found:', editor.id);
+                    console.log('Template: Using native TinyMCE buttons for fullscreen and preview');
+                } else {
+                    console.log('Template: TinyMCE editor not found yet');
+                }
+            }, 1000);
+
+        } else if (attempts < maxAttempts) {
+            console.log(`Template: Waiting for TinyMCE and TinyMCEManager... (attempt ${attempts}/${maxAttempts})`);
+            setTimeout(waitForTinyMCEAndManager, 500);
+        } else {
+            console.error('Template: Timeout waiting for TinyMCE and TinyMCEManager');
         }
     }
 
-    function showAutoSaveIndicator() {
-        // Criar ou atualizar indicador de auto-save
-        let indicator = document.getElementById('autosave-indicator');
-        if (!indicator) {
-            indicator = document.createElement('div');
-            indicator.id = 'autosave-indicator';
-            indicator.className = 'alert alert-success alert-sm position-fixed';
-            indicator.style.cssText = 'top: 20px; right: 20px; z-index: 9999; padding: 0.5rem 1rem; font-size: 0.875rem;';
-            document.body.appendChild(indicator);
-        }
-
-        indicator.innerHTML = '<i class="fas fa-check me-1"></i>Rascunho salvo automaticamente';
-        indicator.style.display = 'block';
-
-        setTimeout(() => {
-            indicator.style.display = 'none';
-        }, 3000);
-    }
-
-    // Configurar auto-save a cada 30 segundos
-    if (typeof tinymce !== 'undefined') {
-        autoSaveTimer = setInterval(autoSave, 30000);
-    }
-
-    // Restaurar auto-save ao carregar a página
-    const savedData = localStorage.getItem('article_autosave');
-    if (savedData && !document.getElementById('id_title').value) {
-        const data = JSON.parse(savedData);
-        const savedDate = new Date(data.timestamp);
-        const now = new Date();
-        const hoursDiff = (now - savedDate) / (1000 * 60 * 60);
-
-        // Só restaurar se foi salvo nas últimas 24 horas
-        if (hoursDiff < 24) {
-            if (confirm('Foi encontrado um rascunho salvo automaticamente. Deseja restaurá-lo?')) {
-                document.getElementById('id_title').value = data.title;
-
-                // Aguardar TinyMCE carregar antes de definir conteúdo
-                const waitForTinyMCE = setInterval(() => {
-                    if (typeof tinymce !== 'undefined' && tinymce.get('id_content')) {
-                        tinymce.get('id_content').setContent(data.content);
-                        clearInterval(waitForTinyMCE);
-                    }
-                }, 100);
-            }
-        }
-    }
+    waitForTinyMCEAndManager();
 
     // Limpar auto-save ao enviar formulário
     const form = document.querySelector('form');
     if (form) {
         form.addEventListener('submit', function() {
-            localStorage.removeItem('article_autosave');
-            if (autoSaveTimer) {
-                clearInterval(autoSaveTimer);
+            if (window.tinyMCEManager) {
+                window.tinyMCEManager.clearAutoSave('id_content');
             }
         });
     }

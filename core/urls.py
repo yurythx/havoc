@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from .health_check import health_check, readiness_check, liveness_check
 
 # Importar views de erro personalizadas
@@ -41,3 +43,8 @@ urlpatterns = [
 # Views de erro personalizadas
 handler403 = 'apps.accounts.middleware.handle_403_error'
 handler404 = 'apps.accounts.middleware.handle_404_error'
+
+# Servir arquivos de mídia em desenvolvimento
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

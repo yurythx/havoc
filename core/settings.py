@@ -518,18 +518,17 @@ TINYMCE_DEFAULT_CONFIG = {
     'theme': 'silver',
     'plugins': '''
         advlist autolink lists link image charmap preview anchor
-        searchreplace visualblocks code fullscreen insertdatetime media
-        table paste code help wordcount emoticons hr pagebreak
-        nonbreaking save print directionality template
+        searchreplace visualblocks code insertdatetime media
+        table wordcount emoticons nonbreaking directionality
     ''',
     'toolbar1': '''
         undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect |
         alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist |
-        forecolor backcolor removeformat | pagebreak | charmap emoticons
+        forecolor backcolor removeformat | charmap emoticons
     ''',
     'toolbar2': '''
-        visualblocks visualchars | hr nonbreaking anchor | link unlink | image media |
-        table | code | fullscreen | preview save print | help
+        visualblocks visualchars | nonbreaking anchor | link unlink | image media |
+        table | code | customfullscreen | preview | help
     ''',
     'menubar': True,
     'statusbar': True,
@@ -545,6 +544,11 @@ TINYMCE_DEFAULT_CONFIG = {
     'paste_remove_styles': False,
     'paste_remove_styles_if_webkit': False,
     'paste_strip_class_attributes': 'none',
+    'fullscreen_native': True,
+    'resize': False,
+    'elementpath': False,
+    'toolbar_mode': 'sliding',
+    'toolbar_sticky': True,
 }
 
 # Configurações específicas para diferentes campos
@@ -565,18 +569,17 @@ TINYMCE_CONFIGS = {
         'width': '100%',
         'plugins': '''
             advlist autolink lists link image charmap preview anchor
-            searchreplace visualblocks code fullscreen insertdatetime media
-            table paste code help wordcount emoticons hr pagebreak
-            nonbreaking save print directionality template codesample
+            searchreplace visualblocks code insertdatetime media
+            table wordcount emoticons nonbreaking directionality codesample
         ''',
         'toolbar1': '''
             undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect |
             alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist |
-            forecolor backcolor removeformat | pagebreak | charmap emoticons
+            forecolor backcolor removeformat | charmap emoticons
         ''',
         'toolbar2': '''
-            visualblocks visualchars | hr nonbreaking anchor | link unlink | image media |
-            table | codesample code | fullscreen | preview save print | help
+            visualblocks visualchars | nonbreaking anchor | link unlink | image media |
+            table | codesample code | customfullscreen | preview | help
         ''',
         'menubar': True,
         'statusbar': True,
@@ -587,6 +590,11 @@ TINYMCE_CONFIGS = {
         'directionality': 'ltr',
         'language': 'pt_BR',
         'paste_data_images': True,
+        'fullscreen_native': True,
+        'resize': False,
+        'elementpath': False,
+        'toolbar_mode': 'sliding',
+        'toolbar_sticky': True,
         'codesample_languages': [
             {'text': 'HTML/XML', 'value': 'markup'},
             {'text': 'JavaScript', 'value': 'javascript'},
