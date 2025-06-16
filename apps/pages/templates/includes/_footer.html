@@ -1,158 +1,32 @@
 {% load static %}
 
 <footer class="footer-django mt-auto">
-    <!-- Main Footer -->
-    <div class="container py-5">
-        <div class="row g-4">
-            <!-- Brand & Description -->
-            <div class="col-lg-4 col-md-6">
-                <div class="mb-4">
-                    <h5 class="fw-bold">
-                        <i class="fas fa-rocket me-2 text-primary"></i>Havoc
-                    </h5>
-                    <p class="text-muted mb-3">
-                        Sistema moderno de gerenciamento de conteúdo desenvolvido com arquitetura limpa e princípios SOLID.
-                    </p>
-                    
-                    <!-- Social Links -->
-                    <div class="d-flex gap-2">
-                        <a href="#" class="btn btn-outline-light btn-sm" title="Facebook">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="btn btn-outline-light btn-sm" title="Twitter">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="btn btn-outline-light btn-sm" title="Instagram">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a href="#" class="btn btn-outline-light btn-sm" title="LinkedIn">
-                            <i class="fab fa-linkedin-in"></i>
-                        </a>
-                        <a href="#" class="btn btn-outline-light btn-sm" title="GitHub">
-                            <i class="fab fa-github"></i>
-                        </a>
-                    </div>
+    <!-- Minimal Footer -->
+    <div class="container py-4">
+        <div class="row align-items-center">
+            <!-- Brand -->
+            <div class="col-md-4">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-rocket me-2 text-primary"></i>
+                    <span class="fw-bold text-light">Havoc</span>
                 </div>
             </div>
-            
+
             <!-- Quick Links -->
-            <div class="col-lg-2 col-md-6">
-                <h6 class="fw-bold mb-3">Navegação</h6>
-                <ul class="list-unstyled">
-                    <li class="mb-2">
-                        <a href="{% url 'pages:home' %}" class="text-light text-decoration-none">
-                            <i class="fas fa-home me-2 small"></i>Home
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="{% url 'articles:article_list' %}" class="text-light text-decoration-none">
-                            <i class="fas fa-newspaper me-2 small"></i>Artigos
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="{% url 'pages:about' %}" class="text-light text-decoration-none">
-                            <i class="fas fa-info-circle me-2 small"></i>Sobre
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="{% url 'pages:contact' %}" class="text-light text-decoration-none">
-                            <i class="fas fa-envelope me-2 small"></i>Contato
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            
-            <!-- Legal Links -->
-            <div class="col-lg-2 col-md-6">
-                <h6 class="fw-bold mb-3">Legal</h6>
-                <ul class="list-unstyled">
-                    <li class="mb-2">
-                        <a href="{% url 'pages:privacy' %}" class="text-light text-decoration-none">
-                            <i class="fas fa-shield-alt me-2 small"></i>Privacidade
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="{% url 'pages:terms' %}" class="text-light text-decoration-none">
-                            <i class="fas fa-file-contract me-2 small"></i>Termos
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="#" class="text-light text-decoration-none">
-                            <i class="fas fa-cookie-bite me-2 small"></i>Cookies
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="#" class="text-light text-decoration-none">
-                            <i class="fas fa-sitemap me-2 small"></i>Sitemap
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            
-            <!-- Contact Info -->
-            <div class="col-lg-4 col-md-6">
-                <h6 class="fw-bold mb-3">Contato</h6>
-                <div class="mb-3">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="fas fa-envelope text-primary me-3"></i>
-                        <div>
-                            <small class="text-muted d-block">Email</small>
-                            <a href="mailto:contato@havoc.com" class="text-light text-decoration-none">
-                                contato@havoc.com
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="fas fa-phone text-primary me-3"></i>
-                        <div>
-                            <small class="text-muted d-block">Telefone</small>
-                            <a href="tel:+5511999999999" class="text-light text-decoration-none">
-                                (11) 99999-9999
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-clock text-primary me-3"></i>
-                        <div>
-                            <small class="text-muted d-block">Horário</small>
-                            <span class="text-light">Seg-Sex: 9h às 18h</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Newsletter -->
-                <div class="mt-4">
-                    <h6 class="fw-bold mb-2">Newsletter</h6>
-                    <p class="text-muted small mb-3">Receba nossas novidades por email</p>
-                    <form class="d-flex">
-                        <input type="email" class="form-control form-control-sm me-2" placeholder="Seu email" required>
-                        <button class="btn btn-primary btn-sm" type="submit">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </form>
+            <div class="col-md-4 text-center">
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{% url 'pages:home' %}" class="text-light text-decoration-none small">Home</a>
+                    <a href="{% url 'articles:article_list' %}" class="text-light text-decoration-none small">Artigos</a>
+                    <a href="{% url 'pages:about' %}" class="text-light text-decoration-none small">Sobre</a>
+                    <a href="{% url 'pages:contact' %}" class="text-light text-decoration-none small">Contato</a>
                 </div>
             </div>
-        </div>
-    </div>
-    
-    <!-- Bottom Footer -->
-    <div class="border-top border-secondary">
-        <div class="container py-3">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <p class="mb-0 text-muted small">
-                        &copy; {% now "Y" %} Havoc. Todos os direitos reservados.
-                    </p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <p class="mb-0 text-muted small">
-                        Desenvolvido com <i class="fas fa-heart text-danger"></i> usando 
-                        <a href="https://www.djangoproject.com/" class="text-primary text-decoration-none" target="_blank">Django</a> e 
-                        <a href="https://getbootstrap.com/" class="text-primary text-decoration-none" target="_blank">Bootstrap</a>
-                    </p>
-                </div>
+
+            <!-- Copyright -->
+            <div class="col-md-4 text-md-end">
+                <p class="mb-0 text-muted small">
+                    &copy; {% now "Y" %} Havoc. Todos os direitos reservados.
+                </p>
             </div>
         </div>
     </div>

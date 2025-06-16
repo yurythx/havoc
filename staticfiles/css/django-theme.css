@@ -1246,74 +1246,118 @@
     filter: invert(1) grayscale(100%) brightness(200%);
 }
 
-/* Dark mode toasts */
+/* Dark mode toasts - Melhorado para maior visibilidade */
 [data-theme="dark"] .toast {
-    background-color: var(--card-bg) !important;
-    border-color: var(--border-color) !important;
-    color: var(--text-color) !important;
+    background-color: #2d3748 !important;
+    border: 2px solid #4a5568 !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+    opacity: 1 !important;
 }
 
 [data-theme="dark"] .toast-header {
-    background-color: var(--bg-secondary) !important;
-    border-color: var(--border-color) !important;
-    color: var(--text-color) !important;
+    background-color: #1a202c !important;
+    border-bottom: 1px solid #4a5568 !important;
+    color: #ffffff !important;
 }
 
 [data-theme="dark"] .toast-body {
-    background-color: var(--card-bg) !important;
-    color: var(--text-color) !important;
+    background-color: #2d3748 !important;
+    color: #ffffff !important;
+    font-weight: 500 !important;
 }
 
 /* Success toast - dark mode */
 [data-theme="dark"] .toast.bg-success,
 [data-theme="dark"] .toast .toast-header.bg-success {
-    background-color: rgba(25, 135, 84, 0.2) !important;
-    border-color: #198754 !important;
-    color: #75b798 !important;
+    background-color: #1e4d3a !important;
+    border: 2px solid #198754 !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 25px rgba(25, 135, 84, 0.3) !important;
 }
 
 [data-theme="dark"] .toast.bg-success .toast-body {
-    background-color: rgba(25, 135, 84, 0.15) !important;
-    color: #75b798 !important;
+    background-color: #1e4d3a !important;
+    color: #ffffff !important;
+    font-weight: 500 !important;
 }
 
 /* Error/Danger toast - dark mode */
 [data-theme="dark"] .toast.bg-danger,
 [data-theme="dark"] .toast .toast-header.bg-danger {
-    background-color: rgba(220, 53, 69, 0.2) !important;
-    border-color: #dc3545 !important;
-    color: #ea868f !important;
+    background-color: #5a1e1e !important;
+    border: 2px solid #dc3545 !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 25px rgba(220, 53, 69, 0.3) !important;
 }
 
 [data-theme="dark"] .toast.bg-danger .toast-body {
-    background-color: rgba(220, 53, 69, 0.15) !important;
-    color: #ea868f !important;
+    background-color: #5a1e1e !important;
+    color: #ffffff !important;
+    font-weight: 500 !important;
 }
 
 /* Warning toast - dark mode */
 [data-theme="dark"] .toast.bg-warning,
 [data-theme="dark"] .toast .toast-header.bg-warning {
-    background-color: rgba(255, 193, 7, 0.2) !important;
-    border-color: #ffc107 !important;
-    color: #ffda6a !important;
+    background-color: #5a4a1e !important;
+    border: 2px solid #ffc107 !important;
+    color: #1a1a1a !important;
+    box-shadow: 0 10px 25px rgba(255, 193, 7, 0.3) !important;
 }
 
 [data-theme="dark"] .toast.bg-warning .toast-body {
-    background-color: rgba(255, 193, 7, 0.15) !important;
-    color: #ffda6a !important;
+    background-color: #5a4a1e !important;
+    color: #ffffff !important;
+    font-weight: 500 !important;
 }
 
 /* Info toast - dark mode */
 [data-theme="dark"] .toast.bg-info,
 [data-theme="dark"] .toast .toast-header.bg-info {
-    background-color: rgba(13, 202, 240, 0.2) !important;
-    border-color: #0dcaf0 !important;
-    color: #6edff6 !important;
+    background-color: #1e3a5a !important;
+    border: 2px solid #0dcaf0 !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 25px rgba(13, 202, 240, 0.3) !important;
 }
 
 [data-theme="dark"] .toast.bg-info .toast-body {
-    background-color: rgba(13, 202, 240, 0.15) !important;
-    color: #6edff6 !important;
+    background-color: #1e3a5a !important;
+    color: #ffffff !important;
+    font-weight: 500 !important;
+}
+
+/* Botão de fechar dos toasts no modo escuro */
+[data-theme="dark"] .toast .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%) !important;
+    opacity: 0.8 !important;
+}
+
+[data-theme="dark"] .toast .btn-close:hover {
+    opacity: 1 !important;
+}
+
+/* Melhorar contraste geral dos toasts no modo escuro */
+[data-theme="dark"] .toast {
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+}
+
+/* Garantir que os toasts sejam sempre visíveis */
+[data-theme="dark"] .toast-container .toast {
+    min-width: 300px !important;
+    max-width: 400px !important;
+}
+
+/* Animação melhorada para toasts no modo escuro */
+[data-theme="dark"] .toast.showing {
+    opacity: 1 !important;
+    transform: translateX(0) !important;
+}
+
+[data-theme="dark"] .toast.hide {
+    opacity: 0 !important;
+    transform: translateX(100%) !important;
 }
 
 /* Primary toast - dark mode */

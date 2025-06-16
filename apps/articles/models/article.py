@@ -173,20 +173,44 @@ class Article(models.Model):
     def __str__(self):
         return self.title
 
+    def _generate_unique_slug(self):
+        """Gera um slug único baseado no título"""
+        if not self.title:
+            return 'artigo-sem-titulo'
+
+        base_slug = slugify(self.title)
+        if not base_slug:
+            base_slug = 'artigo-sem-titulo'
+
+        slug = base_slug
+        counter = 1
+
+        # Verifica se o slug já existe (excluindo o próprio objeto se estiver editando)
+        while Article.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+            slug = f"{base_slug}-{counter}"
+            counter += 1
+
+        return slug
+
     def save(self, *args, **kwargs):
         """Gera slug automaticamente e calcula tempo de leitura"""
+        # Gerar slug se não existe
         if not self.slug:
-            self.slug = slugify(self.title)
-        
+            self.slug = self._generate_unique_slug()
+        else:
+            # Verificação adicional de segurança para slug único
+            if Article.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
+                self.slug = self._generate_unique_slug()
+
         # Calcula tempo de leitura (aproximadamente 200 palavras por minuto)
         if self.content:
             word_count = len(self.content.split())
             self.reading_time = max(1, word_count // 200)
-        
+
         # Define data de publicação se status mudou para published
         if self.status == 'published' and not self.published_at:
             self.published_at = timezone.now()
-        
+
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):

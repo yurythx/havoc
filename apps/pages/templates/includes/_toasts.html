@@ -2,12 +2,13 @@
 <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
     {% if messages %}
         {% for message in messages %}
-            <div class="toast align-items-center border-0 show bg-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'secondary' }}{% endif %}"
+            <div class="toast align-items-center show toast-dark-mode bg-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'secondary' }}{% endif %}"
                  role="alert"
                  aria-live="assertive"
                  aria-atomic="true"
                  data-bs-autohide="true"
-                 data-bs-delay="5000">
+                 data-bs-delay="5000"
+                 style="border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 10px 25px rgba(0,0,0,0.5);"
 
                 <div class="d-flex">
                     <div class="toast-body d-flex align-items-center">
@@ -86,6 +87,40 @@
     animation: slideOutRight 0.3s ease-in;
 }
 
+/* Melhorias específicas para toasts no modo escuro */
+.toast-dark-mode {
+    opacity: 1 !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+[data-theme="dark"] .toast-dark-mode {
+    background-color: rgba(45, 55, 72, 0.95) !important;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme="dark"] .toast-dark-mode.bg-success {
+    background-color: rgba(30, 77, 58, 0.95) !important;
+    border-color: #198754 !important;
+}
+
+[data-theme="dark"] .toast-dark-mode.bg-danger {
+    background-color: rgba(90, 30, 30, 0.95) !important;
+    border-color: #dc3545 !important;
+}
+
+[data-theme="dark"] .toast-dark-mode.bg-warning {
+    background-color: rgba(90, 74, 30, 0.95) !important;
+    border-color: #ffc107 !important;
+}
+
+[data-theme="dark"] .toast-dark-mode.bg-info {
+    background-color: rgba(30, 58, 90, 0.95) !important;
+    border-color: #0dcaf0 !important;
+}
+
 /* Responsividade */
 @media (max-width: 576px) {
     .toast-container {
@@ -145,10 +180,11 @@ function showToast(message, type = 'info', duration = 5000) {
     const bootstrapType = type === 'error' ? 'danger' : type;
 
     const toastHtml = `
-        <div class="toast align-items-center border-0 bg-${bootstrapType}"
+        <div class="toast align-items-center toast-dark-mode bg-${bootstrapType}"
              role="alert"
              aria-live="assertive"
-             aria-atomic="true">
+             aria-atomic="true"
+             style="border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
             <div class="d-flex">
                 <div class="toast-body d-flex align-items-center">
                     <i class="${icons[type] || icons.default} me-2"></i>

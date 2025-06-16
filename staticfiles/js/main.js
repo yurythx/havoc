@@ -4,16 +4,16 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    
+
     // Initialize all components
     initializeTooltips();
     initializePopovers();
     initializeAlerts();
     initializeSearch();
     initializeNavigation();
-    initializeLazyLoading();
+    initializeImageErrorHandling();
     initializeScrollEffects();
-    
+
     console.log('🚀 Havoc CMS initialized successfully!');
 });
 
@@ -118,26 +118,37 @@ function initializeNavigation() {
 }
 
 /**
- * Lazy loading for images
+ * Image error handling
  */
-function initializeLazyLoading() {
-    if ('IntersectionObserver' in window) {
-        const imageObserver = new IntersectionObserver(function(entries, observer) {
-            entries.forEach(function(entry) {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src;
-                    img.classList.remove('lazy');
-                    imageObserver.unobserve(img);
-                }
-            });
-        });
-        
-        const lazyImages = document.querySelectorAll('img[data-src]');
-        lazyImages.forEach(function(img) {
-            imageObserver.observe(img);
-        });
-    }
+function initializeImageErrorHandling() {
+    // Handle image loading errors
+    document.addEventListener('error', function(e) {
+        if (e.target.tagName === 'IMG') {
+            const img = e.target;
+            console.warn('Image failed to load:', img.src);
+
+            // Hide broken images
+            img.style.display = 'none';
+
+            // Optionally show a placeholder
+            const container = img.closest('.img-container');
+            if (container && !container.querySelector('.img-placeholder')) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'img-placeholder d-flex align-items-center justify-content-center bg-light text-muted';
+                placeholder.style.cssText = 'width: 100%; height: 100%; min-height: 200px;';
+                placeholder.innerHTML = '<i class="fas fa-image fa-2x"></i>';
+                container.appendChild(placeholder);
+            }
+        }
+    }, true);
+
+    // Check for images that might already be broken
+    const images = document.querySelectorAll('img');
+    images.forEach(function(img) {
+        if (img.complete && img.naturalWidth === 0) {
+            img.style.display = 'none';
+        }
+    });
 }
 
 /**

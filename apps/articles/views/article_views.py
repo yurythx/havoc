@@ -215,12 +215,32 @@ class ArticleCreateView(AdminRequiredMixin, CreateView):
 
     def form_valid(self, form):
         """Define o autor como o usuário atual"""
-        form.instance.author = self.request.user
-        messages.success(
-            self.request,
-            f'✅ Artigo "{form.instance.title}" criado com sucesso!'
-        )
-        return super().form_valid(form)
+        try:
+            form.instance.author = self.request.user
+            response = super().form_valid(form)
+            messages.success(
+                self.request,
+                f'✅ Artigo "{form.instance.title}" criado com sucesso!'
+            )
+            return response
+        except Exception as e:
+            # Log do erro para debugging
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Erro ao criar artigo: {e}")
+
+            # Mensagem de erro para o usuário
+            if 'UNIQUE constraint failed: articles_article.slug' in str(e):
+                messages.error(
+                    self.request,
+                    '❌ Erro: Já existe um artigo com este título. Tente um título diferente.'
+                )
+            else:
+                messages.error(
+                    self.request,
+                    f'❌ Erro ao criar artigo: {e}'
+                )
+            return self.form_invalid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

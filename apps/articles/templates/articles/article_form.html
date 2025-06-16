@@ -440,42 +440,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Debug e inicialização do TinyMCE
-    console.log('Template: DOM loaded, checking TinyMCE...');
-
-    // Aguardar TinyMCE carregar com timeout
-    let attempts = 0;
-    const maxAttempts = 20; // 10 segundos máximo
-
-    function waitForTinyMCEAndManager() {
-        attempts++;
-
-        if (typeof tinymce !== 'undefined' && window.tinyMCEManager) {
-            console.log('Template: TinyMCE and TinyMCEManager available');
-
-            // Habilitar auto-save
+    // Inicialização simplificada do TinyMCE
+    setTimeout(() => {
+        if (window.tinyMCEManager) {
             window.tinyMCEManager.autoSaveEnabled = true;
-
-            // Verificar se o editor já foi inicializado
-            setTimeout(() => {
-                const editor = tinymce.get('id_content');
-                if (editor) {
-                    console.log('Template: TinyMCE editor found:', editor.id);
-                    console.log('Template: Using native TinyMCE buttons for fullscreen and preview');
-                } else {
-                    console.log('Template: TinyMCE editor not found yet');
-                }
-            }, 1000);
-
-        } else if (attempts < maxAttempts) {
-            console.log(`Template: Waiting for TinyMCE and TinyMCEManager... (attempt ${attempts}/${maxAttempts})`);
-            setTimeout(waitForTinyMCEAndManager, 500);
-        } else {
-            console.error('Template: Timeout waiting for TinyMCE and TinyMCEManager');
+            console.log('Template: Auto-save enabled');
         }
-    }
-
-    waitForTinyMCEAndManager();
+    }, 2000);
 
     // Limpar auto-save ao enviar formulário
     const form = document.querySelector('form');
