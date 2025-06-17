@@ -25,6 +25,13 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=core.settings
       - ENVIRONMENT=production
+      - DATABASE_ENGINE=postgresql
+      - DATABASE_HOST=db
+      - DATABASE_NAME=${DB_NAME:-havoc_prod}
+      - DATABASE_USER=${DB_USER:-postgres}
+      - DATABASE_PASSWORD=${DB_PASSWORD:-postgres123}
+      - DATABASE_PORT=${DB_PORT:-5432}
+      # Variáveis antigas para compatibilidade
       - DB_HOST=db
       - DB_NAME=${DB_NAME:-havoc_prod}
       - DB_USER=${DB_USER:-postgres}
