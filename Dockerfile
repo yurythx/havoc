@@ -30,7 +30,7 @@ RUN pip install --upgrade pip && pip install -r requirements-prod.txt
 COPY . .
 
 # Criar diretórios necessários
-RUN mkdir -p /app/logs /app/media /app/staticfiles
+RUN mkdir -p /app/logs /app/media /app/staticfiles /app/static
 
 # Criar script de entrypoint melhorado
 RUN echo '#!/bin/bash\n\

@@ -257,7 +257,7 @@ def get_database_config() -> Dict[str, Any]:
                     'CONN_MAX_AGE': int(os.environ.get('DB_CONN_MAX_AGE', '60')),
                     'OPTIONS': {
                         'connect_timeout': 10,
-                        'options': '-c default_transaction_isolation=read_committed'
+                        'options': '-c default_transaction_isolation="read committed"'
                     }
                 })
 
@@ -288,7 +288,7 @@ def get_database_config() -> Dict[str, Any]:
                 'CONN_MAX_AGE': int(os.environ.get('DB_CONN_MAX_AGE', '60')),
                 'OPTIONS': {
                     'connect_timeout': 10,
-                    'options': '-c default_transaction_isolation=read_committed'
+                    'options': '-c default_transaction_isolation="read committed"'
                 },
                 'TEST': {
                     'NAME': f"test_{os.environ.get('DATABASE_NAME', 'havoc')}",
@@ -368,9 +368,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
+
+# Configurar STATICFILES_DIRS apenas se o diretório existir
+STATICFILES_DIRS = []
+static_dir = BASE_DIR / 'static'
+if static_dir.exists() and static_dir.is_dir():
+    STATICFILES_DIRS.append(static_dir)
 
 # Static files finders
 STATICFILES_FINDERS = [
