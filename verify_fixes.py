@@ -18,16 +18,21 @@ def check_settings_fixes():
         content = f.read()
     
     # Verificar isolation level
-    correct_isolation = 'default_transaction_isolation="read committed"'
-    incorrect_isolation = 'default_transaction_isolation=read_committed'
-    
-    if correct_isolation in content:
-        print("   ✅ Isolation level correto: 'read committed' (com espaço e aspas)")
-    elif incorrect_isolation in content:
-        print("   ❌ Isolation level incorreto: 'read_committed' (com underscore)")
-        return False
+    if 'default_transaction_isolation' not in content:
+        print("   ✅ Isolation level removido (PostgreSQL usará padrão 'read committed')")
     else:
-        print("   ℹ️  Isolation level não encontrado (pode estar usando SQLite)")
+        # Verificar se ainda há configuração problemática
+        problematic_patterns = [
+            'default_transaction_isolation="read"',
+            'default_transaction_isolation=read_committed',
+        ]
+
+        has_problem = any(pattern in content for pattern in problematic_patterns)
+        if has_problem:
+            print("   ❌ Isolation level ainda tem problemas")
+            return False
+        else:
+            print("   ✅ Isolation level configurado corretamente")
     
     # Verificar STATICFILES_DIRS
     if 'static_dir.exists()' in content:

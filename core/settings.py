@@ -257,7 +257,6 @@ def get_database_config() -> Dict[str, Any]:
                     'CONN_MAX_AGE': int(os.environ.get('DB_CONN_MAX_AGE', '60')),
                     'OPTIONS': {
                         'connect_timeout': 10,
-                        'options': '-c default_transaction_isolation="read committed"'
                     }
                 })
 
@@ -288,7 +287,6 @@ def get_database_config() -> Dict[str, Any]:
                 'CONN_MAX_AGE': int(os.environ.get('DB_CONN_MAX_AGE', '60')),
                 'OPTIONS': {
                     'connect_timeout': 10,
-                    'options': '-c default_transaction_isolation="read committed"'
                 },
                 'TEST': {
                     'NAME': f"test_{os.environ.get('DATABASE_NAME', 'havoc')}",
