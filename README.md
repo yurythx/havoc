@@ -19,7 +19,35 @@ Sistema completo de autenticação e gerenciamento de usuários desenvolvido em 
 - Django 5.2+
 - SQLite (padrão) ou PostgreSQL/MySQL
 
-## 🛠️ **Instalação**
+## 🚀 **DEPLOY RÁPIDO (RECOMENDADO)**
+
+### **Windows (PowerShell):**
+```powershell
+# Deploy completo em um comando
+cd scripts
+.\deploy_simples.ps1 dev
+```
+
+### **Ubuntu:**
+```bash
+# Deploy completo em um comando
+cd scripts
+./deploy_ubuntu.sh dev
+```
+
+### **Linux/Mac:**
+```bash
+# Deploy completo em um comando
+cd scripts
+./deploy_melhorado.sh dev
+```
+
+**📋 Credenciais padrão:** admin@havoc.com / admin123
+**🌐 URL:** http://localhost:8000
+
+---
+
+## 🛠️ **Instalação Manual (Opcional)**
 
 ### 1. Clone o repositório
 ```bash
@@ -178,13 +206,26 @@ class EmailService(IEmailService):
 
 Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
 
+## 📚 **Documentação Completa**
+
+### **📁 Diretório `docs/`:**
+- **[docs/README.md](docs/README.md)** - Índice da documentação
+- **[docs/DEPLOY_MELHORADO_FINAL.md](docs/DEPLOY_MELHORADO_FINAL.md)** - Guia principal de deploy
+- **[docs/COMANDOS_MELHORADOS.md](docs/COMANDOS_MELHORADOS.md)** - Comandos práticos
+- **[docs/RELATORIO_FINAL_DEPLOY.md](docs/RELATORIO_FINAL_DEPLOY.md)** - Relatório completo
+
+### **🔧 Diretório `scripts/`:**
+- **[scripts/README.md](scripts/README.md)** - Guia dos scripts
+- **Scripts de deploy** para Windows, Ubuntu e Linux/Mac
+
 ## 🆘 **Suporte**
 
 Se encontrar problemas ou tiver dúvidas:
 
-1. Verifique a documentação em `CORREÇÕES_IMPLEMENTADAS.md`
-2. Abra uma issue no GitHub
-3. Consulte os logs do Django para debugging
+1. Consulte a documentação em `docs/`
+2. Execute `scripts/deploy_simples.ps1 check` (Windows)
+3. Verifique `docs/COMANDOS_MELHORADOS.md` para soluções
+4. Abra uma issue no GitHub
 
 ---
 
