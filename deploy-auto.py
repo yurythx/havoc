@@ -13,6 +13,9 @@ import time
 import argparse
 from pathlib import Path
 
+# Será importado após definir as funções de log
+PORT_MANAGER_AVAILABLE = False
+
 # Cores para terminal
 class Colors:
     RED = '\033[0;31m'
@@ -30,19 +33,39 @@ def log(message, color=Colors.BLUE):
 
 def success(message):
     """Mensagem de sucesso"""
-    print(f"{Colors.GREEN}✅ {message}{Colors.NC}")
+    try:
+        print(f"{Colors.GREEN}✅ {message}{Colors.NC}")
+    except UnicodeEncodeError:
+        print(f"{Colors.GREEN}[OK] {message}{Colors.NC}")
 
 def warning(message):
     """Mensagem de aviso"""
-    print(f"{Colors.YELLOW}⚠️  {message}{Colors.NC}")
+    try:
+        print(f"{Colors.YELLOW}⚠️  {message}{Colors.NC}")
+    except UnicodeEncodeError:
+        print(f"{Colors.YELLOW}[AVISO] {message}{Colors.NC}")
 
 def error(message):
     """Mensagem de erro"""
-    print(f"{Colors.RED}❌ {message}{Colors.NC}")
+    try:
+        print(f"{Colors.RED}❌ {message}{Colors.NC}")
+    except UnicodeEncodeError:
+        print(f"{Colors.RED}[ERRO] {message}{Colors.NC}")
 
 def info(message):
     """Mensagem informativa"""
-    print(f"{Colors.CYAN}ℹ️  {message}{Colors.NC}")
+    try:
+        print(f"{Colors.CYAN}ℹ️  {message}{Colors.NC}")
+    except UnicodeEncodeError:
+        print(f"{Colors.CYAN}[INFO] {message}{Colors.NC}")
+
+# Importar gerenciador de portas após definir funções de log
+try:
+    from port_manager import PortManager
+    PORT_MANAGER_AVAILABLE = True
+except ImportError:
+    PORT_MANAGER_AVAILABLE = False
+    warning("Gerenciador de portas não disponível - conflitos devem ser resolvidos manualmente")
 
 def show_banner():
     """Mostra banner do aplicativo"""
@@ -146,10 +169,30 @@ def check_prerequisites(environment):
     
     return True
 
+def resolve_port_conflicts():
+    """Resolve conflitos de porta automaticamente"""
+    if not PORT_MANAGER_AVAILABLE:
+        warning("Gerenciador de portas não disponível - pule se não houver conflitos")
+        return True
+
+    try:
+        log("🔍 Verificando e resolvendo conflitos de porta...")
+        port_manager = PortManager()
+        success_resolution = port_manager.resolve_conflicts_automatically()
+
+        if success_resolution:
+            port_manager.show_resolution_summary()
+            success("Conflitos de porta resolvidos automaticamente!")
+
+        return success_resolution
+    except Exception as e:
+        warning(f"Erro na resolução automática de portas: {e}")
+        return True  # Continua mesmo com erro
+
 def setup_env_file():
     """Configura arquivo .env"""
     log("Configurando arquivo de ambiente...")
-    
+
     if not Path('.env').exists():
         if Path('.env.example').exists():
             shutil.copy('.env.example', '.env')
@@ -160,7 +203,8 @@ def setup_env_file():
 ENVIRONMENT=development
 DEBUG=True
 DJANGO_SECRET_KEY=django-insecure-auto-generated-change-in-production
-ALLOWED_HOSTS=localhost,127.0.0.1
+ALLOWED_HOSTS=localhost,127.0.0.1,192.168.204.128,192.168.29.51
+CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000,http://192.168.204.128:8000,http://192.168.29.51:8000
 DATABASE_ENGINE=sqlite
 DATABASE_NAME=db.sqlite3
 EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
@@ -168,7 +212,7 @@ EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
             with open('.env', 'w') as f:
                 f.write(env_content)
             success("Arquivo .env básico criado")
-        
+
         warning("IMPORTANTE: Edite o arquivo .env com suas configurações antes do deploy em produção")
     else:
         info("Arquivo .env já existe")
@@ -179,6 +223,11 @@ def deploy_docker():
 
     if not Path('docker-compose.yml').exists():
         error("Arquivo docker-compose.yml não encontrado")
+        return False
+
+    # RESOLVER CONFLITOS DE PORTA AUTOMATICAMENTE
+    if not resolve_port_conflicts():
+        error("Falha na resolução de conflitos de porta")
         return False
 
     # Verificar se existe .env.docker e copiar para .env

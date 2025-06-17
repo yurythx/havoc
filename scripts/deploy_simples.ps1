@@ -128,8 +128,8 @@ function Set-DevelopmentEnvironment {
 ENVIRONMENT=development
 DEBUG=True
 DJANGO_SECRET_KEY=$secretKey
-ALLOWED_HOSTS=localhost,127.0.0.1
-CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
+ALLOWED_HOSTS=localhost,127.0.0.1,192.168.204.128,192.168.29.51
+CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000,http://192.168.204.128:8000,http://192.168.29.51:8000
 DATABASE_ENGINE=sqlite
 DATABASE_NAME=db.sqlite3
 EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
