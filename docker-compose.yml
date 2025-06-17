@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Banco de dados PostgreSQL
   db:
@@ -25,7 +23,8 @@ services:
     restart: unless-stopped
     command: /start.sh
     environment:
-      - DJANGO_SETTINGS_MODULE=core.settings_prod
+      - DJANGO_SETTINGS_MODULE=core.settings
+      - ENVIRONMENT=production
       - DB_HOST=db
       - DB_NAME=${DB_NAME:-havoc_prod}
       - DB_USER=${DB_USER:-postgres}

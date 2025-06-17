@@ -176,11 +176,20 @@ EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
 def deploy_docker():
     """Deploy via Docker"""
     log("Executando deploy via Docker...")
-    
+
     if not Path('docker-compose.yml').exists():
         error("Arquivo docker-compose.yml não encontrado")
         return False
-    
+
+    # Verificar se existe .env.docker e copiar para .env
+    env_docker_path = Path('.env.docker')
+    env_path = Path('.env')
+
+    if env_docker_path.exists():
+        log("Usando configurações do .env.docker...")
+        import shutil
+        shutil.copy2(env_docker_path, env_path)
+
     log("Construindo imagens...")
     success_build, _, _ = run_command("docker-compose build")
     if not success_build:
