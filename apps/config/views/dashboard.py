@@ -7,7 +7,11 @@ from django.conf import settings
 from apps.config.services.system_config_service import AuditLogService
 from apps.config.repositories.config_repository import DjangoAuditLogRepository
 from apps.config.mixins import ConfigPermissionMixin, PermissionHelperMixin
-import psutil
+try:
+    import psutil
+    PSUTIL_AVAILABLE = True
+except ImportError:
+    PSUTIL_AVAILABLE = False
 import platform
 import sys
 import os
@@ -23,7 +27,26 @@ class ConfigDashboardView(ConfigPermissionMixin, PermissionHelperMixin, View):
     def get_system_metrics(self):
         """Coleta métricas do sistema"""
         try:
-            # Métricas de CPU e Memória
+            if not PSUTIL_AVAILABLE:
+                # Informações básicas sem psutil
+                system_info = {
+                    'platform': platform.system(),
+                    'platform_version': platform.release(),
+                    'python_version': sys.version.split()[0],
+                    'django_version': getattr(settings, 'DJANGO_VERSION', 'Unknown'),
+                }
+                return {
+                    'cpu_percent': 'N/A (psutil não disponível)',
+                    'memory_percent': 'N/A',
+                    'memory_used': 'N/A',
+                    'memory_total': 'N/A',
+                    'disk_percent': 'N/A',
+                    'disk_used': 'N/A',
+                    'disk_total': 'N/A',
+                    'system_info': system_info,
+                }
+
+            # Métricas de CPU e Memória com psutil
             cpu_percent = psutil.cpu_percent(interval=1)
             memory = psutil.virtual_memory()
             disk = psutil.disk_usage('/')

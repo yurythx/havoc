@@ -4,13 +4,15 @@
 -r requirements.txt
 
 # Servidor WSGI
-gunicorn==23.0.0
+# gunicorn já incluído no requirements.txt
 
 # Banco de dados adicional
-dj-database-url==2.2.0
-psycopg2-binary==2.9.9
+# dj-database-url e psycopg2-binary já incluídos no requirements.txt
 redis==5.2.1
 django-redis==5.4.0
+
+# Sistema
+psutil==6.1.1
 
 # Monitoramento e logs (opcional)
 sentry-sdk[django]==2.19.2

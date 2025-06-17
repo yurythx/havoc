@@ -19,25 +19,42 @@ Sistema completo de autenticação e gerenciamento de usuários desenvolvido em 
 - Django 5.2+
 - SQLite (padrão) ou PostgreSQL/MySQL
 
-## 🚀 **DEPLOY RÁPIDO (RECOMENDADO)**
+## 🚀 **DEPLOY AUTOMATIZADO (RECOMENDADO)**
 
-### **Windows (PowerShell):**
+### **🎯 Deploy Inteligente - Um Comando para Qualquer Sistema:**
+
+```bash
+# Multiplataforma (Python)
+python deploy-auto.py
+
+# Linux/Mac/Ubuntu
+./deploy-auto.sh
+
+# Windows PowerShell
+.\deploy-auto.ps1
+
+# Docker (Produção)
+make deploy
+```
+
+**✨ O script detecta automaticamente seu ambiente e executa a melhor estratégia!**
+
+### **📋 Deploy Manual (Alternativo):**
+
+#### **Windows:**
 ```powershell
-# Deploy completo em um comando
 cd scripts
 .\deploy_simples.ps1 dev
 ```
 
-### **Ubuntu:**
+#### **Ubuntu:**
 ```bash
-# Deploy completo em um comando
 cd scripts
 ./deploy_ubuntu.sh dev
 ```
 
-### **Linux/Mac:**
+#### **Linux/Mac:**
 ```bash
-# Deploy completo em um comando
 cd scripts
 ./deploy_melhorado.sh dev
 ```
@@ -210,13 +227,17 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 
 ### **📁 Diretório `docs/`:**
 - **[docs/README.md](docs/README.md)** - Índice da documentação
+- **[docs/DEPLOY_AUTOMATIZADO.md](docs/DEPLOY_AUTOMATIZADO.md)** - ⭐ **Deploy automatizado**
 - **[docs/DEPLOY_MELHORADO_FINAL.md](docs/DEPLOY_MELHORADO_FINAL.md)** - Guia principal de deploy
 - **[docs/COMANDOS_MELHORADOS.md](docs/COMANDOS_MELHORADOS.md)** - Comandos práticos
 - **[docs/RELATORIO_FINAL_DEPLOY.md](docs/RELATORIO_FINAL_DEPLOY.md)** - Relatório completo
 
-### **🔧 Diretório `scripts/`:**
-- **[scripts/README.md](scripts/README.md)** - Guia dos scripts
-- **Scripts de deploy** para Windows, Ubuntu e Linux/Mac
+### **🔧 Scripts de Deploy:**
+- **`deploy-auto.py`** - ⭐ **Deploy automatizado multiplataforma**
+- **`deploy-auto.sh`** - Deploy automatizado Linux/Mac/Ubuntu
+- **`deploy-auto.ps1`** - Deploy automatizado Windows
+- **`Makefile`** - Comandos make para Docker
+- **[scripts/README.md](scripts/README.md)** - Scripts manuais por plataforma
 
 ## 🆘 **Suporte**
 
